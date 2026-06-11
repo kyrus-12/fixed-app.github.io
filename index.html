@@ -58,6 +58,34 @@
         </div>
       </div>
       
+      <div class="hidden grid grid-cols-2 md:grid-cols-5 gap-4" id="step-3a"></div>
+      <div class="hidden grid grid-cols-2 md:grid-cols-4 gap-4" id="step-3b"></div>
+      
+      <div class="hidden" id="step-4">
+        <div class="card p-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="text-xl">💬</div>
+          </div>
+          <div class="font-bold text-blue-100" id="chat-title">Learning Assistant</div>
+          <div class="text-xs text-gray-400" id="chat-sub">Intearctive Chat</div>
+        </div>
+      </div>
+      
+      <div class="text-sm text-gray300 mb-3" id="chatbot-description"></div>
+      <div class="chat-container mb-3" id="chat-container"></div>
+      <div class="flex gap-3">
+        <input class="flex-1 bg-transparent border border-gray-700 rounded-md px-3 py-2 text-sm" id="chat-input" placeholder="Type here and press Enter"/>
+        <button class="btn btn-primary" onclick="handleSendMEssage()">Enter</button>
+      </div>   
     </main>
+
+    <footer class="global-nav">
+      <div class="max-w-4xl px-6 flex justify-around">
+        <div class="nav-item" onclick="goHOme()"><div>🏠</div><div>Home</div></div>
+        <div class="nav-item" onclick="showInfo()"><div>ℹ️</div><div>About</div></div>
+        <div class="nav-item cursor-pointer" onclick="toggleLabMenu()"><div id="lab-icon">🧪</div><div>Lab</div></div>
+        <div class="nav-item" onclick="openSettings()"><div>⚙️</div><div>Settings</div></div>
+      </div>
+    </footer>
     
   </body>
