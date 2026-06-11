@@ -33,5 +33,31 @@
           <button class="btn" onclick="resetSelection()"> Reset </button>
         </div>
       </div>
+
+      <div class="grid gap-6" id="step-0">
+        <div class="card p-6 cursor-pointer" id="topic-science" role="button" tabIndex="0">
+          <div class="flex items-center justify-between"> 
+          <h3 class="text-xl font-bold text-blue-200">Science</h3>
+          <p class="text-sm text-gray-400 mt-1">Explore Physics, Chemistry, and Biology</p>
+        </div>
+        <div class="text-3xl"></div>
+        </div>
+      </div>
+
+      <div class="hidden grid grid-cols-1 md:grid-cols-3 gap-6" id="step-1"></div>
+      <div class="hidden grid grid-cols-1 md:grid-cols-2 gap-6" id="step-2">
+        <div class="card p-6 text-center cursor-pointer" id="mode-descriptor" role="button" tabIndex="0">
+          <div class="text-4xl mb-2">📚</div>
+          <h3 class="font-bold text-lg text-blue-100">Descriptor-Based</h3>
+          <p class="text-sm text-gray-400">Explanations, Discussions, and Medias</p>
+        </div>
+        <div class="card p-6 text-center cursor-pointer" id="mode-skill" role="button" tabIndex="0">
+          <div class="text-4xl mb-2">🎯</div>
+          <h3 class="font-bold text-lg text-blue-100">Skill-Based</h3>
+          <p class="text-sm text-gray-400">Targeted quizzes and assessments (level 1-4).</p>
+        </div>
+      </div>
+      
+    </main>
     
   </body>
