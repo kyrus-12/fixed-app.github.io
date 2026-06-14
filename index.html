@@ -291,7 +291,1747 @@
   </body>
 
   <script>
+    function startLab(choice) {
+    // Hide the selection menu
+    document.getElementById('labMenuModal').classList.add('hidden');
+    
+    // Open the chosen lab
+    if (choice === 'electrons') {
+        document.getElementById('electronLabModal').classList.remove('hidden');
+        document.getElementById('electronLabModal').classList.add('flex');
+        initElectronLab();
+    } else if (choice === 'molecular') {
+        document.getElementById('molecularLabModal').classList.remove('hidden');
+        document.getElementById('molecularLabModal').classList.add('flex');
+        initMolLab();
+    } else if (choice === 'elements') {
+        document.getElementById('elementsLabModal').classList.remove('hidden');
+        document.getElementById('elementsLabModal').classList.add('flex');
+        initElementsLab();
+    } else if (choice === 'solutions') {
+        document.getElementById('solutionLabModal').classList.remove('hidden');
+        document.getElementById('solutionLabModal').classList.add('flex');
+        initSolutionLab();     
+    } else if (choice === 'dilution') {
+        document.getElementById('dilutionLabModal').classList.remove('hidden');
+        document.getElementById('dilutionLabModal').classList.add('flex');
+        initDilutionLab();     
+    }  else if (choice === 'mass') {
+        document.getElementById('massLabModal').classList.remove('hidden');
+        document.getElementById('massLabModal').classList.add('flex');
+        initMassLab();  
+} else if (choice === 'phase') {
+        document.getElementById('phaseLabModal').classList.remove('hidden');
+        document.getElementById('phaseLabModal').classList.add('flex');
+        initPhaseLab();  
+} else if (choice === 'particles') {
+        document.getElementById('particlesLabModal').classList.remove('hidden');
+        document.getElementById('particlesLabModal').classList.add('flex');
+        initParticlesLab();  
+} else if (choice === 'concen') {
+        document.getElementById('concenLabModal').classList.remove('hidden');
+        document.getElementById('concenLabModal').classList.add('flex');
+        initConcenLab();  
+}
+}
+
+    let currentStep = 0;
+    let selectedTopic = null;
+    let selectedSubtopic = null;
+    let selectedMode = null;
+    let selectedProficiency = null;
+    let selectedSkill = null;
+    let chatMessages = [];
+    let currentInteraction = {subtopic:null, mode:null, level:null, isAwaitingAnswer:false};
+    let usedKeywords = []; 
+  let hasUsedInitialKeyword = false;
+
+   const topics = [
+      { id:'science', title:'Science', subtopics:[
+        {id:'physics', title:'Physics', description:'Matter, motion, energy, and forces'},
+        {id:'chemistry', title:'Chemistry', description:'use of models, the particle model, solutions'},
+        {id:'biology', title:'Biology', description:'Living systems and organisms'}
+      
+        ]}
+    ];
+
+    const proficiencyLevels = [
+      {level:1, descriptor:'Novice'}, {level:2, descriptor:'Beginner'},
+      {level:3, descriptor:'Intermediate'}, {level:4, descriptor:'Advanced'},
+      {level:5, descriptor:'Expert'}
+    ];
+
+    const skillLevels = [
+      {level:1, label:'Recall & Understand'}, {level:2, label:'Apply & Analyze'},
+      {level:3, label:'Evaluate'}, {level:4, label:'Create & Innovate'}
+    ];
+
+    const stepTitles = ['Select Topic','Select Branch','Select Mode','Select Level','Chat'];
+
+    /* --- Content (FIXED STRUCTURE) --- */
+    const lessonContent = {
+      descriptor: {
+        physics: {1:{content:'<p>Novice physics intro: type <b>motion</b></p>'},
+                  3:{content:'<p>Intermediate: try <b>force</b> or <b>energy</b></p>'},
+                  5:{content:'<p>Expert: discuss relativity & quantum</p>'}},
+      },
+      skill: {
+        physics: {
+           1: {
+              questions: [
+                { q: 'What unit measures force?', a: 'newton' },
+                { q: 'What is Newtons first law in a single word?', a: 'Inertia' },
+                { q: 'What is the relationship between velocity and acceleration if an object is slowing down?', a: 'They are in opposite directions' },
+                { q: 'A car travels 100km in 2 hours. What is its average speed?', a: '50 km/h' },
+                { q: 'What is the difference between speed and velocity?', a: 'Velocity includes direction' }
+              ]
+           },
+           2: {
+              questions: [
+                { q: 'A 10kg block is pushed by 50N. What is the acceleration?', a: '5 m/s²' },
+                { q: 'Calculate the force required to accelerate a 5kg mass at 3 m/s².', a: '15 N' },
+                { q: 'If you double the mass while keeping the force constant, what happens to the acceleration?', a: 'It is halved' }
+              ]
+           },
+           3: {
+              questions: [
+                { q: 'Is constant speed always zero net force? (yes/no)', a: 'no' },
+                { q: 'Explain why a feather falls slower than a hammer on Earth but at the same rate on the Moon.', a: 'Air resistance is present on Earth but absent on the Moon' },
+                { q: 'Evaluate the statement: "An object is moving, so there must be a net force acting on it."', a: 'False, it could be moving at constant velocity, meaning net force is zero' }
+              ]
+           },
+           4: {
+              type: 'guided_project',
+              initial_prompt: 'Welcome to the Create & Innovate studio! You have reached the highest skill level. Your challenge is to design a project that applies concepts from Physics to solve a real-world problem. **What specific problem do you want to address, and what is your initial project idea?** I\'m ready to help you brainstorm and refine your plan.'
+           }
+      },
+      chemistry: {
+           1: {
+              questions: [
+                { q: 'What tool do scientists use for complex ideas?', a: 'models' },
+                { q: 'Is a globe a scientific model?', a: 'yes' },
+                { q: 'What does a water cycle drawing represent?', a: 'water' },
+                { q: 'What model shows atom structure?', a: 'atomic model' },
+                { q: 'Do models make things easier to understand?', a: 'yes' },
+{ q: 'What are simplified representations of complex ideas called?', a: 'scientific models' },
+{ q: 'Can we observe atoms directly with senses?', a: 'no' },
+{ q: 'What model shows DNA structure?', a: 'double helix' },
+{ q: 'Are weather maps scientific models?', a: 'yes' },
+{ q: 'What do atomic models help us understand?', a: 'atom structure' },
+{ q: 'Do models copy reality perfectly?', a: 'no' },
+{ q: 'What do weather maps predict?', a: 'weather patterns' },
+{ q: 'Is the Bohr model for atoms?', a: 'yes' },
+{ q: 'What do water cycle diagrams show?', a: 'water movement' },
+{ q: 'Do models help organize information?', a: 'yes' },
+{ q: 'What do models represent that we can’t see?', a: 'unobservable phenomena' },
+             { q: 'Identify the three core functions of a scientific model.', a: 'The three core functions are simplification, visualization, and prediction.' },
+             { q: 'Why do scientists strip away non-essential details when creating a model?', a: 'They do this to focus on the specific variables that affect the system, making complex phenomena easier to analyze and understand.' },             
+             { q: 'Give an example of a model used to predict future environmental changes.', a: 'A Global Climate Model (GCM) is used to predict changes in Earth’s temperature and sea levels.' },
+             { q: 'What does the kinetic molecular model of gases assume about individual gas molecules?', a: 'It assumes gas molecules are in constant, random motion and that the volume of the molecules themselves is negligible compared to the space between them.' },
+             { q: 'True or False: If a model is not perfectly accurate, it is considered useless in science. Explain your answer.', a: 'False, models are tools for understanding; even an imperfect model can provide valuable insights or be revised as new data becomes available.' },
+
+             
+             
+                  { q: 'What are all things made of?', a: 'matter' },
+                  { q: 'What are tiny units of matter?', a: 'particles' },
+                  { q: 'Can we see particles with bare eyes?', a: 'no' },
+                  { q: 'Are water and salt particles identical?', a: 'no' },
+                  { q: 'Do particles exist even if invisible?', a: 'yes' },
+{ q: 'What is all matter made of?', a: 'particles' },
+{ q: 'Do particles have space between them?', a: 'yes' },
+{ q: 'Are particles always moving?', a: 'yes' },
+{ q: 'Do particles attract each other?', a: 'yes' },
+{ q: 'What state has most particle space?', a: 'gas' },
+{ q: 'What state has least particle space?', a: 'solid' },
+{ q: 'What is random particle motion called?', a: 'diffusion' },
+{ q: 'Does heat make particles move faster?', a: 'yes' },
+{ q: 'Do solids expand when heated?', a: 'yes' },
+{ q: 'Can we see individual particles?', a: 'no' },
+{ q: 'What causes perfume scent to spread?', a: 'particle motion' },  
+             { q: 'List the three states of matter and describe the particle spacing in each.', a: 'Solid: Particles very closely packed with minimal space between them. Liquid: Particles close together but with more space than solids. Gas: Particles far apart, space between them larger than particle size.' },
+             { q: 'What is temperature a measure of?', a: 'The average kinetic energy (energy of motion) of particles in a substance.' },
+             { q: 'How does particle motion change when a substance is heated?', a: 'Particles move faster and spread further apart as kinetic energy increases.' },
+             { q: 'Name one key property explained by the particle model for each state of matter.', a: 'Solid: Definite shape and volume. Liquid: Definite volume but takes container shape. Gas: No definite shape or volume; highly compressible.' },
+             { q: 'What happens to particles when a gas is cooled?', a: 'Particles lose kinetic energy, slow down, and move closer together.' },
+{ q: 'What shape or symbol is typically used to represent particles in a diagram?', a: 'Small circles or spheres are typically used.' },
+{ q: 'Describe the arrangement of particles in a solid lattice.', a: 'Particles are packed tightly together in a highly organized, regular, and repeating geometric pattern.' },             
+{ q: 'How is the motion of gas particles represented in a particle diagram?', a: 'It is represented using long whoosh lines or arrows pointing in various directions to show high-speed, random movement.' },
+{ q: 'In which state of matter is the spacing between particles significantly greater than the size of the particles themselves?', a: 'The gas state.' },
+{ q: 'What do small arrows pointing back and forth indicate in a solid particle diagram?', a: 'They indicate that the particles are vibrating in fixed positions rather than moving from place to place.' },
+             { q: 'Define thermal expansion in terms of particle movement.', a: 'Thermal expansion is the increase in a substance’s volume caused by particles moving faster and spreading further apart as they gain kinetic energy from heat.' },
+             { q: 'Why do metal railway tracks have gaps between sections?', a: 'The gaps allow space for the metal to expand in hot weather, preventing the tracks from buckling.' },
+             { q: 'Explain the difference between polar and nonpolar particles.', a: 'Polar particles have an uneven charge distribution, whereas nonpolar particles have an even charge distribution.' },
+             { q: 'Why can gases be compressed while solids and liquids cannot?', a: 'Gases have large empty spaces between particles that can be pushed together; solids and liquids have particles already touching with minimal empty space.' },
+             { q: 'What is the unique exception to thermal expansion regarding water and ice?', a: 'Water expands when freezing because it forms a lattice structure that takes up more space than its liquid form.' },
+             
+
+             
+             
+   { q: 'How many main states of matter are there?', a: 'three' },
+{ q: 'Do solids have definite shape?', a: 'yes' },
+{ q: 'Do liquids have fixed shape?', a: 'no' },
+{ q: 'Do gases have definite volume?', a: 'no' },
+{ q: 'What is solid to liquid change called?', a: 'melting' },
+{ q: 'What is liquid to solid change called?', a: 'freezing' },
+{ q: 'What is liquid to gas change called?', a: 'evaporation' },
+{ q: 'What is gas to liquid change called?', a: 'condensation' },
+{ q: 'What is solid to gas change called?', a: 'sublimation' },
+{ q: 'Does melting require heat?', a: 'yes' },
+{ q: 'Does condensation lose heat?', a: 'yes' },
+             { q: 'Are changes of state physical or chemical changes? Explain your answer.', a: 'Physical changes, the substance remains the same (e.g., water is H₂O in all states); only particle arrangement and motion change, not chemical composition.' },
+             { q: 'List the five main changes of state and their direction (e.g., Solid to Liquid).', a: 'Melting: Solid to Liquid; Freezing: Liquid to Solid; Evaporation/Boiling: Liquid to Gas; Condensation: Gas to Liquid; Sublimation: Solid to Gas; Deposition: Gas to Solid.' },
+             { q: 'What is the difference between endothermic and exothermic processes?', a: 'Endothermic: Absorbs heat energy from the surroundings. Exothermic: Releases heat energy into the surroundings.' },
+             { q: 'At what temperature does water melt and freeze at standard conditions?', a: '0°C (32°F)' },
+             { q: 'Define sublimation and give one example.', a: 'Sublimation is when a solid changes directly to a gas without passing through the liquid state. Example: Dry ice (solid CO₂) turning into CO₂ gas.' },
+{ q: 'Define Endothermic and Exothermic in the context of phase changes.', a: 'Endothermic refers to a process that absorbs heat energy from the surroundings, while exothermic refers to a process that releases heat energy.' },
+{ q: 'What is Latent Heat of Fusion?', a: 'It is the energy required to change a substance from a solid to a liquid at its melting point without changing its temperature.' },
+{ q: 'Name the process where a gas turns directly into a solid without becoming a liquid.', a: 'Deposition.' },
+{ q: 'At what specific temperature does the latent heat of vaporization usually occur for water at sea level?', a: '100°C.' },
+{ q: 'Explain the difference between evaporation and boiling.', a: 'Evaporation occurs only at the surface of a liquid and can happen at any temperature, while boiling occurs throughout the entire liquid at a specific boiling point.' },
+
+
+             
+             { q: 'List the standard steps of a scientific investigation in order.', a: '1. Observation; 2. Ask a Question; 3. Form a Hypothesis; 4. Testing (Experiment); 5. Analysis; 6. Conclusion' },
+             { q: 'What is the difference between an observation and a question in a scientific investigation?', a: 'Observation: Noticing a pattern or event using senses/tools; Question: A clear, testable inquiry based on the observation.' },
+             { q: 'How should a hypothesis be written? Give an example format.', a: 'As an If... then... because... statement. Example: If plants get more sunlight, then they will grow taller because sunlight is needed for photosynthesis.' },
+             { q: 'Define independent variable, dependent variable, and controlled variable.', a: 'Independent variable: Factor changed by the investigator; Dependent variable: Factor measured to see the effect of the independent variable; Controlled variable: Factor kept constant to ensure fair testing.' },
+             { q: 'Name three SI units and what they measure.', a: 'Gram (g)/Kilogram (kg): Mass; Liter (L)/Milliliter (mL): Liquid volume; Degree Celsius (°C): Temperature' },
+{ q: 'In the sugar dissolution experiment, what was the Independent Variable?', a: 'The particle size (form) of the sugar (cube, granulated, or powdered).' },
+{ q: 'What color does blue litmus paper turn when dipped into an acidic solution?', a: 'It turns red.' },
+{ q: 'List three ways to increase the rate of dissolution.', a: 'Stirring the solution, increasing the temperature, and crushing the solute into smaller particles (increasing surface area).' },
+{ q: 'Define a saturated solution.', a: 'A solution in which no more solute can be dissolved at a given temperature.' },
+{ q: 'What is the difference between tap water and distilled water when tested with litmus paper?', a: 'Distilled water is neutral (no color change), whereas tap water may show slight acidity or alkalinity depending on the minerals and chemicals added to it.' },
+             { q: 'What makes a research question good or poor?', a: 'A good research question must be testable, specific, and quantitative rather than broad or descriptive.' },
+             { q: 'Define the solubility limit of a substance.', a: 'It is the maximum amount of solute that can dissolve in a specific amount of solvent at a given temperature and pressure.' },
+             { q: 'What ions are responsible for the reactions in acidic and basic solutions?', a: 'Acidic solutions contain excess Hydrogen ions (H⁺), and basic solutions contain excess Hydroxide ions (OH⁻).' },
+             { q: 'How does pressure affect the solubility of gases in liquids?', a: 'Higher pressure forces more gas particles into the solution, increasing solubility.' },
+             { q: 'What is the purpose of a desiccator in an evaporation experiment?', a: 'It allows a heated sample to cool down without absorbing moisture from the air, ensuring an accurate dry mass.' },
+               
+             
+             
+                
+             { q: 'What is an evenly mixed substance called?', a: 'solution' },
+                  { q: 'What is the dissolved part of a solution?', a: 'solute' },
+                  { q: 'What does the dissolving in a solution?', a: 'solvent' },
+                  { q: 'Is air a solution?', a: 'yes' },
+                  { q: 'Is sugar in coffee a solute?', a: 'yes' },         
+{ q: 'What is a uniform mixture called?', a: 'solution' },
+{ q: 'What is the dissolved substance called?', a: 'solute' },
+{ q: 'What does the dissolving called?', a: 'solvent' },
+{ q: 'Is water a universal solvent?', a: 'yes' },
+{ q: 'Is air a solution?', a: 'yes' },
+{ q: 'What solute is in salt water?', a: 'salt' },
+{ q: 'What solvent is in soda water?', a: 'water' },
+{ q: 'Is oil soluble in water?', a: 'no' },
+{ q: 'Does dissolving spread particles evenly?', a: 'yes' },
+{ q: 'What solute is in vinegar?', a: 'acetic acid' },
+{ q: 'What solvent is in air?', a: 'nitrogen' },
+             { q: 'What is concentration? Name one way to express it.', a: 'Concentration is the amount of solute dissolved in a given amount of solvent or solution. One way to express it is mass per volume (g/L or g/mL).' },
+             { q: 'Define solubility.', a: 'Solubility is the maximum amount of solute that can dissolve in a given amount of solvent at a specific temperature and pressure.' },
+             { q: 'How does temperature affect the solubility of solid solutes vs. gas solutes in liquids?', a: 'Solid solutes: Solubility increases with increasing temperature; Gas solutes: Solubility decreases with increasing temperature.' },
+             { q: 'What effect does pressure have on gas solubility?', a: 'Higher pressure increases gas solubility; lower pressure decreases it.' },
+             { q: 'Does stirring increase solubility? Explain your answer.', a: 'No. Stirring speeds up the rate at which a solute dissolves by spreading solvent particles around the solute, but it does not increase the maximum amount of solute that can dissolve (solubility).' },
+             
+
+
+              ]
+           },
+        2: {
+              questions: [
+                { q: 'Why would a scientist use a globe instead of showing the real Earth?', a: 'too large to show' },
+                  { q: 'How is a toy car model similar to a real car?', a: 'same basic shape' },
+                  { q: 'If you need to explain how rain forms, which model would you use?', a: 'water cycle drawing' },
+                  { q: 'Why can’t we use a real atom to teach about its parts?', a: 'too small to see' },
+                  { q: 'Which model would help explain Earth’s rotation?', a: 'spinning globe' },
+{ q: 'Why use a Bohr model instead of a real atom?', a: 'too small to see' },
+{ q: 'How do weather maps help meteorologists?', a: 'show atmospheric conditions' },
+{ q: 'Why are models not perfect copies?', a: 'focus only on key features' },
+{ q: 'How is a DNA model useful?', a: 'explains genetic storage' },
+{ q: 'Why use a water cycle diagram?', a: 'shows unseen water movement' },
+{ q: 'How do atomic models help with molecules?', a: 'show atom interactions' },
+{ q: 'Why are weather maps visual models?', a: 'use symbols and colors' },
+{ q: 'How do models help with dangerous phenomena?', a: 'avoid direct risk' },
+{ q: 'Why do atomic models change over time?', a: 'new discoveries made' },
+{ q: 'How is a globe like a scientific model?', a: 'represents large object' },
+{ q: 'Why use models for slow processes?', a: 'speed up understanding' },
+             { q: 'Explain how a climate model helps governments prepare for real-world events before they happen.', a: 'It allows governments to simulate "what-if" scenarios, such as rising sea levels, so they can build infrastructure or pass policies before the actual disaster occurs.' },             
+             { q: 'Compare an atomic orbital model to a map of a city. How are they both simplifications of a complex reality?', a: 'Both ignore specific details (like every blade of grass or the exact position of an electron) to focus on providing a functional layout or map of where things are likely to be.' },
+             { q: 'Analyze why a scientist might use a computer simulation of plate tectonics rather than observing the Earth directly.', a: 'Plate tectonics happen too slowly (over millions of years) and deep underground for direct observation, so simulations allow scientists to compress time and see through the Earth.' },
+             { q: 'If a model’s prediction does not match the results of an experiment, what should a scientist do with the model?', a: 'The scientist should evaluate the model, identify the flaws, and revise or discard it to better align with the new empirical evidence.' },
+             { q: 'How does the Bohr model of the atom demonstrate the boundaries or limitations of scientific models?', a: 'The Bohr model successfully explains simple atoms like hydrogen but fails to accurately describe the complex electron behavior of larger atoms, showing where its usefulness ends.' },
+            
+
+             
+                  { q: 'Why does sugar seem to disappear in water but still taste sweet?', a: 'particles spread out' },
+                  { q: 'Why do wood and metal act differently?', a: 'different particles' },
+                  { q: 'If you break chocolate repeatedly, what will you eventually get?', a: 'tiny particles' },
+                  { q: 'Why can’t we see air but know it’s there?', a: 'made of invisible particles' },
+                  { q: 'What explains why salt is white and water is clear?', a: 'unique particle types' },
+{ q: 'Why does food coloring spread in water?', a: 'Particles move randomly' },
+{ q: 'Why do gases fill their container?', a: 'Particles move freely' },
+{ q: 'Why do solids keep their shape?', a: 'Particles vibrate in place' },
+{ q: 'Why do liquids flow?', a: 'Particles slide past each other' },
+{ q: 'Why does metal expand when heated?', a: 'Particles move further apart' },
+{ q: 'Why can we smell perfume across a room?', a: 'Particles move through air' },
+{ q: 'Why do gases have more space than solids?', a: 'Particles are far apart' },
+{ q: 'What causes diffusion to speed up?', a: 'Added heat' },
+{ q: 'Why do solids not take container shape?', a: 'Fixed particle pattern' },
+{ q: 'How do particle forces differ by state?', a: 'Strength varies by state' },
+{ q: 'Why does a balloon inflate with air?', a: 'Particles fill space' }, 
+             { q: 'Explain why solids have a definite shape but gases do not, using the particle model.', a: 'Solids have particles in fixed, regular patterns that vibrate in place, cannot move past each other, so shape is fixed. Gases have particles moving freely in all directions with no fixed arrangement, so they take the shape of their container and expand to fill it.' },
+             { q: 'A block of butter is left on a warm countertop and melts. Describe the changes in particle spacing, motion, and energy that occur.', a: 'Energy: Gains thermal energy (endothermic). Motion: Particles vibrate more vigorously until they can slide past one another. Spacing: Particles move slightly further apart than in the solid state.' },
+             { q: 'Two identical balloons are filled with air – one is placed in a freezer, the other in direct sunlight. Predict what will happen to each balloon and explain why using particle behavior.', a: 'Freezer balloon: Shrinks, cold reduces particle kinetic energy, so particles move slower and closer together, decreasing volume. Sunlight balloon: Expands, heat increases particle kinetic energy, so particles move faster and further apart, increasing volume.' },
+             { q: 'Analyze why liquids can flow but solids cannot, based on particle arrangement and motion.', a: 'Liquids have particles that can slide past one another (no fixed pattern), allowing them to flow. Solids have particles locked in fixed positions that only vibrate, so they cannot flow.' },
+             { q: 'Why is it easier to compress a gas than a liquid or solid? Use particle spacing to support your answer.', a: 'Gases have large spaces between particles, pressure can push particles closer together. Solids and liquids have very little space between particles, so there is no room to compress them significantly.' },
+{ q: 'You are looking at a diagram where particles are close together but have no regular pattern. Identify the state of matter and describe how these particles move.', a: 'This is a liquid; the particles move by sliding or flowing past one another while remaining in contact.' },
+{ q: 'Compare the spacing in a liquid diagram versus a gas diagram. How does this difference affect the volume of the substance?', a: 'In a liquid, particles are touching, giving it a fixed volume; in a gas, they are far apart, meaning the volume can expand or contract to fill any container.' },
+{ q: 'Analyze why collision symbols (like small x marks) are necessary in a gas diagram but not in a solid diagram.', a: 'Gas particles move rapidly and randomly, frequently hitting each other and the container; solid particles are fixed in place and do not collide in this manner.' },
+{ q: 'If a substance’s particle diagram changes from a regular lattice to a random cluster where particles can slide, what physical change has occurred?', a: 'The substance has undergone melting (solid to liquid).' },
+{ q: 'Explain how long arrows in a gas diagram relate to the kinetic energy of the particles compared to the short arrows in a solid.', a: 'Long arrows represent high velocity and high kinetic energy, whereas short arrows (vibration marks) represent the low kinetic energy found in solids.' },
+             { q: 'Using the particle model, explain how a liquid thermometer measures a rise in temperature.', a: 'As the liquid is heated, its particles move faster and spread apart, forcing the liquid to expand and rise up the narrow tube.' },
+             { q: 'Analyze why oil and water form separate layers instead of mixing.', a: 'Oil is nonpolar and water is polar; their particles repel each other because their intermolecular forces are incompatible.' },
+             { q: 'Explain the scientific principle behind how hydraulic brakes transmit force using the particle model.', a: 'Liquids are incompressible because their particles are already close together; therefore, pressure applied at one end is transmitted fully to the other end.' },
+             { q: 'Predict what would happen to a sealed bag of chips taken from a cool room to a hot beach. Explain using particle collisions.', a: 'The bag will expand or bloat because the gas particles inside move faster and collide more forcefully with the bag’s walls as temperature increases.' },
+             { q: 'Why does salt dissolve in water but sand does not? Contrast their attractive forces.', a: 'Salt is polar and its ions are pulled apart by polar water molecules; sand has extremely strong internal attractive forces that water particles cannot overcome.' },
+             
+             
+             
+{ q: 'Why does ice melt at room temperature?', a: 'Gains thermal energy' },
+{ q: 'Why does water freeze in a freezer?', a: 'Loses thermal energy' },
+{ q: 'Why do puddles dry on sunny days?', a: 'Water evaporates' },
+{ q: 'Why do droplets form on cold glasses?', a: 'Water vapor condenses' },
+{ q: 'Why does dry ice turn to gas?', a: 'Undergoes sublimation' },
+{ q: 'Why do solids have definite volume?', a: 'Particles tightly packed' },
+{ q: 'Why do gases expand to fill space?', a: 'Particles move freely' },
+{ q: 'Why does boiling produce steam?', a: 'Rapid evaporation' },
+{ q: 'Why do clouds form in cool air?', a: 'Moisture condenses' },
+{ q: 'Why does melting not change volume much?', a: 'Particles stay close' },
+{ q: 'Why do gases compress easily?', a: 'Space between particles' }, 
+             { q: 'Explain why the temperature of water remains constant while it is boiling, even though heat is still being added.', a: 'The heat energy is used to break the attractive forces between water particles (to change from liquid to gas) rather than increasing the kinetic energy of particles, so temperature does not rise until all water has boiled into steam.' },
+             { q: 'A glass of cold water forms droplets on its outside on a warm day. Identify the change of state occurring and describe the energy changes and particle behavior involved.', a: 'Change of state: Condensation (Gas to Liquid). Energy: Water vapor particles lose heat energy (exothermic). Behavior: Particles slow down, move closer together, and form liquid droplets as attractive forces pull them into clusters.' },
+             { q: 'Dry ice is used to keep food cold during shipping. Explain how dry ice works, including the change of state it undergoes and how this process helps maintain low temperatures.', a: 'Dry ice undergoes sublimation (Solid → Gas), which is an endothermic process. It absorbs heat energy from the surroundings (including the food and air). This absorption of heat keeps the area cold and prevents food from spoiling.' },
+             { q: 'Compare and contrast evaporation and boiling. What are their similarities and differences in terms of energy, location, and temperature?', a: 'Similarities: Both are Liquid to Gas changes; both endothermic (absorb heat). Differences: Evaporation occurs at the surface, at any temperature below boiling point; boiling occurs throughout the liquid at a specific boiling point.' },
+             { q: 'When water freezes into ice, it expands slightly. Using particle arrangement, explain why this happens despite particles losing energy and moving closer together.', a: 'As water freezes, particles form a regular lattice structure with spaces between molecules (due to hydrogen bonding). Even though particles move closer together overall, the structured arrangement creates more space than the random arrangement in liquid water, causing expansion.' },
+{ q: 'During melting, heat is absorbed but the temperature does not rise. Explain what this energy is being used for at the particle level.', a: 'The energy is used to overcome the attractive forces (bonds) holding the particles together in the solid lattice rather than increasing their kinetic energy (temperature).' },
+{ q: 'Analyze the process of condensation (Gas to Liquid). Describe the changes in energy, motion, and attractive forces.', a: 'Energy is released (exothermic), particle motion slows down, and attractive forces become strong enough to pull the particles close together into a liquid state.' },
+{ q: 'Compare Sublimation and Deposition. Which one is endothermic, and how does the particle arrangement change in each?', a: 'Sublimation is endothermic (solid to gas, particles move from a lattice to being far apart); Deposition is exothermic (gas to solid, particles move from being far apart into a fixed lattice).' },
+{ q: 'Why do you feel cold when water evaporates off your skin? Link this to the behavior of high-energy particles.', a: 'The highest-energy particles leave as gas, taking their heat with them; since energy is absorbed from your skin to facilitate this, your skin temperature drops.' },
+{ q: 'Explain why frost on a window is an example of deposition rather than freezing.', a: 'Frost forms when water vapor in the air touches a very cold surface and turns directly into solid ice crystals without becoming liquid water first.' },
+
+             
+             
+             { q: 'A student observes that plants near a window grow taller than plants in a dark corner. Design a simple scientific investigation to test why this happens. Identify the question, hypothesis, variables, and basic testing steps.', a: 'Question: How does the amount of sunlight affect plant growth? Hypothesis: If plants receive more sunlight, then they will grow taller because sunlight is required for photosynthesis to produce energy for growth. Variables: Independent = amount of sunlight (e.g., 0 hours, 4 hours, 8 hours); Dependent = plant height; Controlled = type of plant, pot size, amount of water, soil type. Steps: Plant 3 identical plants in same conditions; expose each to different sunlight amounts; measure height weekly for 4 weeks; record and compare data.' },
+             { q: 'When measuring the volume of liquid in a graduated cylinder, why is it important to read the measurement at eye level? Explain how parallax error can affect results.', a: 'Reading at eye level ensures accuracy. Parallax error occurs when the eye is not level, the liquid surface appears higher or lower than it actually is, leading to overestimation or underestimation of volume.' },
+             { q: 'A group tests how the number of light bulbs affects the brightness of a circuit. They change the number of bulbs but also use different types of batteries each time. Analyze what is wrong with their experiment and how to fix it.', a: 'Problem: More than one variable is changed (number of bulbs and battery type), cannot tell which variable affects brightness. Fix: Keep battery type (and other factors like wire length, bulb type) constant; only change the number of bulbs.' },
+             { q: 'A student collects data showing that as the amount of fertilizer increases, plant growth first increases then decreases. How should they analyze and present this data to make the pattern clear?', a: 'Organize data in a table with fertilizer amount and corresponding plant growth; create a line graph with fertilizer amount on the x-axis and growth on the y-axis. This will clearly show the increasing then decreasing trend.' },
+             { q: 'Apply the steps of a scientific investigation to a real-world problem: Why does bread mold faster in a plastic bag than on a plate? Outline each step with specific details.', a: '1. Observation: Bread in plastic bags develops mold sooner than bread on open plates; 2. Question: How does storage method (plastic bag vs. open plate) affect the rate at which bread molds?; 3. Hypothesis: If bread is stored in a plastic bag, then it will mold faster because plastic traps moisture and air, creating better conditions for mold growth; 4. Testing: Place identical pieces of bread in plastic bags and on plates; keep temperature, humidity, and bread type constant; check daily and record when mold appears; 5. Analysis: Compare mold appearance dates and create a table/graph of results;  6. Conclusion: State whether data supports hypothesis and explain how moisture/trapped air affects mold growth.' },
+{ q: 'In the Particle Size investigation, why was it important to keep the stirring speed and water temperature the same for all three tests?', a: 'To ensure a fair test; these were controlled variables so that any difference in dissolution time could be attributed solely to the particle size.' },
+{ q: 'Analyze the results: Why did the powdered sugar dissolve in 11 seconds while the cubes took 182 seconds? Use the concept of surface area.', a: 'Powdered sugar has a much higher surface area, allowing more water molecules to come into contact with and pull away sugar particles simultaneously compared to a solid cube.' },
+{ q: 'If you have an unknown clear liquid that turns red litmus paper blue, classify the substance and give a household example of what it might be.', a: 'The substance is a base (alkaline); a common household example is bleach or soapy water.' },
+{ q: 'Compare the effects of temperature on solubility versus dissolution rate. Does a higher temperature always mean more solute can dissolve?', a: 'Higher temperature always increases the dissolution rate (speed), but while it usually increases solubility (amount) for solids, it actually decreases the solubility of gases in liquids.' },
+{ q: 'Explain how you would design a test to see if Stirring affects the maximum amount of salt that can dissolve in water.', a: 'You would add salt to two containers of water at the same temperature, stirring one and leaving the other still, then measure the total mass of salt dissolved in each until saturation is reached.' },
+             { q: 'Formulate a hypothesis for how temperature affects the solubility of Oxygen gas in water.', a: 'If water temperature increases, the solubility of Oxygen gas will decrease because higher kinetic energy allows gas particles to escape the liquid surface.' },
+             { q: 'Analyze why blue litmus paper turns red in vinegar. Describe the chemical interaction.', a: 'Vinegar contains H⁺ ions which react with the litmus dye, changing its chemical structure and turning it red.' },
+             { q: 'You are given 100 mL of seawater. Outline the steps to find its salinity (salt concentration) by mass.', a: 'Weigh an evaporating dish, add 100 mL of seawater, evaporate the water over heat, cool in a desiccator, and weigh the remaining salt.' },
+             { q: 'Compare the solubility-temperature relationship of salt (NaCl) versus sugar. Which is more sensitive to heat?', a: 'Sugar is much more sensitive to heat; its solubility increases drastically with temperature, whereas salt solubility only increases slightly.' },
+             { q: 'A student forgets to dry their filter paper before weighing the undissolved salt. Analyze how this error affects the calculated dissolved salt mass.', a: 'The undissolved salt mass would appear higher (due to water weight), which would make the dissolved salt mass (Total - Undissolved) appear lower than it actually is.' },
+
+             
+             
+             { q: 'If you mix sand and water and it doesn’t spread evenly, is it a solution?', a: 'no' },
+                  { q: 'Why is water called the "universal solvent"?', a: 'dissolves many things' },
+                  { q: 'In a chocolate milk solution, what is the solute and solvent?', a: 'Powder = solute; milk = solvent' },
+                  { q: 'How is air a solution even though it’s a gas?', a: 'gases mixed evenly' },
+                  { q: 'If you add too much sugar to tea and some stays at the bottom, is it fully a solution?', a: 'no' },
+{ q: 'Why is salt water a solution?', a: 'Uniform composition' },
+{ q: 'Why is oil and water not a solution?', a: 'Does not mix evenly' },
+{ q: 'Why is water called universal solvent?', a: 'Dissolves many substances' },
+{ q: 'What makes air a gaseous solution?', a: 'Gases mixed evenly' },
+{ q: 'Why is acetic acid the solute in vinegar?', a: 'Smaller amount present' },
+{ q: 'How does salt dissolve in water?', a: 'Water pulls apart particles' },
+{ q: 'Why does nail polish dissolve in acetone?', a: 'Compatible solvents' },
+{ q: 'Why is carbon dioxide a solute in soda?', a: 'Dissolved in liquid' },
+{ q: 'Why does sugar disappear in tea?', a: 'Particles spread evenly' },
+{ q: 'Why do some solutes not dissolve fully?', a: 'Too much solute added' },
+{ q: 'Why does nitrogen act as air’s solvent?', a: 'Largest amount present' },
+             { q: 'Calculate the concentration (g/L) of a solution made by dissolving 15 grams of salt in 0.3 liters of water. Show your work.', a: 'Formula: Concentration (g/L) = Mass of solute (g) ÷ Volume of solvent (L); Calculation: 15 g ÷ 0.3 L = 50 g/L; Answer: 50 g/L' },
+             { q: 'A 5% sugar solution by mass is made with 20 grams of sugar. How much water is needed to make the solution? Explain your calculation.', a: 'A 5% solution means 5 grams of sugar per 100 grams of solution; If 5 grams sugar = 100 grams solution, then 20 grams sugar = (20 ÷ 5) × 100 = 400 grams total solution; Mass of water = Total solution mass – Mass of sugar = 400 g – 20 g = 380 g; Answer: 380 grams of water (since 1g water ≈ 1mL, this is also ~380mL).' },
+               { q: 'Why does soda go flat when opened and left out? Use solubility and gas behavior to explain.', a: 'Soda is carbonated under high pressure to dissolve CO₂ gas. When opened, pressure decreases, reducing gas solubility and causing some CO₂ to escape. When left out, temperature increases (or stays above cold storage temp), further reducing solubility, more CO₂ escapes until little remains dissolved, making the soda flat.' },
+               { q: 'A student wants to dissolve a large amount of sugar in water quickly. What three things could they do to speed up the process, and how does each work?', a: '1. Increase temperature: Higher temps speed up solvent particles, allowing them to break down solute faster; 2. Stir the mixture: Spreads solvent around solute, bringing fresh solvent into contact with undissolved sugar; 3. Use granulated sugar instead of sugar cubes: Smaller particles have more surface area exposed to solvent.' },
+             { q: 'Compare the solubility of table salt and sugar in water at 20°C (assume salt dissolves ~36g/100mL; sugar dissolves ~204g/100mL). What do these numbers tell us about the two solutes?', a: 'The numbers show that sugar is much more soluble in water than table salt at 20°C. This means water can hold a far greater mass of sugar than salt before becoming saturated (unable to dissolve more solute).' },
+               ]
+           },
+           3: {
+              questions: [
+                { q: 'Compare a globe and a flat world map as models. Which is more accurate for showing Earth’s shape, and why?', a: 'Globe accurately represents Earth’s spherical shape, while flat maps distort landmass sizes, distances, and the curvature of the planet.' },
+                  { q: 'A student makes a model of the solar system using marbles. What are the strengths and weaknesses of this model?', a: 'Strengths: Clearly shows the order of planets from the Sun and their relative round shapes. Weaknesses: Fails to match real size ratios (planets and Sun are vastly different in scale) and distance proportions between celestial bodies.' },
+                  { q: 'Would a 3D printed heart be considered a scientific model? Justify your answer.', a: 'Yes, it is a simplified representation of a complex biological structure that helps teach anatomy, plan medical procedures, or test new treatments, which aligns with the purpose of scientific models.' },
+                  { q: 'Evaluate whether a toy car is a good model for teaching how real cars work. Support your evaluation with reasons.', a: 'It is partially good. It shows basic structure (wheels, body shape, parts placement) but is not effective for teaching mechanics, engine function, or safety systems, as it lacks those critical components.' },
+                  { q: 'Which model would be more useful for explaining the water cycle: a static drawing or a moving animation? Evaluate both options.', a: 'A static drawing is good for showing key steps clearly, while a moving animation is more useful for demonstrating the flow and sequence of processes like evaporation and precipitation. The animation is stronger for understanding dynamic movement, but the drawing is better for quick reference.' },
+             { q: 'A student argues that scientific models are just guesses because they aren’t 100% accurate. Evaluate this statement based on the lesson’s explanation of model limitations and revisions.', a: 'The statement is flawed because models are based on evidence and logic, not random guessing; their lack of 100% accuracy is a deliberate choice for simplification, and they are refined as our understanding grows.' },
+             { q: 'Evaluate the importance of the Testing Theories function of models. How does this specific function drive scientific progress?', a: 'This function is vital because it allows scientists to see if a theory holds up under different conditions; if the model fails, it forces the development of new, more accurate theories, which is the engine of progress.' },
+             { q: 'If you were designing a model of a virus to study how it spreads, evaluate which variables are essential to include and which are non-essential details you would strip away.', a: 'Essential variables include the infection rate and transmission method (airborne vs. contact); non-essential details would be the specific visual color of the virus or its internal chemical complexity that doesn’t affect movement.' },
+             
+             
+             { q: 'Evaluate the claim: If you can’t see particles, they don’t exist. Use evidence to support your judgment.', a: 'The claim is false. Evidence includes sugar dissolving in water (particles spread but are still present, as shown by taste) and air inflating a balloon (particles push outward even though invisible).' },
+                  { q: 'Why do different liquids mix in some cases but not others? Use the particle model to explain and evaluate if this is a consistent pattern.', a: 'Particles of compatible liquids fit between one another due to similar properties, while incompatible particles repel or have different sizes/shapes that prevent even mixing. This is a consistent pattern observed in most substances, though temperature or pressure can sometimes alter compatibility.' },
+                  { q: 'How would the particle model explain why a balloon inflates when air is blown into it? Evaluate if this explanation is sufficient to describe the process.', a: 'Air particles fill the space inside the balloon, pushing against the inner surface as they move and spread out, causing expansion. This explanation is sufficient because it accounts for the observable change in shape and the behavior of tiny particles.' },
+                  { q: 'A piece of paper burns but a metal spoon doesn’t when heated. Use particle theory to explain the difference and evaluate why this matters for everyday use.', a: 'Paper particles break down and react with oxygen when heated, releasing energy as fire; metal particles have strong bonds that resist breaking down at typical heating temperatures. This matters because it determines how we use materials (e.g., metal for cookware, paper for fuel).' },
+                  { q: 'Predict what would happen if you compressed air in a bottle using the particle model, then evaluate whether this prediction can be tested.', a: 'Particles would be forced closer together, increasing pressure inside the bottle. This can be tested by using a pump to compress air and observing if a attached gauge shows higher pressure or if the bottle deforms under force.' },
+{ q: 'Compare how particle spacing affects density in solids vs. gases. Explain the relationship.', a: 'Solid particles are tightly packed, so more mass fits in a given volume, making solids denser; gas particles are far apart with large empty spaces, so less mass is present per volume, resulting in much lower density. This is why gases rise and solids sink in most cases.' },
+{ q: 'Explain why some solids conduct heat better than others using the particle model.', a: 'Metals have particles with free-moving electrons that transfer energy quickly between particles; non-conductors have particles with fixed electrons, so energy moves slowly through vibration only. This difference in particle interaction causes varying heat transfer rates.' },
+{ q: 'Evaluate whether the particle model can explain why sound travels faster in solids than gases – justify your answer.', a: 'Yes, sound moves through particle collisions; solid particles are close together, so collisions happen faster and transfer sound energy quickly; gas particles are far apart, so collisions are less frequent and sound travels slower – this matches real-world observations.' },
+{ q: 'How would particle behavior change if a gas were compressed into a liquid? What forces are involved?', a: 'Compressing a gas pushes particles close together until attractive forces between them are strong enough to hold them in a liquid arrangement; particles slow down as they lose energy from compression, transitioning from free movement to sliding past each other.' },
+{ q: 'Why does the particle model need to be updated as new discoveries are made?', a: 'Early models focused only on basic arrangement and motion, but new research shows particles have subatomic structure, charge, and complex interactions; updating the model ensures it accurately explains new observations like magnetism, conductivity, and quantum behavior.' },
+{ q: 'Predict what would happen to particle motion if a substance were heated beyond its boiling point – explain your reasoning.', a: 'Particles would move even faster and spread further apart, becoming a gas with higher kinetic energy; if heated enough, particles would break into charged particles and form plasma, where motion is extremely fast and interactions involve electric forces.' },
+{ q: 'Compare how particle spacing changes when a gas expands vs. a liquid expands. What’s the key difference?', a: 'When a gas expands, particles move further apart into new space, increasing volume significantly; when a liquid expands, particles only move slightly further apart, so volume increase is much smaller. This is why gases are used in thermometers for large temperature ranges and liquids for smaller ones.' },
+{ q: 'How would you use the particle model to explain why a metal can dents when dropped but a glass can breaks?', a: 'Metal particles are arranged in layers that can slide past each other when force is applied, causing a dent; glass particles are fixed in a rigid lattice that cannot move, so force causes bonds to break and the glass to shatter. This difference in particle arrangement explains their behavior.' },
+{ q: 'Explain why some liquids are viscous (thick) while others are runny. How does the particle model apply?', a: 'Viscous liquids have strong attractive forces between particles that slow their movement; runny liquids have weaker forces that allow particles to slide past each other easily. Temperature also affects viscosity, as heat weakens forces and makes thick liquids flow faster.' },
+             { q: 'A student claims that heating a substance always makes it expand. Evaluate this statement, is it completely true? Provide evidence from the particle model to support your judgement.', a: '- Not completely true. Most substances expand when heated (particles move faster and spread out), but water is an exception. When it freezes (cools from 4°C to 0°C), it expands as particles form a lattice structure with more space between them. Also, heating a substance at its melting/boiling point does not cause expansion until the change of state is complete.' },
+             { q: 'Two substances are at the same temperature but are different states of matter (one solid, one gas). Evaluate whether their particles have the same average kinetic energy, and explain why this is possible despite their different behaviors.', a: '- Yes, they have the same average kinetic energy (temperature is a measure of this). The difference in behavior comes from particle spacing and forces of attraction. Gas particles are far apart with weak forces, so they move freely; solid particles are close together with strong forces, so they only vibrate.' },
+             { q: 'A company wants to design a container to store a highly compressible substance. Evaluate which state of matter the substance is likely to be, and justify the design features the container should have based on particle properties.', a: 'Likely a gas (only gases are highly compressible). Design features: Should be strong (to withstand pressure changes), sealable (to prevent gas escape), and possibly expandable or have adjustable volume. Since gas particles spread to fill space, the container must contain them without breaking.' },
+             { q: 'Some people think that cold makes particles stop moving. Evaluate this misconception and explain the correct behavior of particles at low temperatures.', a: 'False. Particles never stop moving, even at very low temperatures. As temperature decreases, kinetic energy reduces, so particles move slower and closer together but they still have some motion (e.g., vibrations in solids). Only at absolute zero (-273.15°C) would particles theoretically have zero kinetic energy, but this temperature cannot be reached.' },
+             { q: 'Evaluate how the particle model helps us understand why cooking food in boiling water (100°C) is faster than cooking it in warm water (50°C), linking temperature, particle motion, and heat transfer.', a: 'The particle model explains that higher temperature means faster particle motion. In boiling water, water particles move faster and collide more frequently with food particles, transferring heat more quickly. This increased heat transfer speeds up chemical reactions in the food, making it cook faster. Without the particle model, we could observe the difference but not explain why temperature affects cooking speed.' },
+{ q: 'Evaluate the effectiveness of using 2D circles to represent 3D atoms. What information does this model successfully communicate, and what might it fail to show?', a: 'It successfully communicates relative spacing and arrangement; however, it fails to show the 3D spherical nature of atoms or the complex internal structure (protons/electrons).' },
+{ q: 'A diagram shows particles spread far apart but with no motion arrows. Evaluate whether this is an accurate representation of a gas and justify your reasoning.', a: 'It is inaccurate because gas particles must be in constant motion; without arrows, the model suggests the particles are static, which violates the laws of thermodynamics.' },
+{ q: 'Based on the particle model, evaluate why it is impossible for a solid to flow like a liquid or gas.', a: 'Flowing requires particles to move past one another; in a solid, the strong attractive forces lock particles into a fixed lattice, preventing the relative movement needed for flow.' },
+             { q: 'A student argues that all matter shrinks when it gets cold. Evaluate this statement using the behavior of water as a counter-argument.', a: 'The statement is mostly true but incomplete; water is a critical exception because it expands when it freezes into ice due to its specific lattice arrangement.' },
+             { q: 'Evaluate the design of a scuba tank. Why is it advantageous to store air as a compressed gas rather than a liquid?', a: 'Gases are highly compressible due to the large spaces between particles, allowing a massive amount of breathable air to be squeezed into a small, portable volume.' },
+             { q: 'Evaluate the rule like dissolves like. How does this help chemists predict whether a new cleaning solvent will remove a grease stain (nonpolar)?', a: 'Grease is nonpolar, so the rule predicts that only a nonpolar solvent will have compatible intermolecular forces to surround and dissolve the grease particles.' },
+             
+             
+             
+             
+             
+             
+{ q: 'Explain why different substances have different boiling points. Use particle attraction to support your answer.', a: 'When a gas expands, particles move further apart into new space, increasing volume significantly; when a liquid expands, particles only move slightly further apart, so volume increase is much smaller. This is why gases are used in thermometers for large temperature ranges and liquids for smaller ones.' },
+{ q: 'Why does condensation form on the outside of a cold drink but not a warm one? Relate to air particles.', a: 'Warm air contains water vapor particles moving fast enough to stay in gas form; when this air touches a cold surface, vapor particles lose energy, slow down, and are pulled together by attractive forces to form liquid droplets. Warm surfaces don’t cool the air enough for this to happen.' },
+{ q: 'Predict how a change in pressure would affect sublimation rate. Explain with particle theory.', a: 'Increasing pressure pushes solid particles closer together, making it harder for them to escape to gas form, so sublimation slows down; decreasing pressure allows particles to break free more easily, speeding up sublimation. This is why dry ice sublimes faster at high altitudes with lower pressure.' },
+{ q: 'Evaluate whether freezing rain is a combination of state changes. What evidence supports this?', a: 'Yes, water vapor condenses into liquid droplets high in the atmosphere, then falls through a layer of cold air close to the ground and freezes into ice on contact with surfaces; this involves both condensation (gas to liquid) and freezing (liquid to solid) in sequence.' },
+{ q: 'Explain why adding salt to ice lowers its freezing point. How does this affect particle arrangement?', a: 'Salt particles interfere with water particles trying to form a solid lattice, so more energy must be removed (lower temperature) for freezing to occur; the salt dissolves in melted water, breaking into ions that disrupt the regular particle pattern ice needs to form.' },
+{ q: 'How do state changes contribute to Earth’s weather cycle. Describe the sequence of changes involved.', a: 'Water evaporates from oceans (liquid to gas) due to heat from the sun; vapor rises, cools, and condenses into clouds (gas to liquid); when droplets grow heavy, they fall as precipitation (liquid to solid or liquid); snow melts back to liquid (solid to liquid) or sublimes to gas, completing the cycle.' },
+{ q: 'Predict what would happen if you tried to freeze a gas like oxygen at room temperature. Explain your reasoning.', a: 'Oxygen would not freeze because room temperature is much higher than its freezing point (-218°C); gas particles have too much kinetic energy to be pulled into a solid arrangement. Extreme cooling would be needed to slow particles enough for freezing to occur.' },
+{ q: 'Use particle theory to explain why some substances can exist in multiple states at once (like water at 0°C).', a: 'At 0°C, water can be solid ice and liquid water simultaneously. Some particles have enough energy to stay liquid while others lose energy and freeze; energy is exchanged between particles, keeping temperature constant as the state change occurs.' },
+{ q: 'Evaluate whether state changes are important for living organisms. Give examples to support your answer.', a: 'Yes, plants rely on water evaporation to pull nutrients from roots to leaves; animals use sweating (evaporation) to cool down; freezing preserves food and water for wildlife in cold climates; condensation provides water for plants and animals in areas with fog or dew.' },
+             { q: 'A student suggests that melting and freezing are opposite processes but not equal in terms of energy. Evaluate this claim and explain whether the energy absorbed during melting is equal to the energy released during freezing for the same amount of substance.', a: 'The claim is incorrect. Melting and freezing are opposite and equal in energy. The amount of heat absorbed to melt a substance is the same as the heat released when the same amount of that substance freezes (this is called latent heat). For example, 1kg of ice absorbs 334kJ of heat to melt; 1kg of water releases 334kJ when freezing.' },
+             { q: 'In cold climates, frost sometimes forms on windows even when the air temperature is above 0°C. Evaluate how this is possible, identifying the change of state and justifying the conditions that allow it to occur.', a: 'Changes of state: Deposition (Gas to Solid). The window glass can be colder than the air temperature (e.g., if it’s exposed to cold outside air). Water vapor in the warmer air comes into contact with the cold glass, loses enough energy to form ice crystals directly without becoming liquid first.' },
+             { q: 'A restaurant wants to quickly cool down hot soup. One employee suggests putting it in the freezer, another suggests placing it in a bowl of ice water. Evaluate both methods, considering the changes of state involved and which would be more effective.', a: 'Freezer method: Uses freezing (liquid to solid) of water in the freezer to absorb heat. Risks soup freezing unevenly or forming ice crystals that affect texture; Ice water method: Uses melting (solid to liquid) of ice, melting is endothermic and absorbs a large amount of heat quickly. More effective because it cools the soup uniformly and prevents freezing, maintaining texture.' },
+             { q: 'Some people believe that boiling water is hotter than steam. Evaluate this misconception and explain the relationship between the temperature of boiling water and steam at the same pressure.', a: 'False. At the same pressure (e.g., sea level), boiling water and steam are both 100°C. Steam has more total energy because it contains the latent heat of vaporization (the energy used to change from liquid to gas), but its temperature is the same as boiling water.' },
+             { q: 'Evaluate why sublimation is useful for certain applications (like freeze-drying food) compared to other changes of state. What advantages does it offer?', a: 'Sublimation is useful because it removes water from substances without passing through the liquid state. Advantages: Prevents food from becoming soggy or losing texture (unlike melting/evaporation); preserves nutrients better; creates lightweight, shelf-stable products that can be rehydrated easily.' },
+{ q: 'Evaluate the statement: Dry ice is colder than regular ice because it doesn’t melt. Use the concept of sublimation and energy absorption to support your judgment.', a: 'The statement is partially correct; dry ice is colder because it sublimes, absorbing a large amount of energy directly from the environment to go from solid to gas, maintaining a much lower temperature than melting water ice.' },
+{ q: 'A student thinks that Steam is hotter than boiling water. Evaluate this based on the plateau of temperature during a change of state.', a: 'While both exist at 100°C during the phase change, steam contains more total energy (latent heat) than boiling water; however, once all water is steam, it can be heated to much higher temperatures than liquid water.' },
+{ q: 'Evaluate the role of Interparticle Forces during freezing. Why must energy be released (exothermic) for these forces to lock particles into a lattice?', a: 'Energy must be released so that the particles slow down enough for the interparticle attractive forces to "catch" them and pull them into the stable, low-energy arrangement of a solid lattice.' },
+
+             
+             { q: 'A student’s hypothesis states: If plants are watered more, they will grow taller. Evaluate this hypothesis, is it testable and clear? What improvements would make it a stronger hypothesis?', a: 'It is testable but not clear enough. Improvements: Specify the plant type, define more water (e.g., twice as much water as the control group), and add a because statement to explain the reasoning. Stronger version: If tomato plants are watered 500mL daily (twice the control amount), then they will grow taller because adequate water supports nutrient transport and cell growth.' },
+             { q: 'Two groups conduct the same experiment testing how temperature affects magnet strength. Group A gets results showing strength increases with temperature; Group B gets results showing strength decreases. Evaluate possible reasons for the different results and how to determine which data is reliable.', a: 'Possible reasons: Different magnet types, inconsistent testing methods, measurement errors, uncontrolled variables (e.g., magnet size, how strength was measured). To determine reliability: Check if both groups followed the same procedure; repeat the experiment with standardized materials and methods; compare results with established scientific knowledge (most magnets lose strength at high temperatures).' },
+              { q: 'A company claims their new fertilizer makes plants grow 50% faster. Evaluate what evidence you would need to accept this claim, including details about how the investigation should be designed and what data should be collected.', a: 'Evidence needed: Results from a controlled experiment with a control group (plants without fertilizer) and experimental group (plants with fertilizer); same plant type, growing conditions, and sample size (at least 10 plants per group); data on growth rate (height, mass, time taken to reach maturity) collected over time; statistical analysis showing results are significant (not due to chance); independent replication of the experiment by other scientists.' },
+              { q: 'Some people say scientific investigations always prove the hypothesis correct. Evaluate this statement and explain the role of evidence in supporting or rejecting a hypothesis.', a: 'False. Scientific investigations do not prove hypotheses. They either support or reject them based on evidence. If data does not match the hypothesis, it is rejected or modified, which is just as important for advancing knowledge. The goal is to find evidence-based explanations, not to confirm initial ideas.' },
+              { q: 'Evaluate the importance of using SI units in scientific investigations. How would results be affected if different scientists used different measurement systems?', a: 'SI units ensure consistency and comparability worldwide. Without standard units, scientists could not understand or replicate each other’s results (e.g., a cup of water varies by region, while 250mL is the same everywhere). This would slow progress, lead to errors, and make it impossible to combine data from multiple studies.' },
+{ q: 'Evaluate the Results Recording table in Lesson 4. Why are three trials necessary for each sugar type instead of just one?', a: 'Three trials are necessary to ensure reliability and identify anomalies; taking an average reduces the impact of timing errors or variations in stirring.' },
+{ q: 'A student claims that Soap is an acid because it cleans things. Evaluate this claim using the expected results from the litmus paper activity.', a: 'The claim is incorrect; the litmus test would show that soap turns red litmus paper blue, proving it is a base, which is a chemical property often associated with breaking down fats and oils.' },
+{ q: 'Evaluate the conclusion of the sugar investigation. What new question was proposed at the end, and why is it a logical next step for a scientist?', a: 'The question asked how temperature would affect the results; this is a logical next step because it isolates another variable to see how different environmental factors interact with particle size.' },
+             { q: 'Evaluate the validity of using litmus paper to determine the exact pH of a solution. What are its limitations?', a: 'Litmus paper is a qualitative tool that only identifies if a substance is an acid or base; it cannot provide a specific numerical pH value (e.g., distinguishing between pH 1 and pH 4).' },
+             { q: 'A company needs to keep a carbonated drink from going flat. Evaluate whether they should store it in a warm warehouse or a cold refrigerator. Justify using gas solubility.', a: 'A cold refrigerator is best because gas solubility increases at lower temperatures; colder liquid keeps the CO₂ particles trapped in the solution longer.' },
+             { q: 'Evaluate the use of a hot plate versus a Bunsen burner for evaporating seawater. Which is safer for preventing splashing errors?', a: 'A hot plate is better because it offers more precise temperature control, allowing for slow evaporation which prevents the salt from spitting or splashing out of the dish.' },
+             
+             
+             
+
+             { q: 'Evaluate whether muddy water is a solution. Defend your answer with evidence.', a: 'No, it is not a solution. Unlike salt water where particles spread evenly and don’t settle, dirt particles in muddy water are large enough to be seen and settle at the bottom over time, making it a suspension instead.' },
+                  { q: 'Why is air considered a solution but fog is not? Explain the difference and evaluate how this classification helps us understand mixtures.', a: 'Air is a solution because gases like oxygen and nitrogen are mixed evenly at the particle level. Fog is not – it consists of visible water droplets suspended in air, not spread uniformly as particles. This classification helps us distinguish between stable, evenly mixed solutions and temporary suspensions.' },
+                  { q: 'Evaluate the statement: "Water is the best solvent for all substances." Use examples to support your evaluation.', a: 'The statement is incorrect. Water dissolves many substances (like salt or sugar) but not others (like oil or wax). For example, oil particles do not mix evenly with water particles, so water is not a good solvent for it.' },
+                  { q: 'Create a plan to separate salt from salt water, then evaluate if your method is practical for large-scale use.', a: 'Method: Heat salt water to evaporate the water (solvent), leaving solid salt (solute) behind. For small amounts, this is practical, but for large-scale use, it requires significant energy; alternative methods like reverse osmosis may be more efficient.' },
+                  { q: 'If you want to make a solution that stays sweet even when cold, what factors would you consider and evaluate which is most important?', a: 'Factors include choosing a solute that dissolves well in cold liquid (e.g., fine sugar), adding the right amount (not too much to avoid undissolved crystals), and stirring thoroughly. The most important factor is selecting a suitable solute, as even with stirring, some substances won’t dissolve well in cold conditions.' },
+{ q: 'Evaluate why it’s important to use a control group in some experiments. What happens if no control is used?', a: 'A control group provides a baseline to compare results against, showing if changes are due to the independent variable or other factors; without a control, it’s impossible to tell if observed effects are meaningful or just random variation, making conclusions unreliable.' },
+{ q: 'Compare how qualitative and quantitative data differ in a scientific investigation. Give an example of each from a solubility experiment.', a: 'Qualitative data describes observations (e.g., sugar dissolves faster in hot water, solution becomes clear); quantitative data uses numbers (e.g., 10g sugar dissolves in 100mL water at 20°C, dissolution takes 2 minutes). Both are important, with qualitative data noting patterns and quantitative data providing precise measurements.' },
+{ q: 'Why is it necessary to write down all steps of an experiment in detail?', a: 'Detailed procedures allow other scientists to repeat the experiment exactly to confirm results, help identify errors if results are unexpected, and ensure the investigation is reproducible – reproducibility is a key requirement for scientific findings to be accepted as valid.' },
+{ q: 'Evaluate whether an experiment with one trial can produce reliable results. Justify your answer.', a: 'No, a single trial may be affected by random errors like inaccurate measurements or unexpected conditions; multiple trials are needed to see if results are consistent and to calculate an average, which reduces error and makes conclusions more trustworthy.' },
+{ q: 'How would you identify and correct sources of error in an experiment on dissolution rate?', a: 'Common errors include inconsistent stirring, inaccurate temperature control, or imprecise measurements. Correct them by using a magnetic stirrer for consistency, a water bath to keep temperature steady, and calibrated tools with small measurement units; also, repeat trials to account for random variation.' },
+{ q: 'Explain why scientists use graphs to present data. What advantages do graphs have over tables?', a: 'Graphs make patterns and relationships between variables easier to see at a glance (e.g., a line graph showing how solubility increases with temperature); tables show exact numbers but require more effort to interpret. Graphs help communicate results clearly to both scientists and non-scientists.' },
+{ q: 'Evaluate the difference between an observation and a conclusion. How are they connected in an investigation?', a: 'An observation is what you directly see or measure (e.g., When fast-stirred, sugar dissolved in 90 seconds; when not stirred, it dissolved in 300 seconds). A conclusion is a logical interpretation drawn from observations and data (e.g., Stirring increases dissolving rate because it enhances contact between solute and solvent particles). They are connected because conclusions rely entirely on observational evidence to identify patterns and form valid explanations about the phenomenon being studied.'}, 
+              { q: 'A label on a drink says contains 10g of sugar per 100mL. A student claims this means the concentration is 10% by mass. Evaluate whether this is correct. What additional information would be needed to confirm the percent by mass?', a: 'The claim is not necessarily correct. Mass per volume (g/mL) is not the same as percent by mass. To confirm percent by mass, we need the mass of the 100mL drink solution (not just its volume). For example, if 100mL of the drink has a mass of 105g, then 10g sugar would be ~9.5% by mass, not 10%. We need the density of the solution to convert volume to mass.' },
+              { q: 'A manufacturer wants to make a more concentrated fruit juice. They are considering increasing the temperature to dissolve more sugar. Evaluate whether this is a good idea, considering how temperature affects solubility and what happens when the juice cools down.', a: 'Increasing temperature will dissolve more sugar (since solids become more soluble with heat), which is good for making a concentrated juice. However, if the juice cools down later, the solution may become supersaturated and sugar crystals may form, which could affect the juice’s texture and appearance. To avoid this, the manufacturer could either keep the juice warm, add stabilizers to prevent crystallization, or only dissolve the maximum amount of sugar that stays soluble at room temperature.' },
+              { q: 'Some people think that if a solute doesn’t dissolve right away, it’s not soluble in that solvent. Evaluate this misconception and explain how to determine if a solute is soluble, including the role of temperature and maximum amount.', a: 'This is incorrect. Solubility does not depend on how quickly a solute dissolves. It depends on the maximum amount that can dissolve at a given temperature and pressure. A solute may dissolve slowly (e.g., a sugar cube in cold water) but still be highly soluble. To determine solubility, you need to: 1) Use enough solvent and time for dissolving to reach completion; 2) Test at a specific temperature; 3) Check if any undissolved solute remains. If some does, the solution is saturated, and the amount dissolved is the solubility limit.' },
+              { q: 'Two solutions have the same concentration (g/L) but different solutes. Evaluate whether they will have the same properties (like taste or boiling point) and explain why or why not.', a: 'No, they will not have the same properties. Concentration measures the amount of solute, but the type of solute affects properties. For example: 10g/L salt solution tastes salty and has a higher boiling point than water; 10g/L sugar solution tastes sweet and has a different boiling point elevation. Different solutes interact differently with solvent molecules, leading to distinct physical and sensory properties.' },
+              { q: 'Evaluate how understanding solubility helps in everyday life. Use examples like cooking, making drinks, or preserving food to justify its importance.', a: 'Understanding solubility is very useful in Cooking: Knowing that sugar dissolves better in hot water helps when making syrups or candies. Heating ensures maximum sugar dissolves for thick, sweet products. Making drinks: Understanding that gas solubility decreases with heat helps keep sodas cold to retain fizz; knowing how much powder to add to water ensures drinks are not too weak or too concentrated. Preserving food: Salt and sugar are used to preserve foods like pickles and jams because high concentrations draw water out of microbes (via osmosis) and create environments where microbes cannot grow. This relies on knowing how much solute is needed to reach effective concentrations. Without this knowledge, we might struggle to make desired products or keep food safe.' },
+                         
+             
+             ]
+           },
+           4: {
+              type: 'guided_project',
+              initial_prompt: 'Welcome to the Create & Innovate studio! You have reached the highest skill level. Your challenge is to design a project that applies concepts from Physics to solve a real-world problem. **What specific problem do you want to address, and what is your initial project idea?** I\'m ready to help you brainstorm and refine your plan.'
+           }
+        }
+      }
+    };
+  
+        
+ const dynamicContent = {
+  physics: {
+    1: {
+      'motion': {
+        title: 'Level 1: Introduction to Motion',
+        modules: [
+          { type: 'text', heading: 'The Concept of Relative Motion', body: 'Motion is always measured against a background or reference point.' },
+          { type: 'image', url: 'https://i.imgur.com/8m5XfHn.gif', caption: 'Imgur: 1D Kinematics' }
+        ]
+      }
+    },
+    2: {
+      'thermodynamics': {
+        title: 'Level 2: Heat and Matter',
+        modules: [
+          { type: 'text', heading: 'Laws of Thermodynamics', body: 'Energy cannot be created or destroyed, only transformed. Heat flows from hot to cold.' },
+          { type: 'image', url: 'https://i.imgur.com/HEAT_TRANSFER.png', caption: 'Imgur: Conduction, Convection, Radiation' }
+        ]
+      }
+    },
+    3: {
+      'force': {
+        title: 'Level 3: Dynamics and Forces',
+        modules: [
+          { type: 'text', heading: 'Newtonian Laws', body: 'Force is an interaction that changes the motion of an object (F=ma).' },
+          { type: 'image', url: 'https://i.imgur.com/FORCE_DIAGRAM.png', caption: 'Imgur: Free Body Diagram' },
+          { type: 'video', url: 'https://player.vimeo.com/video/VIMEO_ID_1', source: 'vimeo', title: 'Forces Tutorial' }
+        ]
+      },
+      'energy': {
+        title: 'Level 3: Work, Power, and Energy',
+        modules: [
+          { type: 'text', heading: 'Energy Conservation', body: 'Energy transitions from Potential to Kinetic but is never lost.' },
+          { type: 'image', url: 'https://i.imgur.com/ENERGY_CHART.png', caption: 'Imgur: Energy Transformation' },
+          { type: 'video', url: 'https://player.vimeo.com/video/VIMEO_ID_2', source: 'vimeo', title: 'Energy Systems' }
+        ]
+      }
+    }
+  },
+  chemistry: {
+    1: {
+      'use of models': {
+        title: 'Lesson 1: Use of Models',
+        modules: [
+          { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Recognize that scientists rely on models to explain concepts and phenomena.<br><br>2. Identify basic examples of models.' },
+          { type: 'text', heading: 'Introduction', body: 'Have you ever tried to explain something that’s too big, too small, or too hard to see? Scientists face this same problem every day! To make things easier to understand, they use models. A simple representations of complex things or ideas.' },
+          { type: 'text', heading: 'What are Scientific Models?', body: 'A scientific model is like a helper tool that scientists use to explain concepts and phenomena they can’t show directly. Think of it this way: if you wanted to tell a friend about the whole Earth, you couldn’t bring the real planet with you! Instead, you’d use a small version – a globe – to show how it looks, where countries are, and how it spins. That globe is a model.' },
+          { type: 'text', heading: 'Key Idea:', body: 'Models make big, small, or invisible things easier to talk about, learn from, and understand.' },
+          { type: 'text', heading: 'Examples of Basic Scientific Models', body: 'Models come in many forms, and you might already know some of them:' },
+          { type: 'text', heading: '1. Globe for the Earth', body: 'The real Earth is huge, over 12,000 kilometers wide! A globe is a small, round model that shows us the shape of the Earth, continents, oceans, and how the North and South Poles are positioned. It even spins like the real Earth does.' },
+        {type: 'image', url: 'https://imgur.com/FnpD99w.gif', caption: "Earths's Globe" },
+        { type: 'text', heading: '2. Toy Car Model for Real Vehicles', body: 'A toy car that looks like a real car is a model. It shows us the basic shape, where wheels go, how doors open, and how the front and back are designed. Even though it’s not the same size or can’t drive like a real car, it helps us understand how real cars are built.' },
+      {type: 'image', url: 'https://imgur.com/eArPdOY.gif', caption: 'Toy Car Model' },      
+        { type: 'text', heading: '3. Drawing of the Water Cycle', body: 'You might have seen pictures that show how water goes up from oceans as vapor, forms clouds, and comes back down as rain. This drawing is a model. It simplifies the complex process of the water cycle so we can follow each step easily.' },
+      {type: 'image', url: 'https://imgur.com/Qw9PDyJ.gif', caption: 'Water Cycle' },
+       { type: 'text', heading: '4. Planetary Model of the Atom', body: 'The planetary atomic model is a scientific representation describing atoms as having a small, dense, positively charged central nucleus (containing protons and neutrons) with negatively charged electrons orbiting around it in fixed or loosely defined paths—analogous to planets orbiting the Sun.' },
+        {type: 'image', url: 'https://imgur.com/LmlCYin.gif', caption: 'Planetary Atomic Model' },
+      { type: 'text', heading: 'Summary', body: '• Scientists use models to explain concepts and phenomena that are hard to show directly.<br><br>•Models are simple representations of complex things.<br><br>• Common examples include globes (for Earth), toy cars (for real vehicles), water cycle drawings, and atom model kits.' },
+        { type: 'text', heading: 'References', body: 'https://giphy.com/explore/globe<br><br>https://www.theatlantic.com/technology/archive/2025/06/tesla-doge-elon-musk/683217/<br><br>https://www.pinterest.com/pin/the-water-cycle-in-action--43417583903000592/<br><br> https://www.pinterest.com/pin/603482418806160554/' },                
+        ]
+      },
+      'the particle model': {
+        title: 'Lesson 2: The Particle Model and Changes of State',
+        modules: [
+        { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to:<br>1. Recognize that all matter is composed of tiny, invisible particles.<br><br>2. Describe that different substances are made up of different types of particles.<br><br>3. Identify particle arrangement/movement in solids, liquids, gases and link to their shape/volume properties.<br><br>4. Explain how heat causes state changes, and that particles rearrange but the substance stays the same.' },        
+          { type: 'text', heading: 'Introduction', body: 'Look around you. Everything you can see and touch is made of matter. Your pencil, your book, the air you breathe, even water, all of it is matter. But what is matter made of when you look at it really closely?' },
+        { type: 'image', url: 'https://imgur.com/ayJzgnq.gif', caption: 'Pencil' },
+        { type: 'image', url: 'https://imgur.com/JshJ7QN.gif', caption: 'Book' },
+        { type: 'image', url: 'https://imgur.com/KJ4bB3O.gif', caption: 'Air' },
+        { type: 'image', url: 'https://imgur.com/gFuU5oJ.gif', caption: 'Water' },
+        { type: 'text', heading: 'All Matter is Made of Tiny Particles', body: 'Imagine taking a piece of chocolate and breaking it into smaller and smaller pieces. Even when it’s too small to see with your eyes, there are still tiny bits of chocolate left. These tiny bits are called particles.' },        
+        { type: 'image', url: 'https://imgur.com/a5ow3Xm.png', caption: 'Chocolate' },
+        { type: 'text', heading: 'Key Idea', body: 'Every single thing that is matter is made up of tiny, invisible particles that are too small to see with just our eyes.<br><br>You can’t see these particles, but we know they’re there because of many experiments scientists have done. For example, when you add sugar to water and stir it, the sugar seems to disappear but it’s just broken into tiny particles that spread out between the water particles.' },        
+        { type: 'text', heading: 'Different Substances Have Different Particles', body: 'Just like different toys are made of different parts, different substances are made of different types of particles.<br><br>•The particles that make up water are not the same as the particles that make up salt. That’s why water is wet and clear, while salt is dry and white.<br><br>•The particles that make up wood are different from the particles that make up metal. That’s why wood can burn and float, while metal is strong and sinks in water.' },        
+        { type: 'text', heading: 'Key Idea', body: 'Each substance has its own unique type of particles, which is why different things look, feel, and act differently.' },        
+        { type: 'text', heading: 'Summary', body: '• All matter (everything around us) is composed of tiny, invisible particles.<br><br> •We can’t see these particles with our eyes, but we know they exist.<br><br>• Different substances are made up of different types of particles. This is what makes each thing unique.' },        
+        { type: 'text', heading: 'References', body: 'https://www.shutterstock.com/search/dark-chocolate-pieces<br><br>https://classroomclipart.com/image/vector-clipart/pencil-6-28-39171.htm<br><br>https://tenor.com/search/book-gifs<br><br>https://in.pinterest.com/pin/627196685605519501/<br><br>https://usagif.com/water-gifs/?srsltid=AfmBOoq5976MOoz6LMYFr6skFbr_KOWcYhVqcvmc02TPyQK4H1J4VDrY<br><br>https://giphy.com/explore/air-breathe'},
+        
+          { type: 'image', url: '', caption: '' }
+        ]
+      },
+      'solutions': {
+        title: 'Lesson 3: Solutions',
+        modules: [
+        { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to:<br>1. Identify common solutions found in daily life.<br><br> 2. Explain solute and solvent in simple terms.' },        
+          { type: 'text', heading: 'Introduction', body: 'Have you ever mixed sugar into your juice or salt into your soup? When you stir it well, the sugar or salt seems to vanish but it’s still there! What you’ve made is called a solution.' },        
+        { type: 'text', heading: 'What are Common Solutions?', body: 'A solution is a special mixture where one substance spreads evenly throughout another. Here are some common solutions you see every day:' },        
+        { type: 'text', heading: '1. Salt in Water', body: 'When you add salt to water and stir, the salt particles spread out between the water particles. The result is a clear liquid. You can’t see the salt anymore, but you can taste it!' },        
+        { type: 'image', url: 'https://imgur.com/xXOszV9.gif', caption: 'Salt in Water' },
+        { type: 'text', heading: '2. Sugar in Coffee or Tea', body: 'Sugar dissolves in hot drinks just like salt dissolves in water. The sweet taste tells you the sugar is still there, even though you can’t see it.' },        
+        { type: 'image', url: 'https://imgur.com/u3zZu6w.gif', caption: 'Sugar in Coffee' },
+        { type: 'text', heading: '3. Milk in Chocolate Drink', body: 'When you mix chocolate powder with warm milk, the powder dissolves to make a smooth chocolate drink, that’s a solution too.' },        
+        { type: 'image', url: 'https://imgur.com/gDbuJXf.gif', caption: 'Milk im Chocolate Drink' },
+        { type: 'text', heading: '4. Air', body: 'Believe it or not, the air we breathe is a solution! It’s made of different gases like oxygen, nitrogen, and carbon dioxide, all mixed evenly together.' },        
+        { type: 'image', url: 'https://imgur.com/IpG3R2W.png', caption: 'Air Molecules' },
+        { type: 'text', heading: 'What are Solute and Solvent?', body: 'Every solution has two main parts, we call them solute and solvent:<br><b>• Solute:</b> This is the substance that gets dissolved. It’s the part you add to the mixture.<br><b>Example:</b> In salt water, the salt is the solute. In sweet coffee, the sugar is the solute.<br><br><b>• Solvent:</b> This is the substance that does the dissolving. It’s the part you add the solute to. Most of the time, the solvent is a liquid, and water is the most common solvent on Earth.<br><b>Example:</b> In salt water, the water is the solvent. In sweet coffee, the coffee/tea liquid is the solvent.' },        
+        { type: 'text', heading: 'Simple Way to Remember', body: 'Solute = what is being dissolved<br>Solvent = what does the dissolving' },       
+        { type: 'text', heading: 'Summary', body: '• A solution is a mixture where one substance spreads evenly throughout another.<br><br>• Common solutions include salt water, sweet coffee, chocolate milk, and air.<br><br>• Solute is the substance being dissolved; solvent is the substance that dissolves it.' },        
+        { type: 'text', heading: 'References', body: 'https://giphy.com/gifs/caliper-fastacting-trycaliper-QOVNAGWM9RYlUVJBpo<br><br>https://giphy.com/explore/sugar-and-coffee-lol<br><br>https://thereedsvillecreamery.com/chocolate-milk-faqs/<br><br>http://safeinthecityct.weebly.com/trauma-and-emergency-centre/dive-right-into-it' },        
+        ]
+      }
+    },
+    2: {
+      'use of models': {
+        title: 'Lesson 1: Use of Models in Science',
+        modules: [
+          { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Describe how models help scientists explain phenomena that cannot be seen directly. <br><br>2. Give specific examples of models used in science.' },        
+        { type: 'text', heading: 'What are Scientific Models?', body: 'Scientific models are simplified representations of complex ideas, objects, or phenomena that cannot be observed directly with our senses. They help scientists organize information, make predictions, and explain how things work by breaking down complexity into something easier to understand and visualize. Models are not perfect copies of reality – they focus only on the most important features needed to study a specific problem.' },        
+        { type: 'text', heading: 'How Models Help Explain Unobservable Phenomena', body: 'Many scientific concepts deal with things that are too small (like atoms), too large (like galaxies), too fast (like chemical reactions), too slow (like mountain formation), or too dangerous (like volcanic eruptions) to see directly. Models translate these abstract ideas into concrete forms that can be studied, discussed, and tested. For example, we cannot see an atom’s structure, but a model lets us picture how its parts are arranged and how they interact.' },        
+        { type: 'image', url: 'https://imgur.com/c8LQKWc.gif', caption: 'Atoms' },
+        { type: 'image', url: 'https://imgur.com/5q4KD3A.gif', caption: 'Galaxies' },
+        { type: 'image', url: 'https://imgur.com/sV9cIM0.gif', caption: 'Mountain Formations' },
+        { type: 'image', url: 'https://imgur.com/oyZlhe8.gif', caption: 'Volcanic Eruptions' },
+        { type: 'image', url: 'https://imgur.com/opOYdjZ.gif', caption: 'Chemical Reactions' },
+        { type: 'text', heading: 'Specific Examples of Scientific Models: <br><br>1. Atomic Models', body: 'Over time, scientists have developed different models to explain the structure of atoms. The Bohr model (with a central nucleus and electrons orbiting like planets) helps us understand how electrons are arranged and how atoms interact to form molecules – even though we cannot see individual atoms with the naked eye or most microscopes.' },        
+        { type: 'image', url: 'https://imgur.com/VVHXRAk.gif', caption: 'Bohr Model' },
+        { type: 'text', heading: '2. Weather Maps', body: 'These are visual models that use symbols, colors, and lines to represent atmospheric conditions like temperature, air pressure, wind direction, and precipitation. They help meteorologists predict weather patterns that are too large and dynamic to observe all at once from a single location.' },        
+        { type: 'image', url: 'https://imgur.com/hq7JmYL.gif', caption: 'Weather Maps' },
+        { type: 'text', heading: '3. Water Cycle Diagrams', body: 'These simplified drawings show how water moves between Earth’s surface, atmosphere, and underground. They highlight processes like evaporation, condensation, precipitation, and runoff, connecting observable events (like rain or a puddle drying up) to the larger, unseen cycle that distributes water across the planet.' },        
+        { type: 'image', url: 'https://imgur.com/BtUMHHq.gif', caption: 'Water Cycle' },
+        { type: 'text', heading: '4. DNA Double Helix Model', body: 'This physical or visual model represents the structure of DNA, which is too small to see directly. It explains how genetic information is stored and copied, helping scientists understand inheritance and develop treatments for genetic diseases.' },        
+        { type: 'image', url: 'https://imgur.com/kM4PzOs.gif', caption: 'DNA Double Helix Strand' },
+        { type: 'text', heading: 'References', body: 'https://giphy.com/explore/bohr-model <br><br> https://commons.wikimedia.org/wiki/File:Atom_animation.gif <br><br> https://www.philstar.com/headlines/2017/12/22/1770864/vinta-weakens-signal-no-2-11-areas <br><br> https://www.pinterest.com/pin/water-cycle-diagram-how-water-moves-through-the-environment--335870084719271027/ <br><br> https://in.pinterest.com/pin/30258628735337875/ <br><br> https://giphy.com/explore/galaxy-supernovas <br><br> https://imgur.com/gallery/mountain-building-via-plate-tectonics-uVKakbA <br><br> https://www.pinterest.com/pin/escape-into-a-captivating-fanfiction--391531761376212809/ <br><br> https://kaiserscience.wordpress.com/chemistry/chemical-reactions/' },        
+        ]
+      },
+      'the particle model': {
+        title: 'Lesson 2: The Particle Model of Matter',
+        modules: [
+          { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Describe the basic Particle Model of Matter. <br><br>2. Recognize that particles are always in constant motion, even if it cannot be seen.' },        
+        { type: 'text', heading: 'Basic Particle Model of Matter', body: 'The Particle Model of Matter is a scientific model that describes all substances as being made up of tiny, discrete particles (atoms, molecules, or ions) that have specific properties. The model has four core ideas:' },        
+        { type: 'text', heading: '1. All matter is made of particles', body: 'Every solid, liquid, and gas is composed of tiny building blocks that are too small to see individually.' },        
+        { type: 'text', heading: '2. Particles have space between them', body: 'The amount of space varies depending on the state of matter. Gases have the most space between particles, solids have the least.' },        
+        { type: 'text', heading: '3. Particles are always in constant motion', body: 'Even when an object appears completely still, its particles are moving continuously.' },        
+        { type: 'text', heading: '4. Particles attract each other', body: 'There are forces of attraction between particles; the strength of these forces also varies by state of matter.' },        
+        { type: 'image', url: 'https://imgur.com/ZwRPBOD.gif', caption: 'Particle Model of Matter'},
+        { type: 'text', heading: 'Constant Motion of Particles (Even When Unseen)', body: 'We cannot see particle motion directly, but we can observe evidence of it. For example: <br><br>• When you add a drop of food coloring to a glass of water, the color spreads out and mixes with the water over time. This is due to the random motion of water molecules and food coloring particles (called diffusion). <br><br>• If you leave a bottle of perfume open in a room, the scent will eventually spread to every corner. Perfume particles move through the air and into your nose. <br><br>• Even a solid like a metal spoon will expand slightly when heated. This happens because the particles move faster and move further apart as they gain energy.' },        
+        { type: 'image', url: 'https://imgur.com/6ZryYm6.gif', caption: 'Spreading of Food Coloring Particles to a Glass of Water' },
+        { type: 'image', url: 'https://imgur.com/hwwpdIm.gif', caption: 'Scattering of Perfume Particles into the Air' },
+        { type: 'image', url: 'https://imgur.com/kLX3LwH.gif', caption: 'Expansion of Particles When a Metal Spoon is Heated' },
+        { type: 'text', heading: 'References', body: 'https://commons.wikimedia.org/wiki/File:Dispersion.gif <br><br> https://giphy.com/explore/perfumes <br><br> https://gifzz.com/gifs/yxvgTi8D0pA7ypvrsEhD?page=12 <br><br>https://lms.eduqode.com/courses/science-iv/lesson/spark-your-neurons-%E2%9C%A8%F0%9F%92%A1%F0%9F%9A%80-i-effects-of-heat-on-solids-liquids-and-gases/' },        
+        ]
+      },
+      'changes of state': {
+        title: 'Lesson 3: Changes of States',
+        modules: [
+          { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Identify the three main states of matter: solid, liquid, and gas. <br><br>2. Recognize common changes of state.' },
+          { type: 'text', heading: 'The Three Main States of Matter', body: 'All matter on Earth exists in one of three primary states, distinguished by the arrangement, motion, and forces between particles:<br><br>1. Solid', body: 'Particles are tightly packed in a fixed, regular pattern. They vibrate in place but do not move past one another. Solids have a definite shape and volume (e.g., ice cubes, a wooden block, a metal coin).' },        
+        { type: 'image', url: 'https://imgur.com/o16HVej.gif', caption: 'Particles of Solids' },
+        { type: 'text', heading: '2. Liquid', body: 'Particles are close together but not in a fixed pattern. They can slide past one another, allowing liquids to flow. Liquids have a definite volume but take the shape of their container (e.g., water in a glass, milk, oil).' },        
+        { type: 'image', url: 'https://imgur.com/QYkIuiJ.gif', caption: 'Particles of Liquids' },
+        { type: 'text', heading: '3. Gas', body: 'Particles are far apart and move freely in all directions at high speeds. Gases have no definite shape or volume. They expand to fill their entire container (e.g., water vapor, air, helium in a balloon).' },        
+        { type: 'image', url: 'https://imgur.com/N3YV2cv.gif', caption: 'Particles of Gases' },
+        { type: 'text', heading: 'Common Changes of State', body: 'Changes of state occur when matter gains or loses thermal energy (heat). The most common changes are: <br><br>1. Melting', body: 'Solid to Liquid. When heat is added to a solid, particles gain energy, move faster, and break free from their fixed positions.' },        
+        { type: 'image', url: 'https://imgur.com/xNRrX7A.gif', caption: 'Melting' },
+        { type: 'text', heading: '2. Freezing', body: 'Liquid to Solid. When heat is removed from a liquid, particles lose energy, slow down, and lock into a fixed pattern.' },        
+        { type: 'image', url: 'https://imgur.com/1qJZ2Az.gif', caption: 'Freezing' },
+        { type: 'text', heading: '3. Evaporation', body: 'Liquid to Gas. When heat is added to a liquid, particles at the surface gain enough energy to escape into the air as vapor.' },        
+        { type: 'image', url: 'https://imgur.com/XbTSZvP.gif', caption: 'Evaporation' },
+        { type: 'text', heading: '4. Condensation', body: 'Gas to Liquid. When heat is removed from a gas, particles lose energy, slow down, and clump together to form liquid droplets.' },        
+        { type: 'image', url: 'https://imgur.com/EvXLJjW.gif', caption: 'Condensation' },
+        { type: 'text', heading: '5. Sublimation', body: 'Solid to Gas (without passing through the liquid state).' },                
+        { type: 'image', url: 'https://imgur.com/p7Brse2.gif', caption: 'Sublimation' },
+        { type: 'text', heading: 'References', body: 'https://commons.wikimedia.org/wiki/File:Gif_-AtomosSolido_01.gif<br><br>https://commons.wikimedia.org/wiki/File:Gif_-AtomosLiquid_03.gif<br><br>https://commons.wikimedia.org/wiki/File:Gif_-AtomosGas_02.gif<br><br>https://dribbble.com/shots/2408548-Melting-icecream-Animated-with-css<br><br>https://tenor.com/search/ice-water-gifs<br><br>https://medium.com/@quantumglyphs1/the-intricacies-of-water-evaporation-a-molecular-dance-below-boiling-point-76cbc98af52d<br><br>https://giphy.com/explore/condensation' },        
+        ]
+      },
+      'solutions': {
+        title: 'Lesson 4: Solutions',
+        modules: [
+          { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Explain the specific role of solute and solvent in forming a solution.' },        
+        { type: 'text', heading: 'What is a Solution?', body: 'A solution is a homogeneous mixture. Meaning it has a uniform composition throughout, with no visible separation of parts. Solutions are formed when one substance dissolves into another.' },        
+        { type: 'text', heading: 'Specific Roles of Solute and Solvent', body: '<b>1. Solute:</b> The substance that is dissolved in the mixture. It is present in the smaller amount. Solutes can be solids, liquids, or gases.<br>Examples: <br>• In salt water, salt is the solute (solid dissolved in liquid). <br> • In soda water, carbon dioxide gas is the solute (gas dissolved in liquid). <br>• In vinegar, acetic acid is the solute (liquid dissolved in liquid). <br><br><b>2. Solvent:</b> The substance that does the dissolving. It is present in the larger amount and determines the state of the solution (most solvents are liquids, with water being the most common called the universal solvent). <br>Examples: <br>• In salt water, water is the solvent. <br>• In nail polish remover, acetone is the solvent (dissolves solid nail polish). <br>• In air (a gaseous solution), nitrogen gas is the solvent (dissolves oxygen, carbon dioxide, and other gases).' },        
+        { type: 'text', heading: 'How Dissolving Works', body: 'When a solute dissolves in a solvent, the solvent particles surround and pull apart the solute particles, spreading them evenly throughout the mixture. For example, when salt dissolves in water, water molecules break apart the salt crystals into individual ions, which then disperse among the water molecules to form a uniform solution. Not all substances dissolve in all solvents. For example, oil (a nonpolar substance) does not dissolve in water (a polar substance), but it does dissolve in gasoline (a nonpolar solvent).' },        
+        ]
+      }
+    },
+    3: {
+      'the particle model': {
+        title: 'Lesson 1: The Particle Model (Advanced)',
+        modules: [
+          { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Describe how particle motion and spacing differ between solids, liquids, and gases. <br><br>2. Explain that increasing temperature speeds up particle motion, while decreasing temperature slows it down.' },        
+        { type: 'text', heading: 'How Particle Motion & Spacing Differ Across States of Matter', body: 'The Particle Model explains the unique properties of solids, liquids, and gases by focusing on particle arrangement, spacing, and motion – all of which are closely linked.' },        
+        { type: 'image', url: 'https://imgur.com/swT3E0k.jpg', caption: 'Imgur: Balancing Equations' },
+        { type: 'text', heading: 'Effect of Temperature on Particle Motion', body: 'Temperature is a measure of the average kinetic energy (energy of motion) of particles in a substance. <br><br>1. Increasing Temperature', body: 'Adds thermal energy to particles, increasing their kinetic energy. This makes them move faster and spread further apart.<br><br> For example: <br>• Heating a solid (like butter) causes particles to vibrate more vigorously until they break free from their fixed positions and melt into a liquid. <br><br>• Heating a liquid (like water) makes particles move faster until some gain enough energy to escape into the air as gas (evaporation or boiling).' },        
+        { type: 'text', heading: '2. Decreasing Temperature', body: 'Removes thermal energy from particles, reducing their kinetic energy. This slows their motion and brings them closer together. <br><br>For example: <br>• Cooling a liquid (like water) slows particles until they lock into a fixed pattern and freeze into a solid (ice). <br>• Cooling a gas (like water vapor) slows particles until they clump together to form liquid droplets (condensation).' },               
+         ]
+      },
+      'changes of state': {
+        title: 'Lesson 2: Changes of State (Energy and Particle Arrangement)',
+        modules: [
+          { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Explain changes of state by linking them to changes in particle arrangement and energy. <br><br>2. Analyze the energy changes involved in the particle.' },        
+        { type: 'text', heading: 'Explaining Changes of State Through Particles & Energy', body: 'All changes of state are physical changes (the substance remains the same – e.g., water is still H₂O whether it’s ice, liquid, or vapor). They occur when particles gain or lose enough energy to alter their arrangement and motion. <br><br><b>1. Melting (Solid to Liquid)</b><br><br><b>Energy Change:</b> Heat is absorbed (endothermic process) – particles gain thermal energy. <br><br> <b>Particle Behavior:</b> The added energy increases vibration speed until particles break free from their fixed lattice structure. They can now slide past one another, forming a liquid. <br><br> <b>Example:</b> Ice melting into water at 0°C (32°F). The temperature remains constant during melting as energy is used to break particle bonds, not to increase temperature.' },        
+        { type: 'text', heading: '2. Freezing (Liquid to Solid)', body: '<b>Energy Change:</b> Heat is released (exothermic process) – particles lose thermal energy. <br><br> <b>Particle Behavior:</b> As energy decreases, particles slow down and move closer together. Forces of attraction between particles lock them into a fixed, regular pattern, forming a solid. <br><br> <b>Example:</b> Water freezing into ice at 0°C. Again, temperature stays constant during freezing as energy is released when particle bonds form.' },        
+        { type: 'text', heading: '3. Evaporation / Boiling (Liquid to Gas)', body: '<b>Energy Change:</b> Heat is absorbed (endothermic process) – particles gain thermal energy. <br><br> <b>• Evaporation:</b> Occurs at the surface of a liquid, at any temperature below its boiling point. Only high-energy surface particles escape into the air. <br><br> <b>• Boiling:</b> Occurs throughout the liquid at a specific temperature (boiling point). All particles gain enough energy to break free from each other. <br><br> <b>Particle Behavior:</b> Particles move fast enough to overcome attractive forces and spread far apart, moving freely as a gas. <br><br> <b>Example:</b> Water evaporating from a puddle on a warm day, or boiling into steam at 100°C (212°F) at sea level.' },  
+        { type: 'text', heading: '4. Condensation (Gas to Liquid)', body: '<b>Energy Change:</b> Heat is released (exothermic process) – particles lose thermal energy. <br><br> <b>Particle Behavior:</b> As gas particles cool, they slow down and move closer together. Attractive forces pull them into clusters, forming liquid droplets. <br><br> <b>Example:</b> Water vapor condensing into droplets on a cold glass, or forming clouds when warm air rises and cools.' },        
+        { type: 'text', heading: '5. Sublimation (Solid to Gas)', body: '<b>Sublimation:</b> Heat is absorbed; solid particles gain enough energy to jump directly to the gas state (no liquid phase). <br><br> <b>Example:</b> Dry ice (solid CO₂) turning into CO₂ gas at room temperature.' },        
+        { type: 'text', heading: '6. Deposition (Gas to Solid)', body: '<b>Deposition:</b> Heat is released; gas particles lose energy and form a solid directly. <br><br> <b>Example:</b> Frost forming on a cold window pane when water vapor in air freezes without becoming liquid first.' },        
+         ]
+      },
+      'scientific investigations': {
+        title: 'Lesson 3: Scientific Investigations',
+        modules: [
+          { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Follow the standard steps of a scientific investigation. <br><br>2. Make accurate measurements using standard units of measurement.' },        
+        { type: 'text', heading: 'Standard Steps of a Scientific Investigation', body: 'A scientific investigation follows a structured process to answer questions about the natural world. Each step builds on the previous one to ensure results are reliable and valid.' },        
+        { type: 'text', heading: '1. Observation', body: '<b>What it is:</b> Using your senses (sight, hearing, touch, smell, taste – safely!) or tools (microscopes, thermometers) to notice a pattern, event, or problem. <br><br> <b>Example:</b> You observe that sugar dissolves faster in hot water than in cold water.' },        
+        { type: 'text', heading: '2. Ask a Question', body: '<b>What it is:</b> Formulating a clear, testable question based on your observation. It should focus on a single relationship between variables. <br><br> <b>Example:</b> How does water temperature affect the rate at which sugar dissolves?' },        
+        { type: 'text', heading: '3. Form a Hypothesis', body: '<b>What it is:</b> A testable prediction or explanation for the question. It should be written as an If... then... because... statement. <br><br> <b>Example:</b> If water temperature is increased, then sugar will dissolve faster because higher temperatures speed up particle motion, helping solvent particles break down solute particles more quickly.' },        
+        { type: 'text', heading: '4. Testing (Experiment)', body: '<b>What it is:</b> Designing and conducting a controlled experiment to test the hypothesis. A controlled experiment changes only one variable (independent variable) at a time, while keeping all others constant (controlled variables). <br><br> <b>Independent variable:</b> The factor you change (e.g., water temperature: 20°C, 50°C, 80°C). <br><br> <b>Dependent variable:</b> The factor you measure (e.g., time taken for sugar to fully dissolve). <br><br> <b>Controlled variables:</b> Factors kept the same (e.g., amount of sugar, amount of water, type of sugar, stirring speed). <br><br> <b>Example:</b> Measure how long it takes 10 grams of granulated sugar to dissolve in 100 mL of water at 20°C, 50°C, and 80°C – stirring each sample the same number of times.' },        
+        { type: 'text', heading: '5. Analysis', body: '<b>What it is:</b> Organizing and interpreting data (using tables, graphs, or calculations) to see if it supports the hypothesis. <br><br> <b>Example:</b> Create a line graph showing water temperature on the x-axis and dissolution time on the y-axis. You might find that as temperature increases, dissolution time decreases.' },        
+        { type: 'text', heading: '6. Conclusion', body: '<b>What it is:</b> Stating whether the data supports or rejects the hypothesis, and explaining what the results mean. If needed, suggest improvements for future experiments or new questions to investigate. <br><br> <b>Example:</b> The data supports the hypothesis that sugar dissolves faster in hotter water. Higher temperatures increase particle motion, which speeds up the dissolving process. Future tests could explore how stirring affects dissolution rate.' },        
+        { type: 'text', heading: 'Making Accurate Measurements with Standard Units', body: 'Scientists use the International System of Units (SI) to ensure measurements are consistent and comparable worldwide. Key units for common measurements:<br><br><b>1. Mass</b><br><br>Measured in grams (g) or kilograms (kg) using a balance scale. Example: A sugar cube has a mass of ~2 grams.' },        
+        { type: 'text', heading: '2. Volume', body: '• Liquids: Measured in liters (L) or milliliters (mL) using a graduated cylinder or beaker. Example: A soda can holds 330 mL of liquid. <br><br> • Solids: Calculated using length × width × height (for regular shapes) in cubic meters (m³) or cubic centimeters (cm³).' },        
+        { type: 'text', heading: '3. Temperature', body: 'Measured in degrees Celsius (°C) using a thermometer. Example: Room temperature is ~25°C, boiling water is 100°C.' },        
+        { type: 'text', heading: '4. Time', body: 'Measured in seconds (s), minutes (min), or hours (h) using a stopwatch or clock.' },        
+        { type: 'text', heading: 'Tips for Accuracy', body: '1. Read measuring tools at eye level to avoid parallax error. <br><br> 2. Use the smallest unit of measurement possible for precision. <br><br> 3. Repeat measurements to check consistency.' },        
+         ]
+      },
+      'solutions': {
+        title: 'Lesson 4: Solutions (Quantitative Aspects and Solubility)',
+        modules: [
+          { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Quantitatively express the amount of solute in a solvent. <br><br>2. Analyze how factors like heat affect solubility.' },        
+        { type: 'text', heading: 'Quantitatively Expressing Solute Amount in a Solution', body: 'The amount of solute dissolved in a solvent can be described using concentration – a quantitative measure of how much solute is present per unit of solvent or solution.' },        
+        { type: 'text', heading: 'Common Ways to Express Concentration <br><br> 1. Mass per volume', body: 'Grams of solute per liter (g/L) or grams per milliliter (g/mL) of solvent. <br><br> <b>• Formula:</b> Concentration (g/L) = Mass of solute (g) ÷ Volume of solvent (L) <br><br> <b>• Example:</b> If 20 grams of salt is dissolved in 0.5 liters of water, the concentration is 20 g ÷ 0.5 L = 40 g/L.' },        
+        { type: 'text', heading: '2. Mass per mass', body: 'Grams of solute per 100 grams of solution (often called percent by mass). <br><br> <b>• Example:</b> A 10% salt solution means 10 grams of salt is dissolved in 90 grams of water, making 100 grams of solution.' },        
+        { type: 'text', heading: 'Factors Affecting Solubility <br><br> For solid solutes in liquid solvents', body: 'Solubility increases with increasing temperature. This is because higher temperatures speed up solvent particles, allowing them to break apart more solute particles and hold more of them in solution. <br><br> <b>• Example:</b> 204 grams of sugar dissolves in 100 mL of water at 20°C, but 487 grams dissolves in the same amount of water at 100°C.' },        
+        { type: 'text', heading: 'For gas solutes in liquid solvents', body: 'Solubility increases with increasing temperature. This is because higher temperatures speed up solvent particles, allowing them to break apart more solute particles and hold more of them in solution. <br><br> <b>• Example:</b> Soda goes flat faster when left out in the sun – higher temperature reduces the amount of carbon dioxide gas that can stay dissolved in the water.' },        
+        { type: 'text', heading: 'Other Factors Affecting Solubility', body: '<b>Pressure:</b> Only affects gas solubility. Higher pressure forces more gas particles into the liquid, increasing solubility. Example: Soda is carbonated under high pressure to dissolve more CO₂. <br><br> <b>Stirring:</b> Does not increase solubility, but speeds up the rate at which solute dissolves by spreading solvent particles around the solute more quickly. <br><br> <b>Particle size:</b> Smaller solute particles dissolve faster than larger ones because they have more surface area exposed to the solvent. Example: Granulated sugar dissolves faster than sugar cubes.' },  
+        ]
+      }
+    },
+    4: {
+      'use of models': {
+        title: 'Lesson 1: Use of Models in Science',
+        modules: [
+          { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Explain why models are essential tools in science.' },        
+        { type: 'text', heading: 'Why Models Are Essential Tools in Science', body: 'Scientific models are more than just visual aids. They are foundational to how scientists understand, study, and communicate about the natural world. Their importance stems from three core functions:' },        
+        { type: 'text', heading: '1. To Simplify Complex Ideas', body: 'Most natural phenomena involve countless variables and interactions that are impossible to study in their entirety. Models strip away non-essential details to focus on key relationships, making complexity manageable. <br><br> <b>Example:</b> The kinetic molecular model of gases ignores differences between individual gas molecules and assumes they are identical, hard spheres with no attractive forces. While this is not perfectly accurate, it simplifies calculations to explain gas behavior (e.g., how pressure changes with temperature). <br><br> <b>Why it matters:</b> Without simplification, scientists would be overwhelmed by data and unable to identify patterns.' },        
+        { type: 'text', heading: '2. To Make Predictions', body: 'A strong model can forecast how a system will behave under new conditions, allowing scientists to plan experiments or prepare for real-world events. <br><br> <b>Example:</b> Climate models use mathematical equations to represent interactions between the atmosphere, oceans, land, and ice. They predict how global temperatures, precipitation, and sea levels will change under different greenhouse gas emission scenarios. <br><br> <b>Example:</b> Atomic orbital models predict where electrons are most likely to be found in an atom, helping chemists forecast how elements will react to form new compounds. <br><br><b>Why it matters:</b> Predictions let us test ideas before investing in large-scale research or taking action to address problems like climate change.' },        
+        { type: 'text', heading: '3. To Test Theories', body: 'Models provide a way to simulate systems that are too large, small, dangerous, or slow to observe directly. Scientists can manipulate model variables to test whether a theory aligns with expected outcomes. <br><br> <b>Example:</b> Plate tectonic models use computer simulations to test how movements of Earth’s crust explain earthquakes, volcanoes, and continental drift. By adjusting parameters like plate speed or pressure, scientists verify if their theories about crustal behavior are correct. <br><br> <b>Example:</b> DNA replication models let scientists test how mutations might occur during copying by altering the model’s representation of base-pair bonding. <br><br> <b>Why it matters:</b> Models turn abstract theories into testable frameworks, driving scientific progress and refining our understanding of nature.' },        
+        { type: 'text', heading: 'Key Note on Model Limitations', body: 'No model is perfect. All have boundaries to their usefulness. For example, the Bohr model of the atom works well for explaining hydrogen atoms but fails to describe more complex elements. As new evidence emerges, models are revised or replaced to improve their accuracy and scope.' },        
+        ]
+      },
+      'the particle model': {
+        title: 'Lesson 2: The Particle Model (Visualization and Interpretation)',
+        modules: [
+          { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Create or interpret diagrams to describe the arrangement, spacing, and motion of particles in solids, liquids, and gases.' },        
+        { type: 'text', heading: 'Creating and Interpreting Particle Diagrams', body: 'Particle diagrams use symbols (e.g., circles, spheres) to represent atoms or molecules, showing their arrangement, spacing, and motion. When creating or interpreting these diagrams, focus on three key features:' },        
+        { type: 'text', heading: 'DIAGRAM 1: SOLID', body: '<b>Arrangement:</b> Particles are packed in a regular, repeating lattice pattern (e.g., cubes or hexagons). <br><br><b>Spacing:</b> Minimal space between particles. They touch or are very close together. <br><br><b>Motion:</b> Particles vibrate in fixed positions (represented by small arrows pointing back and forth). <br><br><b>Diagram Key:</b> Draw evenly spaced rows of circles with small vibration arrows. Label: "Solid – Fixed arrangement, minimal spacing, vibrating particles."' },        
+        { type: 'text', heading: 'DIAGRAM 2: LIQUID', body: '<b>Arrangement:</b> Particles are randomly distributed with no regular pattern. <br><br><b>Spacing:</b> Close together, but with slightly more space than solids (some gaps between particles are visible). <br><br><b>Motion:</b> Particles slide past one another in random directions (represented by longer arrows pointing in different ways). <br><br><b>Diagram Key:</b> Draw circles clustered together but not in rows, with arrows showing sliding movement. Label: "Liquid – Random arrangement, moderate spacing, sliding particles."' },        
+        { type: 'text', heading: 'DIAGRAM 3: GAS', body: '<b>Arrangement:</b> Particles are widely scattered with no pattern. <br><br><b>Spacing:</b> Large gaps between particles. Much greater than the size of the particles themselves. <br><br><b>Motion:</b> Particles move rapidly in all directions (represented by long arrows pointing outward, with some collision symbols). <br><br><b>Diagram Key:</b> Draw a few circles spread far apart across the space, with long arrows and small "x" marks to show collisions. Label: "Gas – No fixed arrangement, large spacing, fast-moving colliding particles."' },        
+        ]
+      },
+      'changes of state': {
+        title: 'Lesson 3: Changes of State',
+        modules: [
+          { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Explain in detail how changes of state occur for all three states in terms of particle arrangement and energy changes.' },        
+        { type: 'text', heading: 'Shifts in Particle Energy, Arrangement, and Interparticle Forces', body: 'All changes of state involve shifts in particle energy, arrangement, and interparticle forces. Below is a comprehensive breakdown:' },         
+        { type: 'text', heading: '1. Melting (Solid to Liquid)', body: '<b>Energy change:</b> Endothermic – heat is absorbed from the surroundings. This energy is used to overcome the strong attractive forces holding particles in the solid lattice, rather than increasing temperature (the latent heat of fusion). <br><br><b>Particle behavior:</b> <br>Solid phase: Particles vibrate in fixed positions, held by strong forces. <br><br>As heat is added, vibration speed increases until forces are weakened enough for particles to break free from their lattice. <br><br> Liquid phase: Particles are still close together but can slide past one another, with weaker attractive forces than solids.<br><br><b>Example:</b> Ice melting at 0°C – temperature remains constant until all ice turns to water.' },        
+        { type: 'text', heading: '2. Freezing (Liquid to Solid)', body: '<b>Energy change:</b> Exothermic – heat is released to the surroundings (latent heat of fusion is given off). <br><br><b>Particle behavior:</b> Liquid phase: Particles slide past one another with moderate energy. <br><br> As heat is removed, particle motion slows, and attractive forces strengthen. <br<br> Solid phase: Particles lock into a regular lattice, with strong forces holding them in place. <br><br><b>Example:</b> Water freezing into ice – temperature stays at 0°C until all liquid becomes solid.' },        
+        { type: 'text', heading: '3. Evaporation/Boiling (Liquid to Gas)', body: '<b>Energy change:</b> Endothermic – heat is absorbed (latent heat of vaporization). <br><br><b>• Evaporation:</b> Occurs at the surface; only high-energy particles escape, leaving lower-energy particles behind (which is why evaporating liquids cool down). <br><br><b>• Boiling: </b> Occurs throughout the liquid at the boiling point; all particles gain enough energy to break free. <br><br><b>Particle behavior:</b> <br><br>Liquid phase: Particles are close together with moderate attractive forces. <br><br> As heat is added, motion speeds up until forces are completely overcome. <br><br> Gas phase: Particles are far apart, moving rapidly and colliding with no significant attractive forces between them. <br><br><b>Example:</b> Water boiling at 100°C at sea level. Pressure affects boiling point (lower pressure = lower boiling point).' },        
+        { type: 'text', heading: '4. Condensation (Gas to Liquid)', body: '<b>Energy change:</b> Exothermic – heat is released (latent heat of vaporization is given off). <br><br><b>Particle behavior:</b> <br> Gas phase: Particles move rapidly with high energy, far apart from one another. <br><br> As heat is removed, motion slows, and particles move closer together. Weak attractive forces begin to act, pulling particles into clusters.<br><br> Liquid phase: Particles are close together, sliding past one another with moderate forces.<br><br><b>Example:</b> Water vapor condensing into dew on grass overnight. The air cools, causing vapor particles to clump into liquid droplets.' },        
+        { type: 'text', heading: '5. Sublimation (Solid to Gas)', body: '<b>Energy change:</b> Endothermic – heat is absorbed (latent heat of sublimation). <br><br><b>Particle behavior:</b> <br> Solid phase: Particles vibrate in fixed positions with strong forces.<br><br> Instead of melting first, particles gain enough energy to directly overcome all attractive forces and move into the gas phase. <br><br> Gas phase: Particles are far apart, moving rapidly.<br><br><b>Example:</b> Dry ice (solid CO₂) sublimating into CO₂ gas at room temperature – no liquid CO₂ forms at standard pressure.' },        
+        { type: 'text', heading: '6. Deposition (Gas to Solid)', body: '<b>Energy change:</b> Exothermic – heat is released (latent heat of sublimation is given off).<br><br><b>Particle behavior:</b> <br> Gas phase: Particles move rapidly with high energy. <br><br> Instead of condensing first, particles lose enough energy to directly form strong attractive forces and lock into a solid lattice. <br><br>Solid phase: Particles are in a fixed, regular arrangement. <br><br><b>Example:</b> Frost forming on a cold window – water vapor in air deposits directly as ice crystals without becoming liquid.' },        
+      ]
+      },
+    'scientific investigations': {
+        title: 'Lesson 4: Scientific Investigations',
+        modules: [
+          { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Follow a complete scientific investigation process, including defining aim, listing materials, outlining step-by-step methods, recording results, and drawing conclusions. <br><br>2. Organize collected data using tables, charts, or graphs.' },        
+        { type: 'text', heading: 'Sample Complete Investigation: How Does Particle Size Affect Dissolution Rate? <br><br> AIM', body: 'To determine how the particle size of a solute (sugar) affects the time it takes to dissolve in a fixed amount of water at room temperature.' },              
+        { type: 'text', heading: 'MATERIALS', body: '• 3 types of sugar: sugar cubes, granulated sugar, powdered sugar (all 10 grams per sample) <br>• 3 identical beakers​ <br>• 300 mL distilled water (100 mL per beaker) <br>• Thermometer (to confirm room temperature ~25°C) <br>• Stopwatch <br>• Stirring rod (stirring speed kept constant for all samples) <br>• Balance scale (to measure sugar mass) <br>• Data table and graph paper/software' },        
+        { type: 'text', heading: 'STEP-BY-STEP METHOD', body: '1. Use the balance scale to measure 10 grams of sugar cubes, granulated sugar, and powdered sugar. Place each in a separate labeled container. <br><br> 2. Pour 100 mL of distilled water into each beaker. Use the thermometer to check that all water samples are 25°C. <br><br> 3. Test 1 (Sugar Cubes): Add the 10 grams of sugar cubes to Beaker 1. Start the stopwatch immediately. Stir gently and consistently (10 stirs per minute) until no sugar is visible. Stop the stopwatch and record the time. <br><br> 4. Test 2 (Granulated Sugar): Repeat Step 3 with Beaker 2 and granulated sugar, using the same stirring speed and timing method.  <br><br> 5. Test 3 (Powdered Sugar): Repeat Step 3 with Beaker 3 and powdered sugar. <br><br> 6. Conduct 3 trials for each sample to ensure reliability. <br><br> 7. Record all results in a data table.' },        
+        { type: 'image', url: 'https://imgur.com/kJhKCTZ.jpg', caption: 'DATA TABLE: DISSOLUTION TIME BY PARTICLE SIZE' },
+        { type: 'text', heading: 'ANALYSIS', body: 'The data shows a clear trend: as particle size decreases, average dissolution time decreases significantly. Sugar cubes (largest particles) took the longest to dissolve (182 seconds), while powdered sugar (smallest particles) took the shortest (11 seconds). This is because smaller particles have more surface area exposed to the water, allowing solvent particles to break down solute particles faster.' },        
+        { type: 'text', heading: 'CONCLUSON', body: 'The investigation supports the hypothesis that smaller solute particle size increases dissolution rate. To improve accuracy, future tests could control humidity levels and use a mechanical stirrer to ensure perfectly consistent stirring speed. A new question to explore: Does particle size have the same effect on solubility (maximum amount dissolved) as it does on dissolution rate?' },        
+        ]
+      },
+      'solutions': {
+        title: 'Lesson 5: Solutions',
+        modules: [
+        { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Demonstrate through practical activities how factors like temperature, particle size, and stirring affect solubility. <br><br> 2. Identify common solutions at home and school and test their reaction with litmus paper to determine if they are acidic or basic.' },        
+        { type: 'text', heading: 'PRACTICAL ACTIVITY 1: FACTORS AFFECTING SOLUBILITY', body: '<b>Goal:</b> Demonstrate how temperature, particle size, and stirring affect solubility and dissolution rate.' },        
+        { type: 'text', heading: 'Materials Needed', body: 'Sugar, salt, water (cold and hot) <br>• Sugar cubes, powdered sugar <br>• Beakers, graduated cylinders, stopwatch, thermometer <br>• Stirring rods' },        
+        { type: 'text', heading: 'Activity Steps <br><br> 1. Temperature Effect:', body: '• Dissolve sugar in 100 mL cold water (25°C) until no more dissolves (saturated solution). Record the mass of sugar used. <br><br> •Repeat with 100 mL hot water (80°C). Compare the masses – more sugar dissolves in hot water, showing higher solubility at higher temperatures.' },        
+        { type: 'text', heading: '2. Particle Size Effect:', body: '•Add 10 grams of sugar cubes to 100 mL room-temperature water; time how long it takes to dissolve without stirring. <br><br>• Repeat with 10 grams of powdered sugar. Observe that powdered sugar dissolves faster, even though solubility is the same.' },        
+        { type: 'text', heading: '3. Stirring Effect:', body: '• Add 10 grams of granulated sugar to two beakers of 100 mL room-temperature water. <br><br>• Stir one beaker gently; leave the other unstirred. Record times - stirring speeds up dissolution but does not change how much sugar dissolves.' },        
+        { type: 'text', heading: 'PRACTICAL ACTIVITY 2: ACID-BASE TESTING OF COMMON SOLUTIONS', body: '<b>Goal:</b> Identify acidic, basic, or neutral solutions using litmus paper.' },        
+        { type: 'text', heading: 'Background', body: 'Litmus Paper: A natural indicator that changes color based on pH: <br>• Blue litmus paper turns red in acidic solutions (pH < 7). <br>• Red litmus paper turns blue in basic solutions (pH > 7). <br>• No color change in neutral solutions (pH = 7).' },        
+        { type: 'text', heading: 'Materials needed', body: '• Red and blue litmus paper strips <br>• Common solutions (labeled A to F): <br>1. Vinegar (home) <br>2. Baking soda solution (home) <br>3. Tap water (home/school) <br>4. Lemon juice (home) <br>5. Soap solution (home) <br> 6. Distilled water (school) <br> •Droppers, test tubes or small cups' },        
+        { type: 'text', heading: 'Activity steps', body: '1. Label test tubes/cups with the solution names. <br><br>2. For each solution: <br> • Place 2 mL in a test tube/cup. <br> • Dip one blue litmus strip and one red litmus strip into the solution. <br> • Record color changes and classify the solution as acidic, basic, or neutral.' },        
+        { type: 'text', heading: 'Discussion', body: 'Many common household solutions are acidic or basic: acidic solutions often taste sour (e.g., vinegar, lemon juice), while basic solutions feel slippery (e.g., soap, baking soda). Neutral solutions like distilled water have a balanced pH.' },        
+        ]
+      }
+    },
+    5: {
+      'the particle model': {
+        title: 'Lesson 1: The Particle Model - Application to Real-World Phenomena',
+        modules: [
+        { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Apply the Particle Model of Matter to explain a wide range of phenomena.' },        
+        { type: 'text', heading: 'The Particle Model of Matter: Explaining How Substances Behave', body: 'The Particle Model of Matter is a powerful framework that can explain diverse observations about how substances behave. Below is how it applies to key phenomena:' },        
+        { type: 'text', heading: '1. Why Substances Expand When Heated', body: '<b>Explanation:</b> Temperature is a measure of particle kinetic energy. When heat is added, particles move faster and gain energy to overcome some of the attractive forces between them. This causes particles to spread further apart, increasing the total volume of the substance – a process called thermal expansion. <br><br> <b>Phenomena Examples:</b> <br>• Solids: Metal railway tracks have gaps between sections to allow for expansion in hot weather; if not, tracks would buckle as particles spread apart. <br><br>• Liquids: Thermometers work because liquid mercury or alcohol expands up a narrow tube when heated. Faster-moving particles take up more space. <br><br>• Gases: A balloon inflates when left in the sun because gas particles inside move faster, collide more forcefully with the balloon walls, and spread apart to increase volume. <br><br><b>Exception:</b> Water expands when freezing (from liquid to solid) because ice forms a lattice structure with more space between particles than liquid water. This is why ice floats on water.' },        
+        { type: 'text', heading: '2. Why Some Substances Mix While Others Do Not', body: '<b>Explanation:</b> Mixing (or miscibility) depends on the nature of particles and their attractive forces. Particles of similar types tend to mix because their intermolecular forces are compatible, like dissolves like. <br><br> <b>• Polar vs. Nonpolar Particles:</b> Polar particles (e.g., water molecules, which have uneven charge distribution) attract other polar particles and repel nonpolar ones. Nonpolar particles (e.g., oil molecules, with even charge distribution) attract other nonpolar particles. <br><br> <b>Phenomena Examples:</b> <br><b>• Mixing:</b> Salt (polar ions) dissolves in water (polar) because water molecules surround and pull apart salt particles. Ethanol (polar) mixes completely with water. <br><br><b>• Not Mixing:</b> Oil (nonpolar) does not mix with water (polar) – their particles repel each other, so oil floats on top as separate layers. Sand does not dissolve in water because its solid particles have strong attractive forces that water cannot overcome.' },        
+        { type: 'text', heading: '3. Why Gases Can Be Compressed (But Solids/Liquids Cannot)', body: '<b>Explanation:</b> Compression reduces the volume of a substance by forcing particles closer together. <br><br> <b>• Gases:</b> Particles are far apart with large empty spaces between them. Applying pressure pushes particles closer, significantly reducing volume. <br><br><b>• Solids/Liquids:</b> Particles are already very close together with minimal empty space. Even high pressure cannot force them much closer, so these states are nearly incompressible. <br><br> <b>Phenomena Examples:</b><br>• Scuba tanks hold large amounts of compressed air because gas particles are squeezed into a small volume. <br><br>• Hydraulic brakes use liquid oil because it cannot be compressed. Pressure applied to one end is transmitted fully to the other end to stop a vehicle. <br><br>• A wooden block cannot be squashed smaller because its particles have no space to move closer.' },        
+        ]
+      },
+      'scientific investigations': {
+        title: 'Lesson 2: Scientific Investigations - Design and Independent Conduct',
+        modules: [
+          { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Design and conduct scientific investigations independently, including formulating hypotheses and selecting appropriate materials and methods.' },        
+        { type: 'text', heading: 'Key Steps for Independent Investigation Design <br><br> 1. Identify a Research Question', body: 'Choose a question that is testable, specific, and relevant to a scientific concept. <br><br> • Good example: How does temperature affect the solubility limit of table salt in water? <br><br> • Poor example: Why is salt soluble in water? (too broad and not testable quantitatively)' },        
+        { type: 'text', heading: '2. Formulate a Hypothesis', body: 'Write a clear, predictive statement with a rationale, based on prior knowledge. <br><br> • Example: If water temperature increases, then the solubility limit of table salt will increase slightly because higher temperatures provide more energy to overcome attractive forces between salt ions, allowing more salt to dissolve.' },        
+        { type: 'text', heading: '3. Select Variables', body: '<b>Independent Variable:</b> The factor you change (e.g., water temperature: 10°C, 30°C, 50°C, 70°C, 90°C). <br><br><b>• Dependent Variable:</b> The factor you measure (e.g., mass of salt needed to make a saturated solution in 100 mL water). <br><br><b>• Controlled Variables:</b> Factors kept constant (e.g., volume of water, type of salt, stirring method, time allowed for dissolving).' },        
+        { type: 'text', heading: '4. Choose Materials & Equipment', body: 'Select appropriate tools that ensure accuracy and safety. List all items with specifications (e.g., analytical balance scale - measures to 0.01 grams).' },        
+        { type: 'text', heading: '5. Outline a Safe, Step-by-Step Method', body: '• Include safety procedures (e.g., wearing goggles, using heat-resistant gloves when handling hot water). <br><br>• Specify how variables are controlled and how data will be collected. <br><br>• Plan for multiple trials (at least 3) to ensure results are reliable.' },        
+        { type: 'text', heading: '6. Design Data Recording Tools', body: 'Create tables, charts, or digital spreadsheets to organize observations and measurements.' },        
+        { type: 'text', heading: '7. Plan Data Analysis', body: 'Decide how you will process data (e.g., calculate averages, create graphs) and what statistical tests (if any) you will use.' },        
+        { type: 'text', heading: 'Sample Independent Investigation: Design to Determine How Temperature Affects Salt Solubility <br><br> RESEARCH QUESTION', body: 'What is the relationship between water temperature and the solubility limit of sodium chloride (table salt) in 100 mL of distilled water?' },        
+        { type: 'text', heading: 'HYPOTHESIS', body: 'As water temperature increases from 10°C to 90°C, the solubility limit of sodium chloride will increase gradually, because higher kinetic energy of water molecules allows them to break apart and stabilize more salt ions in solution.' },        
+        { type: 'text', heading: 'MATERIALS AND EQUIPMENT', body: '• Sodium chloride (table salt, pure grade) <br>• Distilled water <br>• 5 beakers (250 mL, heat-resistant) <br>• Analytical balance scale (0.01 g precision) <br>• Thermometer (digital, -10°C to 110°C) <br>• Hot plate with temperature control <br>• Ice bath (for cooling water to 10°C) <br>• Stirring rods (glass, heat-resistant)  <br>• Filter paper and funnels (to remove undissolved salt) <br>• Drying oven (to measure mass of undissolved salt) <br>• Safety equipment: Lab coat, safety goggles, heat-resistant gloves, fire extinguisher' },        
+        { type: 'text', heading: 'SAFETY PROCEDURES', body: '• Wear all safety gear at all times. <br>• Use the hot plate on a stable surface; keep flammable materials away. <br>• Handle hot beakers with gloves; allow solutions to cool before filtering. <br>• Clean up spills immediately to prevent slips.' },        
+        { type: 'text', heading: 'STEP-BY-STEP METHOD', body: '1. Prepare 5 water samples of 100 mL each, adjusted to the target temperatures: <br>• 10°C: Place beaker in ice bath and monitor with thermometer. <br><br>• 30°C, 50°C, 70°C, 90°C: Heat water on hot plate and adjust to target temperature. <br><br> 2. For each temperature: <br>a. Add water to a labeled beaker and confirm temperature with the thermometer. <br><br>b. Slowly add salt to the water in small increments (0.5 g at a time), stirring continuously until no more salt dissolves (solution is saturated). <br><br>c. Once no more salt dissolves, let the solution settle for 5 minutes.<br><br>d. Filter the undissolved salt using pre-weighed filter paper; dry the filter paper and salt in the oven at 105°C for 1 hour. <br><br>e. Weigh the dried filter paper and salt to calculate the mass of undissolved salt. <br><br>f. Calculate dissolved salt mass: Total salt added – undissolved salt mass. <br><br>3. Repeat steps 2a–2f three times for each temperature to collect replicate data. <br><br>4. Record all measurements in a data table.' },        
+        { type: 'text', heading: 'DATA RECORDING TABLE', body: 'This is a data table designed to record measurements related to salt solubility at a constant temperature of 10°C. It includes columns for temperature, trial number, total salt added, mass of undissolved salt, mass of dissolved salt, and average dissolved salt mass. Currently, no numerical data has been entered in the rows corresponding to the three trials.' },        
+        { type: 'image', url: 'https://imgur.com/04cpO9s.jpg', caption: '' },
+        { type: 'text', heading: 'DATA ANALYSIS PLAN', body: '• Calculate average solubility limit for each temperature. <br> • Create a line graph with temperature on the x-axis and average solubility on the y-axis. <br> • Analyze the trend line to determine if the hypothesis is supported.' },        
+        { type: 'text', heading: 'CONCLUSION FRAMEWORK', body: '• State whether the hypothesis was supported or rejected. <br> • Explain results using the Particle Model. <br> • Discuss sources of error (e.g., slight temperature fluctuations, incomplete drying of salt) and suggest improvements.​ <br> • Link findings to real-world applications (e.g., how salt dissolves in ocean water at different depths/temperatures).' },        
+        ]
+      },
+      'solutions': {
+        title: 'Lesson 3: Solutions - Analysis and Real-World Applications',
+        modules: [
+          { type: 'text', heading: 'Objectives', body: 'By the end of this lesson learners will be able to: <br>1. Analyze the properties of different solutions, including solubility limits and litmus reactions, and explain the reasons behind these properties. <br><br>2. Apply knowledge of solutions to real-world tasks, such as determining the amount of salt present in a sample of seawater through practical investigation.' },        
+        { type: 'text', heading: 'ANALYZING SOLUTION PROPERTIES', body: 'Expert learners go beyond observing properties to explaining their causes, using knowledge of particles, forces, and energy.' },        
+        { type: 'text', heading: '1. Solubility Limits', body: '<b>What it is:</b> The maximum amount of solute that can dissolve in a given amount of solvent at a specific temperature and pressure.<br><br<b>Explanation:</b> Solubility limits depend on:<br><b>• Intermolecular forces:</b> Stronger attraction between solute and solvent particles increases solubility. For example, ethanol (C₂H₅OH) is highly soluble in water because both have polar molecules that form hydrogen bonds. <br><br><b>• Temperature:</b> As covered earlier, solids generally become more soluble with heat; gases become less soluble. <br><br><b>• Pressure:</b> Only affects gases – higher pressure forces more gas particles into solution (e.g., carbonation in soda).<br><br><b>• Analysis Example:</b> If 36.0 g of salt dissolves in 100 mL water at 20°C, but only 35.7 g dissolves at 10°C, the small change shows salt solubility is only slightly temperature-dependent (unlike sugar, which has a much higher solubility increase with heat).' },        
+        { type: 'text', heading: '2. Litmus Reactions and Acid-Base Properties', body: '<b>What it is:</b> Litmus paper indicates whether a solution is acidic (pH < 7), basic (pH > 7), or neutral (pH = 7) by changing color due to chemical reactions with hydrogen ions (H⁺) or hydroxide ions (OH⁻). <br><br<b>Explanation:</b> <br><b>Acidic solutions:</b> Contain more H⁺ ions (e.g., vinegar = acetic acid, lemon juice = citric acid). Blue litmus turns red because H⁺ ions react with litmus dye to change its structure and color. <br><br><b>• Basic solutions:</b> Contain more OH⁻ ions (e.g., baking soda = sodium bicarbonate, soap = sodium hydroxide). Red litmus turns blue because OH⁻ ions react with litmus dye. <br><br><b>• Neutral Solutons:</b> Have equal numbers of H⁺ and OH⁻ ions (e.g., distilled water, table salt solution). No color change occurs because there is no excess of either ion to react with the dye. <br><br><b>Analysis Example:</b> A solution of lemon juice turns blue litmus red but has no effect on red litmus – this means it is acidic, as citric acid molecules release H⁺ ions when dissolved in water.' },        
+        { type: 'text', heading: 'REAL-WORLD APPLICATION: DETERMINING SALT CONTENT IN SEAWATER', body: 'Seawater contains dissolved salts (mostly sodium chloride). Learners can design a practical method to measure the salt concentration in a sample.' },        
+        { type: 'text', heading: 'INVESTIGATION AIM', body: 'To determine the mass of salt present in a 100 mL sample of seawater.' },        
+        { type: 'text', heading: 'PRINCIPLE', body: 'When seawater is evaporated, the water turns to vapor and leaves behind solid salt, which can be weighed to calculate concentration.' },        
+        { type: 'text', heading: 'MATERIALS AND EQUIPMENT', body: '• 100 mL seawater sample <br>• Evaporating dish (pre-weighed) <br>• Analytical balance scale <br>• Hot plate or Bunsen burner (with tripod and wire gauze) <br>• Safety goggles, lab coat, heat-resistant gloves <br>• Desiccator (to cool dried salt without absorbing moisture)' },        
+        { type: 'text', heading: 'SAFE METHOD', body: '1. Weigh the clean, dry evaporating dish using the balance scale; record the mass (M₁).<br><br>2. Pour exactly 100 mL of seawater into the evaporating dish. <br><br>3. Place the dish on the hot plate (low to medium heat) to evaporate the water slowly. Do not boil vigorously to avoid splashing salt out. <br><br>4. Once all water has evaporated (dish appears dry), turn off the heat and transfer the dish to the desiccator to cool completely. <br><br>5. Weigh the dish with dried salt; record the mass (M₂). <br><br>6. Calculate salt mass: M₂ – M₁. <br><br>7. Repeat with 3 samples to ensure accuracy.' },        
+        { type: 'text', heading: 'CALCULATIONS AND ANALYSIS', body: '<b>Example Result:</b> If M₁ = 52.34 g and M₂ = 55.68 g, salt mass = 55.68 – 52.34 = 3.34 g per 100 mL.<br><br><b>Concentration:</b> This is equivalent to 33.4 g/L or 3.34% by mass (assuming seawater density is ~1 g/mL).<br><br><b>Explanation:</b> The salt was dissolved in seawater because water molecules surrounded and stabilized the salt ions. Evaporation removed the water, allowing the salt ions to reform solid crystals.<br><br><b>Real-World Link:</b> This method is used in oceanography to monitor changes in seawater salinity, which affects ocean currents, marine life, and climate.' },        
+        { type: 'text', heading: 'ERROR SOURCES AND IMPROVEMENTS', body: '<b>Potential Errors:</b> Splashing during evaporation (loses salt), incomplete drying (adds mass from residual water), or impurities in the sample.<br<br><b>Improvements:</b> Use a water bath for slower evaporation, dry the salt in an oven at 105°C for 1 hour, or filter the seawater first to remove solid impurities.' },        
+        ]
+      }
+    }
+  },
     
+          
+    
+  biology: {
+    1: {
+      'cells': {
+        title: 'Level 1: Cell Biology',
+        modules: [
+          { type: 'text', heading: 'The Basic Unit of Life', body: 'Cells are the smallest functional units of living organisms.' },
+          { type: 'image', url: 'https://i.imgur.com/CELL_BIO.png', caption: 'Imgur: Plant vs Animal Cells' }
+        ]
+      }
+    },
+    2: {
+      'genetics': {
+        title: 'Level 2: Genetics and DNA',
+        modules: [
+          { type: 'text', heading: 'Heredity', body: 'DNA carries genetic information passed from parents to offspring.' },
+          { type: 'image', url: 'https://i.imgur.com/DNA_STRAND.png', caption: 'Imgur: Double Helix Structure' }
+        ]
+      }
+    },
+    3: {
+      'ecosystems': {
+        title: 'Level 3: Ecology',
+        modules: [
+          { type: 'text', heading: 'Energy Flow', body: 'Studying how energy moves through food webs and trophic levels.' },
+          { type: 'video', url: 'https://player.vimeo.com/video/ECO_1', source: 'vimeo', title: 'Ecosystem Dynamics' }
+        ]
+      }
+    }
+  }
+};
+  
+  const topicKeywords = {
+  physics: {
+    1: { 'motion': ['motion', 'move', 'position', 'speed', 'velocity'] },
+    2: { 'thermodynamics': ['heat', 'temperature', 'entropy', 'thermal'] },
+    3: { 
+      'force': ['force', 'newton', 'push', 'pull', 'gravity'],
+      'energy': ['energy', 'work', 'power', 'joule', 'kinetic', 'potential']
+    }
+  },
+  chemistry: {
+  1: { 
+    'use of models': ['atom', 'matter', 'proton', 'electron', 'neutron', 'nucleus'],
+    'the particle model': ['particle', 'solid', 'liquid', 'gas', 'states'],
+    'solutions': ['mixture', 'dissolve', 'solute', 'solvent', 'saturated']
+  },
+    2: { 
+    'use of models': ['atom', 'matter', 'proton', 'electron', 'neutron', 'nucleus'],
+    'the particle model': ['particle', 'solid', 'liquid', 'gas', 'states'],
+    'changes of state': ['particle', 'solid', 'liquid', 'gas', 'states'],
+    'solutions': ['mixture', 'dissolve', 'solute', 'solvent', 'saturated']
+  },
+    3: { 
+    'the particle model': ['particle', 'solid', 'liquid', 'gas', 'states'],
+    'changes of state': ['particle', 'solid', 'liquid', 'gas', 'states'],
+    'scientific investigations': ['atom', 'matter', 'proton', 'electron', 'neutron', 'nucleus'],
+    'solutions': ['mixture', 'dissolve', 'solute', 'solvent', 'saturated']
+    },
+    4: { 
+    'use of models': ['particle', 'solid', 'liquid', 'gas', 'states'],
+    'the particle model': ['particle', 'solid', 'liquid', 'gas', 'states'],
+    'changes of state': ['atom', 'matter', 'proton', 'electron', 'neutron', 'nucleus'],
+    'scientific investigations': ['mixture', 'dissolve', 'solute', 'solvent', 'saturated']
+    },
+    5: { 
+        'the particle model': ['particle', 'solid', 'liquid', 'gas', 'states'],
+        'scientific investigations': ['mixture', 'dissolve', 'solute', 'solvent', 'saturated'],
+      'solutions': ['particle', 'solid', 'liquid', 'gas', 'states']
+    }
+    
+  },
+  biology: {
+    1: { 'cells': ['cell', 'organelle', 'mitochondria', 'membrane', 'cytoplasm'] },
+    2: { 'genetics': ['dna', 'gene', 'heredity', 'allele', 'chromosome'] },
+    3: { 'ecosystems': ['ecology', 'environment', 'food web', 'habitat', 'species'] }
+  }
+};
+
+      function speakText(text) {
+  // Cancel any speech currently playing
+  window.speechSynthesis.cancel();
+
+  // CLEANER: Removes asterisks, hashtags, and extra symbols that aren't part of the sentence
+  const cleanText = text
+    .replace(/[*#_~]/g, '')    // Removes markdown formatting symbols
+    .replace(/<\/?[^>]+(>|$)/g, "") // Removes any accidental HTML tags
+    .trim();
+
+  const utterance = new SpeechSynthesisUtterance(cleanText);
+  utterance.rate = 1.0; 
+  utterance.pitch = 1.0;
+  window.speechSynthesis.speak(utterance);
+}
+  
+
+    /* === UI helpers === */
+    function show(elem){ elem.classList.remove('hidden'); elem.classList.add('fade-in'); }
+    function hide(elem){ elem.classList.add('hidden'); elem.classList.remove('fade-in'); }
+
+    function updateBreadcrumb(){
+      let parts = [];
+      if(selectedTopic) parts.push(topics.find(t=>t.id===selectedTopic)?.title || '');
+      if(selectedSubtopic) parts.push(topics.find(t=>t.id===selectedTopic)?.subtopics.find(s=>s.id===selectedSubtopic)?.title || '');
+      if(selectedMode) parts.push(selectedMode === 'descriptor' ? 'Descriptor' : 'Skill');
+      if(selectedProficiency) parts.push(proficiencyLevels.find(p=>p.level===selectedProficiency)?.descriptor);
+      if(selectedSkill) parts.push('Level ' + selectedSkill);
+      document.getElementById('step-breadcrumb').textContent = parts.join(' / ');
+    }
+
+    function updateUI(){
+      // hide all steps
+      ['step-0','step-1','step-2','step-3a','step-3b','step-4'].forEach(id=>{
+        const el=document.getElementById(id); if(el) el.classList.add('hidden');
+      });
+
+      // show relevant step
+      document.getElementById('step-title').textContent = stepTitles[Math.min(currentStep, stepTitles.length-1)];
+      document.getElementById('step-indicator').textContent = `Step ${Math.min(currentStep+1,5)} of 5`;
+      updateBreadcrumb();
+
+      // back/reset visibility
+      const back = document.getElementById('back-button'), reset = document.getElementById('reset-button');
+      if(currentStep>0){ back.classList.remove('hidden'); reset.classList.remove('hidden') } else { back.classList.add('hidden'); reset.classList.add('hidden') }
+
+      if(currentStep===0){ show(document.getElementById('step-0')) }
+      if(currentStep===1){ populateSubtopics(); show(document.getElementById('step-1')) }
+      if(currentStep===2){ show(document.getElementById('step-2')) }
+      if(currentStep===3){
+        if(selectedMode==='descriptor'){ populateProficiencyLevels(); show(document.getElementById('step-3a')) }
+        else { populateSkillLevels(); show(document.getElementById('step-3b')) }
+      }
+      if(currentStep===4){ show(document.getElementById('step-4')) }
+    }
+
+    /* populate functions with animation/stagger */
+    function populateSubtopics(){
+      const container = document.getElementById('step-1');
+      container.innerHTML='';
+      const topic = topics.find(t=>t.id===selectedTopic);
+      if(!topic) return;
+      topic.subtopics.forEach((s, i)=>{
+        const div = document.createElement('div');
+        div.className='card p-4 cursor-pointer';
+        div.tabIndex = 0;
+        div.innerHTML = `<h4 class="text-lg font-semibold text-blue-100">${s.title}</h4><p class="text-sm text-gray-400 mt-1">${s.description}</p>`;
+        div.onclick = ()=>{ handleSubtopicClick(s.id) };
+        div.onkeypress = (e)=>{ if(e.key==='Enter') handleSubtopicClick(s.id) };
+        container.appendChild(div);
+      });
+      // stagger show
+      setTimeout(()=>container.classList.add('show'),40);
+      container.classList.add('stagger'); container.classList.add('show');
+    }
+
+    function populateProficiencyLevels(){
+      const container = document.getElementById('step-3a');
+      container.innerHTML='';
+      proficiencyLevels.forEach(p=>{
+        const div = document.createElement('div');
+        div.className = 'card p-3 text-center cursor-pointer';
+        div.tabIndex = 0;
+        div.innerHTML = `<div class="text-xl font-bold text-blue-100">${p.level}</div><div class="text-sm text-gray-300">${p.descriptor}</div>`;
+        div.onclick = ()=> handleProficiencyClick(p.level);
+        div.onkeypress = (e)=>{ if(e.key==='Enter') handleProficiencyClick(p.level) };
+        container.appendChild(div);
+      });
+      setTimeout(()=>container.classList.add('show'),40); container.classList.add('stagger');
+    }
+
+    function populateSkillLevels(){
+      const container = document.getElementById('step-3b');
+      container.innerHTML='';
+      skillLevels.forEach(s=>{
+        const div = document.createElement('div');
+        div.className='card p-3 text-center cursor-pointer';
+        div.tabIndex=0;
+        div.innerHTML = `<div class="text-lg font-bold text-blue-100">Level ${s.level}</div><div class="text-sm text-gray-300">${s.label}</div>`;
+        div.onclick = ()=> handleSkillClick(s.level);
+        div.onkeypress = (e)=>{ if(e.key==='Enter') handleSkillClick(s.level) };
+        container.appendChild(div);
+      });
+      setTimeout(()=>container.classList.add('show'),40); container.classList.add('stagger');
+    }
+
+    /* === click handlers === */
+    document.getElementById('topic-science').addEventListener('click', ()=>{ handleTopicClick('science') });
+    document.getElementById('topic-science').addEventListener('keypress', (e)=>{ if(e.key==='Enter') handleTopicClick('science') });
+
+    function handleTopicClick(id){
+      selectedTopic = id; selectedSubtopic=null; selectedMode=null; selectedProficiency=null; selectedSkill=null;
+      currentStep = 1; updateUI();
+    }
+    function handleSubtopicClick(id){
+      selectedSubtopic = id; selectedMode=null; selectedProficiency=null; selectedSkill=null;
+      currentStep = 2; updateUI();
+    }
+    function handleModeClick(mode){
+      selectedMode = mode; // 'descriptor' or 'skill'
+      currentStep = 3; updateUI();
+    }
+    // Attach mode handlers
+    document.getElementById('mode-descriptor').addEventListener('click', ()=> handleModeClick('descriptor'));
+    document.getElementById('mode-skill').addEventListener('click', ()=> handleModeClick('skill'));
+
+    function handleProficiencyClick(level){
+      selectedProficiency = level; currentStep = 4; updateUI(); initializeChatbot();
+    }
+    function handleSkillClick(level){
+      selectedSkill = level; currentStep = 4; updateUI(); initializeChatbot();
+    }
+
+    function handleBack(){
+      if(currentStep === 4){
+        // go back to level selection
+        currentStep = 3;
+      } else if(currentStep === 3){
+        // go back to mode selection
+        currentStep = 2; selectedMode = null;
+      } else if(currentStep === 2){
+        currentStep = 1; selectedSubtopic = null;
+      } else if(currentStep === 1){
+        currentStep = 0; selectedTopic = null;
+      }
+      updateUI();
+    }
+  
+    function resetSelections(){
+    currentStep = 0; 
+    selectedTopic=null; 
+    selectedSubtopic=null; 
+    selectedMode=null; 
+    selectedProficiency=null; 
+    selectedSkill=null;
+    
+    // --- ADD THESE LINES TO RESET SKILL STATE ---
+    skillChatActive = false;
+    skillQuizState = 'AWAITING_RANGE';
+    loadedQuestionSet = [];
+    currentQuestionIndex = 0;
+    currentRange = null; 
+    // --------------------------------------------
+
+    chatMessages = []; 
+    document.getElementById('chat-container').innerHTML=''; 
+    updateUI();
+    usedKeywords = [];
+    hasUsedInitialKeyword = false;
+}
+
+    function addMessage(sender, html){
+      const container = document.getElementById('chat-container');
+      const wrapper = document.createElement('div');
+
+      const isUser = sender==='user';
+      let content = html;
+
+      // Check if the sender is the bot
+      if (!isUser) {
+          // Keep removing asterisks for clean text display
+          content = html.replace(/\*/g, ''); 
+          wrapper.className = 'message-wrapper fade-in'; // Bot starts on the left
+          wrapper.innerHTML = `<div class="message-avatar bot-avatar">AI</div><div class="message-bubble bot-message">${content}</div>`;
+      } else {
+          // Apply the new CSS class for right alignment
+          wrapper.className = 'message-wrapper fade-in user-wrapper'; 
+          wrapper.innerHTML = `<div class="message-bubble user-message">${content}</div><div class="message-avatar user-avatar">You</div>`;
+      }
+
+      container.appendChild(wrapper);
+      container.scrollTop = container.scrollHeight;
+
+      return wrapper; // IMPORTANT: Return the element for removal in the next step
+    }
+
+    function initializeChatbot() {
+  const subtopicId = selectedSubtopic;
+  const level = selectedMode === 'descriptor' ? selectedProficiency : selectedSkill;
+
+      
+      skillChatActive = false;
+  skillQuizState = 'AWAITING_RANGE';
+  loadedQuestionSet = [];     // Clears the questions from the previous level
+  currentQuestionIndex = 0;   // Resets the counter
+  currentRange = null;        // Clears the range (1-10, etc) from the previous level
+  // ----------------------------------
+      
+  // Reset tracking states
+  triggeredKeywords = new Set(); 
+  skillChatActive = false;
+  document.getElementById('chat-container').innerHTML = '';
+
+  currentInteraction = { subtopic: subtopicId, mode: selectedMode, level: level, isAwaitingAnswer: true };
+
+  if (selectedMode === 'descriptor') {
+    const levelKeywords = topicKeywords[subtopicId]?.[level] || {};
+    const modules = Object.keys(levelKeywords);
+    
+    let choiceButtons = modules.map(m => 
+      `<button class="btn btn-primary text-xs mr-2 mb-2" onclick="handleModuleTrigger('${m}')">View ${m.charAt(0).toUpperCase() + m.slice(1)} Lesson</button>`
+    ).join('');
+
+    addMessage('bot', `Welcome! I've prepared some visual materials for <b>${subtopicId}</b>. Click a button below to load the lesson, or just ask me a question to start chatting!<br><br>${choiceButtons}`);
+  } else {
+    // FIX: If Level 4, call postSkillQuiz to show the Guide prompt. 
+    // Otherwise, show the range prompt for Levels 1-3.
+    if (level === 4) {
+      postSkillQuiz(); 
+    } else {
+      addMessage('bot', `Skill-Based Mode for ${subtopicId}. Type a range like '1-10' to begin.`);
+    }
+  }
+  updateUI();
+}
+  
+  function handleChoiceClick(choice) {
+  // 1. Add user message as if they typed it
+  addMessage('user', `Show me ${choice}`);
+  
+  // 2. Trigger the response logic
+  handleDescriptorResponse(choice);
+}
+  
+function handleModuleTrigger(moduleKey) {
+  // 1. Check if already used
+  if (triggeredKeywords.has(moduleKey)) {
+    addMessage('bot', `You've already viewed the ${moduleKey} materials above! Feel free to ask more questions about it.`);
+    return;
+  }
+
+  const { subtopic, level } = currentInteraction;
+  const lesson = dynamicContent[subtopic][level][moduleKey];
+
+  if (lesson) {
+    triggeredKeywords.add(moduleKey); // Mark as used
+    addMessage('user', `Loading ${moduleKey} module...`);
+    addMessage('bot', renderLesson(lesson));
+    
+    setTimeout(() => {
+      addMessage('bot', `The ${moduleKey} materials are loaded. How can I help you understand this better?`);
+    }, 800);
+  }
+}
+  
+  
+  function renderLesson(lesson) {
+  let html = `<div class="lesson-pkg border-l-4 border-blue-500 pl-4 py-4 mb-6 bg-gray-900/30 rounded-r-lg">
+                <h2 class="text-2xl font-black text-blue-400 mb-4 tracking-tight uppercase">${lesson.title}</h2>`;
+
+  lesson.modules.forEach(mod => {
+    if (mod.type === 'text') {
+      // Clean quotes and backticks to prevent JS errors
+      const safeHeading = mod.heading.replace(/'/g, "\\'").replace(/`/g, "\\`自");
+      const safeBody = mod.body.replace(/'/g, "\\'").replace(/`/g, "\\`自");
+
+      // Removed mb-6 and added mb-2 for tighter spacing
+      // The 🔊 icon is now separate from the text being sent to speakText()
+      html += `
+        <div class="mb-2 cursor-pointer p-1 hover:bg-blue-900/10 rounded transition-all" 
+             onclick="speakText('${safeHeading}. ${safeBody}')">
+           <h4 class="text-md font-bold text-blue-100 flex items-center gap-2">
+             ${mod.heading} <span class="text-xs opacity-40">🔊</span>
+           </h4>
+           <p class="text-gray-300 leading-relaxed text-sm">${mod.body}</p>
+        </div>`;
+    }
+    else if (mod.type === 'image') {
+      html += `<div class="my-6 group">
+                 <img src="${mod.url}" class="rounded-lg border border-blue-900/50 w-full hover:scale-[1.01] transition-transform duration-300">
+                 <p class="text-xs italic text-gray-500 mt-2 text-center">${mod.caption}</p>
+               </div>`;
+    }
+    else if (mod.type === 'image') {
+      // Imgur Handling: Ensure links to Imgur pages are treated as direct images
+      let imageUrl = mod.url;
+      if (imageUrl.includes('imgur.com') && !imageUrl.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+          imageUrl += '.jpg'; // Appending extension often forces Imgur to serve the raw image
+      }
+
+      html += `<div class="my-4 text-center">
+                 <img src="${imageUrl}" alt="${mod.caption || 'Lesson Image'}" class="rounded border border-gray-700 w-full mb-1">
+                 <span class="text-xs italic text-gray-500">${mod.caption || ''}</span>
+               </div>`;
+    } 
+    else if (mod.type === 'video') {
+      let mediaUrl = mod.url;
+      let embedHtml = '';
+
+      // --- Vimeo URL Auto-Fix ---
+      if (mediaUrl.includes('vimeo.com')) {
+        const vimeoId = mediaUrl.split('/').pop().split('?')[0];
+        const embedUrl = `https://player.vimeo.com/video/${vimeoId}`;
+        embedHtml = `<iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen" allowfullscreen class="rounded shadow-lg"></iframe>`;
+      }
+      
+      // --- Google Drive URL Auto-Fix ---
+      else if (mediaUrl.includes('drive.google.com')) {
+        // Extract ID from /file/d/[ID]/view or id=[ID]
+        const driveId = mediaUrl.match(/\/d\/(.+?)\//) ? mediaUrl.match(/\/d\/(.+?)\//)[1] : mediaUrl.split('id=')[1];
+        const embedUrl = `https://drive.google.com/file/d/${driveId}/preview`;
+        embedHtml = `<iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" allow="autoplay" class="rounded shadow-lg"></iframe>`;
+      }
+
+      // --- Imgur Video/Gifv Handling ---
+      else if (mediaUrl.includes('imgur.com')) {
+        // Convert .gifv or page links to direct .mp4 for the HTML5 player
+        const directVideo = mediaUrl.replace('.gifv', '.mp4');
+        embedHtml = `<video controls class="w-full h-full rounded shadow-lg bg-black">
+                       <source src="${directVideo}" type="video/mp4">
+                       Your browser does not support the video tag.
+                     </video>`;
+      }
+
+      html += `<div class="my-4 aspect-video">
+                 ${embedHtml}
+                 <p class="text-xs text-gray-500 mt-1">${mod.title || ''}</p>
+               </div>`;
+    }
+  });
+  return html + `</div>`;
+}
+  
+ 
+  async function handleDescriptorResponse(text) {
+  const userMessage = text.trim();
+  if (!userMessage) return;
+
+  // Default behavior: Straight to Gemini AI (No keyword scanning)
+  const loading = addMessage('bot', "Thinking...");
+  
+  // Provide context so Gemini knows what the user has already seen
+  const viewed = Array.from(triggeredKeywords).join(', ') || 'none yet';
+  const aiContext = `The user is studying ${currentInteraction.subtopic} (Level ${currentInteraction.level}). They have viewed these modules: ${viewed}. Be a helpful tutor.`;
+
+  const reply = await callGemini(userMessage, aiContext);
+  loading.remove();
+  
+  // Remove unnecessary formatting symbols from AI response
+  const cleanReply = reply.replace(/[⚠️*]/g, "").trim();
+  addMessage('bot', cleanReply);
+} 
+  
+  function postDescriptorContent(){
+  const topic = lessonContent.descriptor[currentInteraction.subtopic];
+  const lvl = currentInteraction.level;
+  if(topic && topic[lvl]) {
+    addMessage('bot', topic[lvl].content);
+  } else {
+    addMessage('bot', "I'm ready to start the lesson. Which part should we look at first?");
+  }
+}
+  
+    
+  
+  
+// OLD CODE (Issue: Assumes logic outside handles the flow)
+function postSkillQuiz(){
+    const topic = lessonContent.skill[currentInteraction.subtopic];
+    const q = topic && topic[currentInteraction.level];
+    if(!q) return addMessage('bot', 'Quiz not available for this selection.');
+
+    // Check if the content is a guided project (Level 4 - Create & Innovate)
+    if (q.type === 'guided_project') {
+        // FIX: Immediately switch to continuous chat mode for Level 4
+        skillChatActive = true; 
+        addMessage('bot', q.initial_prompt); // Post the generic, open-ended prompt
+        return; // Stop here, do not proceed to quiz range prompt
+    }
+    
+    // Quiz (Levels 1-3)
+    const allQuestions = topic[currentInteraction.level]?.questions;
+    const count = allQuestions ? allQuestions.length : 0;
+    
+    addMessage('bot', `Welcome to **Skill-Based Quiz Level ${currentInteraction.level}**! We have **${count}** questions available. Please enter the range of questions you want to answer first (e.g., **1-10**).`);
+    skillQuizState = 'AWAITING_RANGE'; // Ensure the state is correctly set to start the flow
+}
+
+  
+  
+   async function callGemini(finalPrompt) {
+  try {
+    const API_URL = "https://gemini3.rusky0537.workers.dev"; 
+
+    const res = await fetch(API_URL, { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify({ 
+        prompt: finalPrompt  // Sending the pre-built prompt from getAIResponse
+      })
+    });
+    
+    const textResponse = await res.text();
+    let data;
+    try {
+        data = JSON.parse(textResponse);
+    } catch (e) {
+        return "⚠️ Error: The server sent a non-JSON response. Check Worker logs.";
+    }
+
+    if (data.error) {
+        if (data.error.toLowerCase().includes("quota")) return "⚠️ Quota Reached. Please wait 60 seconds.";
+        return `⚠️ Error: ${data.error}`;
+    }
+    
+    let reply = data.response || '⚠️ No response received.';
+    
+    // Clean formatting for the chat UI
+    return reply
+      .replace(/```(?:html|json|markdown)?\n?/gi, '')
+      .replace(/```$/g, '')
+      .replace(/\\n/g, '\n') 
+      .replace(/\*\*/g, '') 
+      .trim();
+
+  } catch (e) { 
+    console.error(e);
+    return '⚠️ Connectivity issue. Ensure your Worker is deployed and CORS is enabled.'; 
+  }
+}
+
+function buildSkillPrompt(userInput) {
+  const skillMap = {
+    1: "Definitions and basic factual recall.",
+    2: "Application and process explanation.",
+    3: "Reasoning, evaluation, and justification.",
+    4: "Creation, innovation, and project mentoring."
+  };
+
+  return `You are an AI Examiner for AIGHAM.
+Skill Level: ${selectedSkill} – ${skillMap[selectedSkill]}
+Rules:
+1. Respond in 2–3 sentences MAX.
+2. If answering a question, start with "Correct" or "Incorrect".
+3. Give ONE short explanation or hint only.
+4. Be strict, concise, and academic.
+
+User Input:
+${userInput}`;
+}
+
+function buildDescriptorPrompt(userInput) {
+  const levelMap = {
+    1: "Very simple language, beginner level.",
+    2: "Clear educational tone.",
+    3: "Intermediate with explained technical terms.",
+    4: "Advanced academic explanation.",
+    5: "Expert-level, concise, technical, data-driven."
+  };
+
+  return `You are an AI Science Tutor for AIGHAM.
+Topic: ${selectedSubtopic}
+Proficiency Level: ${selectedProficiency} – ${levelMap[selectedProficiency]}
+Rules:
+1. NO greetings or filler.
+2. Be extremely concise.
+3. Use HTML (<b>, <br>).
+4. Explain ONLY what is asked.
+5. Include ONE real-world example if applicable.
+
+User Question:
+${userInput}`;
+}
+
+async function getAIResponse(userInput) {
+  let finalPrompt;
+
+  if (mode === "skill") {
+    finalPrompt = buildSkillPrompt(userInput);
+  } 
+  else if (mode === "descriptor") {
+    finalPrompt = buildDescriptorPrompt(userInput);
+  } 
+  else {
+    finalPrompt = `You are a concise AI assistant. Answer directly in 2–3 sentences.\n\nUser Question:\n${userInput}`;
+  }
+
+  // Pass the built prompt to the callGemini function
+  return await callGemini(finalPrompt);
+}
+
+
+
+    // Must be defined globally to persist across calls
+let answeredStaticQuestions = {}; // Stores { "subtopicId_level": Set(1-based_indices) }
+  
+// Global State Trackers (Keep these at the top of your script block)
+let skillChatActive = false; // Flag for continuous chat
+let skillQuizState = 'AWAITING_RANGE'; 
+let loadedQuestionSet = []; 
+let currentQuestionIndex = 0;
+// NOTE: Ensure answeredStaticQuestions is defined globally, e.g., let answeredStaticQuestions = {};
+
+// Initialize tracking if not already
+if (!window.aiGeneratedQuestions) window.aiGeneratedQuestions = {};
+
+async function handleSkillGenerator(text) {
+    const level = currentInteraction.level;
+    
+    // --- LEVEL 4 GUARD: Guide Bot Mode (Exempt from Quiz) ---
+    if (level === 4) {
+        skillChatActive = true; 
+        return handleSkillChat(text);
+    }
+
+    // Define Quiz Variables
+    const subtopicId = currentInteraction.subtopic;
+    const subtopicTitle = topics.find(t => t.id === selectedTopic)?.subtopics.find(s => s.id === selectedSubtopic)?.title || 'Selected Branch';
+    const skillLabel = skillLevels.find(s => s.level === level)?.label || `Level ${level}`;
+    const quizKey = `${subtopicId}_${level}`;
+
+    if (!answeredStaticQuestions[quizKey]) answeredStaticQuestions[quizKey] = new Set();
+    const answeredIndices = answeredStaticQuestions[quizKey];
+    if (!aiGeneratedQuestions[quizKey]) aiGeneratedQuestions[quizKey] = new Set();
+
+    // --- STATE: AWAITING_RANGE ---
+    if (skillQuizState === 'AWAITING_RANGE') {
+        const match = text.match(/(\d+)\s*-\s*(\d+)/);
+        if (!match) return addMessage('bot', `Please type a question range (e.g., 1-5).`);
+
+        const start = parseInt(match[1]);
+        const end = parseInt(match[2]);
+        const totalCount = end - start + 1;
+        if (totalCount < 1 || totalCount > 20) return addMessage('bot', 'Range must be between 1-20 questions.');
+
+        loadedQuestionSet = [];
+        currentQuestionIndex = 0;
+        skillQuizState = 'AWAITING_ANSWERS';
+        currentRange = { start, end, loaded: 0, total: totalCount };
+        await loadNextQuestion();
+    }
+
+    // --- STATE: AWAITING_ANSWERS (The "Gemini Checker" Section) ---
+    else if (skillQuizState === 'AWAITING_ANSWERS') {
+        const currentQuestion = loadedQuestionSet[currentQuestionIndex];
+        const userAnswer = text.trim();
+        const loadingMessage = addMessage('bot', 'Analyzing your answer...');
+
+        if (!currentQuestion) {
+            if(loadingMessage) loadingMessage.remove();
+            return addMessage('bot', 'Quiz error. Please start over.');
+        }
+
+        // 1. Logic for "Reveal Answer"
+        if (userAnswer.toLowerCase().includes('reveal answer')) {
+            loadingMessage.remove();
+            try {
+                if (currentQuestion.a === 'Awaiting Gemini Check') {
+                    currentQuestion.a = await callGemini(`Provide a concise, accurate answer for: "${currentQuestion.q}"`) || 'Answer unavailable';
+                }
+                addMessage('bot', `The correct answer is: **${currentQuestion.a}**`);
+                if (currentQuestion.originalIndex) answeredIndices.add(currentQuestion.originalIndex);
+            } catch(e) {
+                addMessage('bot', 'Could not generate answer.');
+            }
+            currentQuestionIndex++;
+            await loadNextQuestion();
+            return;
+        } 
+        
+        // 2. Logic for Conceptual Critique
+        else {
+            try {
+                if (currentQuestion.a === 'Awaiting Gemini Check') {
+                    currentQuestion.a = await callGemini(`Provide a concise answer for: "${currentQuestion.q}"`) || 'Answer unavailable';
+                }
+
+                // Instructions to make Gemini a Critique Partner
+                const gradingContext = `
+                    You are Gemini, a supportive AI teacher for Levels 1-3. 
+                    Question: "${currentQuestion.q}"
+                    Correct Answer: "${currentQuestion.a}"
+                    Student Answer: "${userAnswer}"
+
+                    Instructions:
+                    1. If the answer is CONCEPTUALLY correct (don't worry about exact words), start with "✅ Correct!" and explain why.
+                    2. If wrong, explain why it's incorrect and give a helpful CLUE. Do NOT reveal the correct answer.
+                `;
+
+                const feedback = await callGemini(gradingContext);
+                loadingMessage.remove();
+                addMessage('bot', feedback);
+
+                if (feedback.toLowerCase().includes('correct')) {
+                    if (currentQuestion.originalIndex) answeredIndices.add(currentQuestion.originalIndex);
+                    currentQuestionIndex++;
+                    // Delay slightly so student can read the explanation
+                    setTimeout(async () => {
+                        await loadNextQuestion();
+                    }, 1500);
+                } else {
+                    // WRONG: Stay on the same question, show a hint
+                    addMessage('bot', "💡 Use the clue above and try again!");
+                }
+            } catch(e) {
+                if(loadingMessage) loadingMessage.remove();
+                addMessage('bot', 'Error checking answer. Try again.');
+            }
+        }
+    }
+
+    // --- STATE: AWAITING_NEXT_SET ---
+    else if (skillQuizState === 'AWAITING_NEXT_SET') {
+        const cmd = text.toLowerCase().trim();
+        if (cmd === 'next') {
+            skillQuizState = 'AWAITING_RANGE';
+            addMessage('bot', 'Please provide the range for the next set.');
+        } else if (cmd === 'review') {
+            loadedQuestionSet.forEach((q, i) => {
+                addMessage('bot', `Q${i+1}: ${q.q} | Answer: ${q.a !== 'Awaiting Gemini Check' ? q.a : 'Not available'}`);
+            });
+            addMessage('bot', 'Review complete. Type "next" for another set.');
+        }
+    }
+}
+  
+  // NEW: Gemini Conceptual Checker
+async function checkAnswerWithGemini(userAnswer, correctAnswer, questionText) {
+  const prompt = `
+    You are an AI Learning Assistant. A student is answering a question.
+    Question: "${questionText}"
+    Expected Answer: "${correctAnswer}"
+    Student's Answer: "${userAnswer}"
+
+    Rules:
+    1. If the student's answer is conceptually correct (even if the wording is slightly different), start your response with "CORRECT:". Then explain why.
+    2. If it is wrong, start your response with "CLUE:". Explain why it's wrong (without giving the answer) and provide a helpful hint to guide them.
+    3. Be encouraging and supportive.
+  `;
+
+  // Uses your existing callGemini logic
+  const response = await callGemini(prompt, "skill-critique");
+  return response || "CLUE: I'm having trouble checking that. Try explaining your answer again.";
+}
+  
+
+
+// --- Helper: Load next question sequentially ---
+async function loadNextQuestion() {
+    if (!currentRange) return;
+
+    // Check if we finished all requested questions
+    if (currentRange.loaded >= currentRange.total) {
+        skillQuizState = 'AWAITING_NEXT_SET';
+        addMessage('bot', '✅ **Set Complete!** Type "next" for another set or "review" to see answers.');
+        return;
+    }
+
+    let nextQuestion;
+    const startIndex = currentRange.start - 1 + currentRange.loaded;
+    const qIndex = startIndex + 1;
+
+    // Try static question first
+    if (lessonContent.skill[currentInteraction.subtopic]?.[currentInteraction.level]?.questions?.[startIndex] && 
+        !answeredStaticQuestions[`${currentInteraction.subtopic}_${currentInteraction.level}`].has(qIndex)) {
+        nextQuestion = {
+            ...lessonContent.skill[currentInteraction.subtopic][currentInteraction.level].questions[startIndex],
+            originalIndex: qIndex
+        };
+    } else {
+        // Generate AI question
+        let attempts = 0;
+        while (!nextQuestion && attempts < 5) {
+            attempts++;
+            try {
+    const result = await callGemini(
+        `Generate 1 short science question for ${subtopicTitle} at ${skillLabel}.`, 
+        "skill-generator"
+    );
+    const questionText = result.split('?')[0] + '?'; // Ensure it ends at the question mark
+    
+    if (!aiGeneratedQuestions[quizKey].has(questionText)) {
+        aiGeneratedQuestions[quizKey].add(questionText);
+        nextQuestion = { q: questionText, a: 'Awaiting Gemini Check' };
+    }
+} catch (e) {
+    // High-performance fallback: A standard curriculum question
+    nextQuestion = { q: "Identify a primary factor affecting this system.", a: "Awaiting Gemini Check" };
+}
+        }
+    }
+
+    if (!nextQuestion) return addMessage('bot', 'Could not generate next question.');
+
+    loadedQuestionSet.push(nextQuestion);
+    currentQuestionIndex = loadedQuestionSet.length - 1;
+    currentRange.loaded++;
+
+    addMessage('bot', `**Q${loadedQuestionSet.length}:** ${nextQuestion.q}`);
+}
+  
+  
+  async function handleSkillChat(text) {
+    const level = currentInteraction.level;
+    const subtopicTitle = topics.find(t => t.id === selectedTopic)?.subtopics.find(s => s.id === selectedSubtopic)?.title || 'Physics';
+
+    if (level === 4) {
+        const context = `You are an expert AI guide for a "Create & Innovate" project in **${subtopicTitle}**. 
+The student is at the highest skill level. Their current message is: "${text}". 
+Offer constructive feedback, suggest next steps, or ask probing questions. Respond concisely and supportively.`;
+
+        const loadingMessage = addMessage('bot', 'AI Guide thinking...');
+        try {
+            const reply = await callGemini(context); // ONLY skill 4 uses this context
+            loadingMessage.remove();
+            addMessage('bot', reply);
+        } catch (e) {
+            loadingMessage.remove();
+            addMessage('bot', 'Error connecting to the AI guide.');
+        }
+    } else {
+        // For levels 1–3, fallback to regular skillGenerator flow
+        await handleSkillGenerator(text);
+    }
+}
+     
+  
+
+
+   function handleSendMessage() {
+  const input = document.getElementById('chat-input');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return;
+
+  addMessage('user', val);
+  input.value = '';
+
+  const lowerVal = val.toLowerCase();
+  
+  // Navigation Resets
+  if (lowerVal.includes('start over')) {
+    addMessage('bot', 'Restarting...');
+    skillChatActive = false; 
+    skillQuizState = 'AWAITING_RANGE'; 
+    setTimeout(resetSelections, 600);
+    return;
+  }
+  
+  if (lowerVal.includes('back')) {
+    addMessage('bot', 'Going back...');
+    skillChatActive = false; 
+    skillQuizState = 'AWAITING_RANGE'; 
+    setTimeout(handleBack, 600);
+    return;
+  }
+
+  // Content Decoder
+  if (val.startsWith("LOAD_PACKAGE:")) {
+    // Check if the mode is Descriptor-Based
+    if (currentInteraction.mode === 'descriptor') {
+      try {
+        const base64Data = val.replace("LOAD_PACKAGE:", "");
+        const decodedData = JSON.parse(atob(base64Data));
+
+        if (decodedData.type === "EDUPATH_RICH_CONTENT") {
+          addMessage('bot', "Processing Rich Content Package...");
+          
+          // FIX: Automatically unlock the AI conversation now that content is loaded
+          hasUsedInitialKeyword = true; 
+
+          setTimeout(() => {
+            const html = renderLesson(decodedData);
+            addMessage('bot', html);
+            addMessage('bot', "Content loaded successfully. How can I help you with this material?");
+          }, 800);
+          return; 
+        }
+      } catch (e) {
+        addMessage('bot', "⚠️ Invalid Content Package code.");
+        return;
+      }
+    } else {
+      // Feedback if they try to load in Skill-Based mode
+      addMessage('bot', "⚠️ Content packages can only be loaded in **Descriptor-Based** mode. Please reset and select Descriptor mode to use this feature.");
+      return;
+    }
+  }
+
+  if (!currentInteraction.mode) {
+    return addMessage('bot', 'Please choose a mode and level first.');
+  }
+
+  // Routing Logic
+  if (currentInteraction.mode === 'skill') {
+    const level = currentInteraction.level;
+    // ROUTING FIX: Always send Level 4 to handleSkillChat
+    if (level === 4 || skillChatActive) {
+      setTimeout(() => handleSkillChat(val), 300);
+    } else {
+      setTimeout(() => handleSkillGenerator(val), 300);
+    }
+  } 
+  else if (currentInteraction.mode === 'descriptor') {
+    setTimeout(() => handleDescriptorResponse(val), 300);
+  }
+}
+
+    document.addEventListener('keydown', function(event) {
+    // Check if user is typing in an input or textarea so we don't trigger by accident
+    if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
+
+    const key = event.key.toLowerCase();
+
+    if (key === 'f') {
+        // Trigger Fullscreen
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+            });
+        }
+    } else if (key === 'e') {
+        // Exit Fullscreen
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        }
+    }
+});
+
   </script>
   
 </html>
