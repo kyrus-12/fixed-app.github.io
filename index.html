@@ -154,6 +154,49 @@
       gap:25rem;
       padding:.35rem .5rem;
     }
+    @keyframes fadeInUp{ from{
+      opacity:0;
+      transforrm:translateY(18px)} to{
+      opacity:1;
+      transform:translateY(0)} }
+    .fade-in{
+      opacity:0;
+      animation:fadeInUp .56s cubic-beizer(.2,.9,.2,.1) forwards}
+    .stagger > *{
+      opacity:0;
+    }
+    .stagger.show > *{
+      animation:fadeInUp .56s cubic-beizer(.2,.9,.2,.1) forwards}
+    .stagger.show > *:nth-child(1){animation-delay:.05s}
+    .stagger.show > *:nth-child(2){animation-delay:.12s}
+    .stagger.show > *:nth-child(3){animation-delay:.2s}
+    .stagger.show > *:nth-child(4){animation-delay:.28s}
+    .stagger.show > *:nth-child(5){animation-delay:.36s}
+
+    @media (max-width:640px){
+      .max-w-4xl{
+        padding-left:1rem;
+        padding-right:1rem;
+      }
+      .message-bubble{
+        max-width:78%;
+      }
+    }
+    .chat-container{
+      display:flex;
+      flex-direction:column;
+      gap:0.4rem;
+      background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+      border-radius:.75rem;
+      padding:.5rem;
+      min-height:800px;
+      max-height:900px;
+      overflow:auto;
+      border:1px solid rgba(96,165,250,0.04)
+    }
+      
+      
+                        
     
     
       
