@@ -291,49 +291,7 @@
   </body>
 
   <script>
-    function startLab(choice) {
-    // Hide the selection menu
-    document.getElementById('labMenuModal').classList.add('hidden');
-    
-    // Open the chosen lab
-    if (choice === 'electrons') {
-        document.getElementById('electronLabModal').classList.remove('hidden');
-        document.getElementById('electronLabModal').classList.add('flex');
-        initElectronLab();
-    } else if (choice === 'molecular') {
-        document.getElementById('molecularLabModal').classList.remove('hidden');
-        document.getElementById('molecularLabModal').classList.add('flex');
-        initMolLab();
-    } else if (choice === 'elements') {
-        document.getElementById('elementsLabModal').classList.remove('hidden');
-        document.getElementById('elementsLabModal').classList.add('flex');
-        initElementsLab();
-    } else if (choice === 'solutions') {
-        document.getElementById('solutionLabModal').classList.remove('hidden');
-        document.getElementById('solutionLabModal').classList.add('flex');
-        initSolutionLab();     
-    } else if (choice === 'dilution') {
-        document.getElementById('dilutionLabModal').classList.remove('hidden');
-        document.getElementById('dilutionLabModal').classList.add('flex');
-        initDilutionLab();     
-    }  else if (choice === 'mass') {
-        document.getElementById('massLabModal').classList.remove('hidden');
-        document.getElementById('massLabModal').classList.add('flex');
-        initMassLab();  
-} else if (choice === 'phase') {
-        document.getElementById('phaseLabModal').classList.remove('hidden');
-        document.getElementById('phaseLabModal').classList.add('flex');
-        initPhaseLab();  
-} else if (choice === 'particles') {
-        document.getElementById('particlesLabModal').classList.remove('hidden');
-        document.getElementById('particlesLabModal').classList.add('flex');
-        initParticlesLab();  
-} else if (choice === 'concen') {
-        document.getElementById('concenLabModal').classList.remove('hidden');
-        document.getElementById('concenLabModal').classList.add('flex');
-        initConcenLab();  
-}
-}
+  
 
     let currentStep = 0;
     let selectedTopic = null;
@@ -1192,21 +1150,6 @@
     3: { 'ecosystems': ['ecology', 'environment', 'food web', 'habitat', 'species'] }
   }
 };
-
-      function speakText(text) {
-  // Cancel any speech currently playing
-  window.speechSynthesis.cancel();
-
-  // CLEANER: Removes asterisks, hashtags, and extra symbols that aren't part of the sentence
-  const cleanText = text
-    .replace(/[*#_~]/g, '')    // Removes markdown formatting symbols
-    .replace(/<\/?[^>]+(>|$)/g, "") // Removes any accidental HTML tags
-    .trim();
-
-  const utterance = new SpeechSynthesisUtterance(cleanText);
-  utterance.rate = 1.0; 
-  utterance.pitch = 1.0;
-  window.speechSynthesis.speak(utterance);
 }
   
 
