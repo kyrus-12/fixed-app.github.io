@@ -332,6 +332,109 @@
       .typing-dot:nth-child(2){
         animation-delay:-0.16s; 
       }
+      @keyframes typingBounce{0%,80%,100% {
+        transform:scale(0); } 40%{
+        transform:scale(1); } }
+      .review-card{
+        padding:0.75rem;
+        border-radius:0.5rem;
+        margin-bottom:0.5rem;
+      }
+      .review-correct{
+        background:rgba(5,150,105,0.1); 
+        border:1px solid rgba(5,150,105,0.2);
+      }
+      .review-wrong{ 
+        background:rgba(220,38,38,0.1); 
+        border:1px solid rgba(220,38,38,0.2); 
+      }
+      .test-btn{ 
+        padding:0.5rem 1rem;
+        border-radius:0.5rem; 
+        font-size:0.85rem; 
+        font-weight:600; 
+        cursor:pointer; 
+        transition:all .2s ease; 
+        margin:0.25rem; 
+      }
+      .test-btn-lesson{
+        background:rgba(59,130,246,0.15); 
+        border:1px solid rgba(59,130,246,0.3); 
+        color:#93c5fd;
+      }
+      .test-btn-lesson:hover{
+        background:rgba(59,130,246,0.25);
+      }
+      .test-btn-summative{
+        background:rgba(217,119,6,0.15); 
+        border:1px solid rgba(217,119,6,0.3); 
+        color:#fbbf24; 
+      }
+      .test-btn-summative:hover{
+        background:rgba(217,119,6,0.25);
+      }
+      .quiz-stats{
+        display:flex;
+        justify-content:space-between;
+        font-size:0.8rem;
+        color:var(--muted);
+        margin-bottom:0.75rem;
+      }
+      .quiz-progress{
+        display:flex; 
+        gap:0.25rem;
+        margin-bottom:1rem;
+      }
+      .quiz-dot{
+        width:8px;
+        height:8px; 
+        border-radius:50%; 
+        background:rgba(96,165,250,0.2); 
+      }
+      .quiz-dot.active{
+        background:var(--color-primary);
+      }
+      .quiz-dot.answered{
+        background:#059669;
+      }
+      .quiz-dot.wrong{
+        background:#dc2626; 
+      }
+      .qtype-badge{
+        display:inline-block;
+        padding:0.15rem 0.5rem;
+        border-radius:0.25rem; 
+        font-size:0.7rem; 
+        font-weight:700;
+        text-transform:uppercase; 
+        margin-bottom:0.5rem;
+      }
+      .qtype-identification{
+        background:rgba(59,130,246,0.15); 
+        color:#93c5fd;
+      }
+      .qtype-multiplechoice{
+        background:rgba(168,85,247,0.15); 
+        color:#d8b4fe;
+      }
+      .qtype-truefalse{
+        background:rgba(217,119,6,0.15); 
+        color:#fbbf24;
+      }
+      .qtype-fillblank{
+        background:rgba(236,72,153,0.15);
+        color:#f9a8d4;
+      }
+      .qtype-matching{
+        background:rgba(14,165,233,0.15);
+        color:#7dd3fc; 
+      }
+      .hint-text{
+        color:var(--muted); 
+        font-size:0.8rem; 
+        margin-top:0.5rem;
+        font-style:italic;
+      }
       
         
     </style>
