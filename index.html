@@ -67,17 +67,83 @@
           <div class="card p-4 mb-4">
             <div class="flex items-center gap-3">
               <div class="text-xl">📖</div>
-            <div>
-            <div class="font-bold text-blue-100" id="lesson-title">Learning Content</div>
-            <div class="text-xs text-gray-400" id="lesson-subtitle">Select a module below</div>
+              <div>
+                <div class="font-bold text-blue-100" id="lesson-title">Learning Content</div>
+                <div class="text-xs text-gray-400" id="lesson-subtitle">Select a module below</div>
+              </div>
+            </div>
+          </div>
+          <div class="mb-4 flex flex-wrap gap-2" id="module-buttons"></div>
+          <div class="lesson-container" id="lesson-content"></div>
+        </div>
+
+        <div id="skill-panel" class="hidden">
+          <div class="card p-4 mb-4">
+            <div class="flex items-center gap-3">
+              <div class="text-xl">📝</div>
+              <div>
+                <div class="font-bold text-blue-100" id="quiz-title">Skill Assessment</div>
+                <div class="text-xs text-gray-400" id="quiz-subtitle">Choose a test</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lesson-container" id="skill-content-area">
+
+            <div id="test-selection-area">
+              <div class="lesson-section">
+                <div class="lesson-heading">📝</div>
+                <div class="lesson-body">Select a test below to start and type your answers in the chat.</div>
+                <div id="test-buttons-container" class="mt-4 flex flex-wrap"></div>
+              </div>
+            </div>
+
+            <div id="chat-section" class="hidden">
+              <div class="quiz-stats" id="quiz-stats-bar">
+                <span>Question <span id="current-q-num">1</span> of <span id="total-q-num">10</span></span>
+                <span>Score: <span id="score-display">0</span>/<span id="total-attempted">0</span></span>
+              </div>
+              <div class="quiz-progress" id="quiz-progress"></div>
+              <div class="chat-area" id="chat-area"></div>
+            </div>
+
+            <div id="quiz-complete" class="hidden text-center py-8">
+              <div class="text-5xl mb-4">🎉</div>
+              <h3 class="text-xl font-bold text-blue-100 mb-2">Quiz Complete!</h3>
+              <p class="text-gray-400 mb-4">You scored <span id="final-score">0</span> out of <span id="final-total">0</span></p>
+              <div class="card p-4 mb-4 text-left" id="review-section">
+                <h4 class="font-bold text-blue-200 mb-2">⭐ Review Your Answers</h4>
+                <div id="review-list"></div>
+              </div>
+              <div class="flex gap-3 justify-center">
+                <button class="btn btn-primary" onclick="restartQuiz()">Restart Quiz</button>
+                <button class="btn" onclick="backToTestSelection()">Back to Tests</button>
+                <button class="btn" onclick="resetSelections()">Back to Home</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-input-area mt-4" id="chat-input-wrapper">
+            <textarea class="chat-textarea" id="chat-textarea" rows="1" placeholder="Type your answer here..." onkeydown="handleChatKeydown(event)"></textarea>
+            <button class="chat-send-btn" id="chat-send-btn" onclick="submitChatAnswer()">Send</button>
           </div>
         </div>
       </div>
-      <div class="mb-4 flex flex-wrap gap-2" id="module-buttons"></div>
-      <div class="lesson-container" id="lesson-content"></div>
-        </div>
+    </main>
 
-        
+    <footer class="global-nav">
+      <div class="max-w-4xl px-6 flex justify-around">
+        <div class="nav-item" onclick="goHome()"><div>🏠︎</div><div>Home</div></div>
+        <div class="nav-item" onclick="showAbout()"><div>🛈</div><div>About</div></div>
+        <div class="nav-item cursor-pointer" onclick="ShowLab()"><div>🧪</div><div>Lab</div></div>
+        <div class="nav-item" onclick="showSettings()"><div>🌣</div><div>Settings</div></div>
+      </div>
+    </footer>
+
+    <script>
+
+      
+    </script>
     
             
     
