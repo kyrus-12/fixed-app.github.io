@@ -766,7 +766,6 @@
   function populateSubtopics(){
     const container = document.getElementById('step-1');
     container.innerHTML='';
-    container.classlist.remove('hidden');
     const topic = topics.find(t=>t.id===selectedTopic);
     if(!topic) return;
     topic.subtopics.forEach((s)=>{
