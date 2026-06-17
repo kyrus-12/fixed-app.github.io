@@ -576,7 +576,827 @@
     <script>
 
       
-    </script>
+     // ==================== DATA ====================
+
+  const topics = [
+    { id:'science', title:'Science', subtopics:[
+      {id:'physics', title:'Physics', description:'Matter, motion, energy, and forces'},
+      {id:'chemistry', title:'Chemistry', description:'Use of models, particle model, solutions, changes of state, scientific investigations'},
+      {id:'biology', title:'Biology', description:'Living systems and organisms'}
+    ]}
+  ];
+
+  const proficiencyLevels = [
+    {level:1, descriptor:'Beginner'},
+    {level:2, descriptor:'Intermediate'},
+    {level:3, descriptor:'Advanced'}
+  ];
+
+  const skillLevels = [
+    {level:1, label:'Recall & Understand'},
+    {level:2, label:'Apply & Analyze'},
+    {level:3, label:'Evaluate & Create'}
+  ];
+
+  const stepTitles = ['Select Topic','Select Branch','Select Mode','Select Level','Learning'];
+
+  // ==================== SKILL QUESTIONS DATA ====================
+  const skillQuestions = {
+    chemistry_1: {
+      'Lesson 1 - Use of Models': [
+        {type:'identification', q:'What tool do scientists use for complex ideas?', a:'models'},
+        {type:'truefalse', q:'A globe is a scientific model. (true/false)', a:'true'},
+        {type:'fillblank', q:'All matter is made of tiny _____.', a:'particles'},
+        {type:'multiplechoice', q:'Which of these is a scientific model? (A) A real car (B) A toy car (C) A photograph (D) A mirror', a:'B'},
+        {type:'identification', q:'What does a water cycle drawing represent?', a:'water'},
+        {type:'truefalse', q:'Scientific models are always 100% accurate. (true/false)', a:'false'},
+        {type:'fillblank', q:'A globe is a model of the _____.', a:'earth'},
+        {type:'multiplechoice', q:'Why do scientists use models? (A) To make things harder (B) To simplify complex ideas (C) To confuse people (D) To waste time', a:'B'},
+        {type:'identification', q:'Which state of matter has particles closest together?', a:'solid'},
+        {type:'truefalse', q:'A toy car can be a scientific model. (true/false)', a:'true'}
+      ],
+      'Lesson 2 - The Particle Model': [
+        {type:'identification', q:'All matter is made of tiny _____.', a:'particles'},
+        {type:'truefalse', q:'Particles in a solid are tightly packed. (true/false)', a:'true'},
+        {type:'fillblank', q:'In a solid, particles vibrate in fixed _____.', a:'positions'},
+        {type:'multiplechoice', q:'Which state has particles far apart? (A) Solid (B) Liquid (C) Gas (D) All of them', a:'C'},
+        {type:'identification', q:'Each substance has its own unique type of _____.', a:'particles'},
+        {type:'truefalse', q:'Particles in a gas are closer than in a liquid. (true/false)', a:'false'},
+        {type:'fillblank', q:'Particles in a liquid can slide past each _____.', a:'other'},
+        {type:'multiplechoice', q:'What happens to particles when heated? (A) Slow down (B) Speed up (C) Stop moving (D) Disappear', a:'B'},
+        {type:'identification', q:'The particle model says all matter is made of tiny _____.', a:'particles'},
+        {type:'truefalse', q:'Particles are visible to the naked eye. (true/false)', a:'false'}
+      ],
+      'Summative Test - Level 1': [
+        {type:'multiplechoice', q:'What is a scientific model? (A) A real object (B) A simplified representation (C) A photograph (D) A painting', a:'B'},
+        {type:'truefalse', q:'A globe represents the Earth. (true/false)', a:'true'},
+        {type:'fillblank', q:'Matter is made of tiny _____.', a:'particles'},
+        {type:'matching', q:'Match each state with its description. Type your answer like: Solid-Tightly packed, Liquid-Close but can slide, Gas-Far apart', 
+         pairs:[
+          {left:'Solid', right:'Tightly packed, fixed positions'},
+          {left:'Liquid', right:'Close but can slide past each other'},
+          {left:'Gas', right:'Far apart, move freely'}
+        ], a:'solid-tightly packed, liquid-close but can slide, gas-far apart'},
+        {type:'identification', q:'What process is called when solid turns to liquid?', a:'melting'},
+        {type:'multiplechoice', q:'Why use a globe instead of showing real Earth? (A) Too small (B) Too large (C) Too colorful (D) Too flat', a:'B'},
+        {type:'truefalse', q:'Models can be updated when new information is found. (true/false)', a:'true'},
+        {type:'fillblank', q:'When heated, particles _____ up.', a:'speed'},
+        {type:'multiplechoice', q:'Which is NOT a scientific model? (A) Globe (B) Toy car (C) Real car (D) Water cycle diagram', a:'C'},
+        {type:'identification', q:'In a solution, what is the substance that dissolves called?', a:'solute'}
+      ]
+    },
+    chemistry_2: {
+      'Lesson 1 - Use of Models': [
+        {type:'identification', q:'Why would a scientist use a globe instead of showing the real Earth? (too large / too small)', a:'too large'},
+        {type:'truefalse', q:'A model can be wrong and still useful. (true/false)', a:'true'},
+        {type:'fillblank', q:'A toy car model is similar to a real car in basic _____.', a:'shape'},
+        {type:'multiplechoice', q:'Can scientific models be wrong? (A) No (B) Yes (C) Only sometimes (D) Never', a:'B'},
+        {type:'identification', q:'What happens to particles when heated? (speed up / slow down)', a:'speed up'},
+        {type:'truefalse', q:'All models show every detail perfectly. (true/false)', a:'false'},
+        {type:'fillblank', q:'The process when solid turns to liquid is called _____.', a:'melting'},
+        {type:'multiplechoice', q:'How is a toy car model similar to a real car? (A) Same size (B) Same basic shape (C) Same engine (D) Same price', a:'B'}
+      ]
+    },
+    chemistry_3: {
+      'Lesson 1 - The Particle Model': [
+        {type:'identification', q:'Compare a globe and flat map. Which shows Earth\'s shape more accurately?', a:'globe'},
+        {type:'truefalse', q:'A model of the solar system using marbles fails to match real size ratios. (true/false)', a:'true'},
+        {type:'fillblank', q:'Can the particle model explain why substances expand when heated? (yes/no)', a:'yes'},
+        {type:'multiplechoice', q:'Which shows Earth\'s shape more accurately? (A) Flat map (B) Globe (C) Both same (D) Neither', a:'B'}
+      ]
+    },
+    physics_1: {
+      'Lesson 1 - Motion': [
+        {type:'identification', q:'What unit measures force?', a:'newton'},
+        {type:'truefalse', q:'Motion is always measured against a reference point. (true/false)', a:'true'},
+        {type:'fillblank', q:'A car travels 100km in 2 hours. Its average speed is _____ km/h.', a:'50'},
+        {type:'multiplechoice', q:'Which is a scalar quantity? (A) Velocity (B) Force (C) Speed (D) Acceleration', a:'C'}
+      ]
+    }
+  };
+
+  // ==================== DESCRIPTOR CONTENT ====================
+  const descriptorContent = {
+    chemistry_1: {
+      'use of models': {
+        title: 'Lesson 1: Use of Models',
+        modules: [
+          {type:'text', heading:'Objectives', body:'By the end of this lesson learners will be able to:<br>1. Recognize that scientists rely on models.<br>2. Identify basic examples of models.'},
+          {type:'text', heading:'Introduction', body:'Have you ever tried to explain something that is too big, too small, or too hard to see? Scientists use models to help.'},
+          {type:'text', heading:'What are Scientific Models?', body:'A scientific model is a simplified representation of complex ideas, objects, or phenomena.'},
+          {type:'text', heading:'Key Idea', body:'Models make big, small, or invisible things easier to understand.'},
+          {type:'text', heading:'Examples', body:'Globes, toy cars, water cycle diagrams, and atomic models are all scientific models.'},
+          {type:'image', url:'https://i.imgur.com/FnpD99w.gif', caption:'Earth Globe'},
+          {type:'text', heading:'Summary', body:'Scientists use models to explain concepts that are hard to show directly.'}
+        ]
+      },
+      'the particle model': {
+        title: 'Lesson 2: The Particle Model',
+        modules: [
+          {type:'text', heading:'Objectives', body:'By the end of this lesson learners will be able to:<br>1. Recognize that all matter is composed of tiny particles.<br>2. Describe that different substances have different particles.'},
+          {type:'text', heading:'All Matter is Made of Tiny Particles', body:'Everything you can see and touch is made of matter. Matter is made of tiny particles too small to see.'},
+          {type:'text', heading:'Key Idea', body:'Each substance has its own unique type of particles.'}
+        ]
+      }
+    }
+  };
+
+  // ==================== STATE ====================
+  let currentStep = 0;
+  let selectedTopic = null;
+  let selectedSubtopic = null;
+  let selectedMode = null;
+  let selectedProficiency = null;
+  let selectedSkill = null;
+  let selectedTestName = null;
+
+  // Quiz state
+  let quizQuestions = [];
+  let quizCurrentIndex = 0;
+  let quizScore = 0;
+  let quizAttempted = 0;
+  let quizAnswered = false;
+  let quizHistory = [];
+
+  // ==================== UI HELPERS ====================
+  function show(elem){ elem.classList.remove('hidden'); elem.classList.add('fade-in'); }
+  function hide(elem){ elem.classList.add('hidden'); elem.classList.remove('fade-in'); }
+
+  function updateBreadcrumb(){
+    let parts = [];
+    if(selectedTopic) parts.push(topics.find(t=>t.id===selectedTopic)?.title || '');
+    if(selectedSubtopic) parts.push(topics.find(t=>t.id===selectedTopic)?.subtopics.find(s=>s.id===selectedSubtopic)?.title || '');
+    if(selectedMode) parts.push(selectedMode === 'descriptor' ? 'Descriptor' : 'Skill');
+    if(selectedProficiency) parts.push(proficiencyLevels.find(p=>p.level===selectedProficiency)?.descriptor);
+    if(selectedSkill) parts.push('Level ' + selectedSkill);
+    if(selectedTestName) parts.push(selectedTestName);
+    document.getElementById('step-breadcrumb').textContent = parts.join(' / ');
+  }
+
+  function updateUI(){
+    ['step-0','step-1','step-2','step-3a','step-3b','step-4'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.classList.add('hidden');
+    });
+    hide(document.getElementById('descriptor-panel'));
+    hide(document.getElementById('skill-panel'));
+
+    document.getElementById('step-title').textContent = stepTitles[Math.min(currentStep, stepTitles.length-1)];
+    document.getElementById('step-indicator').textContent = `Step ${Math.min(currentStep+1,4)} of 4`;
+    updateBreadcrumb();
+
+    const back = document.getElementById('back-button'), reset = document.getElementById('reset-button');
+    if(currentStep>0){ back.classList.remove('hidden'); reset.classList.remove('hidden'); }
+    else { back.classList.add('hidden'); reset.classList.add('hidden'); }
+
+    if(currentStep===0){ show(document.getElementById('step-0')); }
+    if(currentStep===1){ populateSubtopics(); show(document.getElementById('step-1')); }
+    if(currentStep===2){ show(document.getElementById('step-2')); }
+    if(currentStep===3){
+      if(selectedMode==='descriptor'){ populateProficiencyLevels(); show(document.getElementById('step-3a')); }
+      else { populateSkillLevels(); show(document.getElementById('step-3b')); }
+    }
+    if(currentStep===4){
+      show(document.getElementById('step-4'));
+      if(selectedMode==='descriptor') initDescriptorMode();
+      else initSkillMode();
+    }
+  }
+
+  // ==================== POPULATE FUNCTIONS ====================
+  function populateSubtopics(){
+    const container = document.getElementById('step-1');
+    container.innerHTML='';
+    const topic = topics.find(t=>t.id===selectedTopic);
+    if(!topic) return;
+    topic.subtopics.forEach((s)=>{
+      const div = document.createElement('div');
+      div.className='card p-4 cursor-pointer';
+      div.tabIndex = 0;
+      div.innerHTML = `<h4 class="text-lg font-semibold text-blue-100">${s.title}</h4><p class="text-sm text-gray-400 mt-1">${s.description}</p>`;
+      div.onclick = ()=>{ handleSubtopicClick(s.id); };
+      div.onkeypress = (e)=>{ if(e.key==='Enter') handleSubtopicClick(s.id); };
+      container.appendChild(div);
+    });
+    container.classList.add('stagger'); container.classList.add('show');
+  }
+
+  function populateProficiencyLevels(){
+    const container = document.getElementById('step-3a');
+    container.innerHTML='';
+    proficiencyLevels.forEach(p=>{
+      const div = document.createElement('div');
+      div.className = 'card p-3 text-center cursor-pointer';
+      div.tabIndex = 0;
+      div.innerHTML = `<div class="text-xl font-bold text-blue-100">${p.level}</div><div class="text-sm text-gray-300">${p.descriptor}</div>`;
+      div.onclick = ()=> handleProficiencyClick(p.level);
+      div.onkeypress = (e)=>{ if(e.key==='Enter') handleProficiencyClick(p.level); };
+      container.appendChild(div);
+    });
+    container.classList.add('stagger'); container.classList.add('show');
+  }
+
+  function populateSkillLevels(){
+    const container = document.getElementById('step-3b');
+    container.innerHTML='';
+    skillLevels.forEach(s=>{
+      const div = document.createElement('div');
+      div.className='card p-3 text-center cursor-pointer';
+      div.tabIndex=0;
+      div.innerHTML = `<div class="text-lg font-bold text-blue-100">Level ${s.level}</div><div class="text-sm text-gray-300">${s.label}</div>`;
+      div.onclick = ()=> handleSkillClick(s.level);
+      div.onkeypress = (e)=>{ if(e.key==='Enter') handleSkillClick(s.level); };
+      container.appendChild(div);
+    });
+    container.classList.add('stagger'); container.classList.add('show');
+  }
+
+  // ==================== CLICK HANDLERS ====================
+  document.getElementById('topic-science').addEventListener('click', ()=> handleTopicClick('science'));
+  document.getElementById('topic-science').addEventListener('keypress', (e)=>{ if(e.key==='Enter') handleTopicClick('science'); });
+  document.getElementById('mode-descriptor').addEventListener('click', ()=> handleModeClick('descriptor'));
+  document.getElementById('mode-descriptor').addEventListener('keypress', (e)=>{ if(e.key==='Enter') handleModeClick('descriptor'); });
+  document.getElementById('mode-skill').addEventListener('click', ()=> handleModeClick('skill'));
+  document.getElementById('mode-skill').addEventListener('keypress', (e)=>{ if(e.key==='Enter') handleModeClick('skill'); });
+
+  function handleTopicClick(id){
+    selectedTopic = id; selectedSubtopic=null; selectedMode=null; selectedProficiency=null; selectedSkill=null; selectedTestName=null;
+    currentStep = 1; updateUI();
+  }
+  function handleSubtopicClick(id){
+    selectedSubtopic = id; selectedMode=null; selectedProficiency=null; selectedSkill=null; selectedTestName=null;
+    currentStep = 2; updateUI();
+  }
+  function handleModeClick(mode){
+    selectedMode = mode; selectedTestName=null;
+    currentStep = 3; updateUI();
+  }
+  function handleProficiencyClick(level){
+    selectedProficiency = level; selectedTestName=null; currentStep = 4; updateUI();
+  }
+  function handleSkillClick(level){
+    selectedSkill = level; selectedTestName=null; currentStep = 4; updateUI();
+  }
+
+  function handleBack(){
+    if(currentStep === 4){ currentStep = 3; selectedTestName=null; resetQuiz(); }
+    else if(currentStep === 3){ currentStep = 2; selectedMode = null; selectedTestName=null; }
+    else if(currentStep === 2){ currentStep = 1; selectedSubtopic = null; selectedTestName=null; }
+    else if(currentStep === 1){ currentStep = 0; selectedTopic = null; selectedTestName=null; }
+    updateUI();
+  }
+
+  function resetSelections(){
+    currentStep = 0;
+    selectedTopic=null; selectedSubtopic=null; selectedMode=null;
+    selectedProficiency=null; selectedSkill=null; selectedTestName=null;
+    resetQuiz();
+    updateUI();
+  }
+
+  // ==================== DESCRIPTOR MODE ====================
+  function initDescriptorMode(){
+    const panel = document.getElementById('descriptor-panel');
+    const contentDiv = document.getElementById('lesson-content');
+    const buttonsDiv = document.getElementById('module-buttons');
+    const titleEl = document.getElementById('lesson-title');
+    const subtitleEl = document.getElementById('lesson-subtitle');
+
+    show(panel);
+    contentDiv.innerHTML = '';
+    buttonsDiv.innerHTML = '';
+
+    const key = `${selectedSubtopic}_${selectedProficiency}`;
+    const modules = descriptorContent[key];
+
+    if(!modules || Object.keys(modules).length === 0){
+      contentDiv.innerHTML = '<p class="text-gray-400 text-center py-8">No content available for this selection yet.</p>';
+      titleEl.textContent = 'No Content';
+      subtitleEl.textContent = 'Please select another level or topic';
+      return;
+    }
+
+    titleEl.textContent = `${selectedSubtopic.charAt(0).toUpperCase() + selectedSubtopic.slice(1)} - ${proficiencyLevels.find(p=>p.level===selectedProficiency)?.descriptor}`;
+    subtitleEl.textContent = `${Object.keys(modules).length} modules available`;
+
+    Object.keys(modules).forEach((modKey, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-primary text-xs';
+      btn.textContent = modules[modKey].title;
+      btn.onclick = () => loadModule(modKey);
+      buttonsDiv.appendChild(btn);
+    });
+
+    loadModule(Object.keys(modules)[0]);
+  }
+
+  function loadModule(modKey){
+    const key = `${selectedSubtopic}_${selectedProficiency}`;
+    const moduleData = descriptorContent[key][modKey];
+    const contentDiv = document.getElementById('lesson-content');
+
+    let html = `<div class="fade-in">`;
+    html += `<h2 class="text-xl font-bold text-blue-300 mb-4">${moduleData.title}</h2>`;
+
+    moduleData.modules.forEach(mod => {
+      if(mod.type === 'text'){
+        html += `<div class="lesson-section">
+          <div class="lesson-heading">${mod.heading}</div>
+          <div class="lesson-body">${mod.body}</div>
+        </div>`;
+      }
+      else if(mod.type === 'image'){
+        html += `<div class="my-4 text-center">
+          <img src="${mod.url}" alt="${mod.caption}" class="lesson-image" onerror="this.style.display='none'">
+          <div class="lesson-caption">${mod.caption}</div>
+        </div>`;
+      }
+    });
+
+    html += `</div>`;
+    contentDiv.innerHTML = html;
+  }
+
+  // ==================== SKILL MODE - UNIFIED CHAT INTERFACE ====================
+  function initSkillMode(){
+    const panel = document.getElementById('skill-panel');
+    show(panel);
+
+    // Reset views
+    show(document.getElementById('test-selection-area'));
+    hide(document.getElementById('chat-section'));
+    hide(document.getElementById('quiz-complete'));
+    
+    // Always show input wrapper but disable until test starts
+    const inputWrapper = document.getElementById('chat-input-wrapper');
+    inputWrapper.classList.remove('hidden');
+    disableChatInput();
+
+    const key = `${selectedSubtopic}_${selectedSkill}`;
+    const testData = skillQuestions[key];
+
+    const buttonsContainer = document.getElementById('test-buttons-container');
+    buttonsContainer.innerHTML = '';
+
+    if(!testData){
+      buttonsContainer.innerHTML = `<p class="text-gray-400">No tests available for this selection yet.</p>`;
+      return;
+    }
+
+    // Create test buttons
+    Object.keys(testData).forEach(testName => {
+      const isSummative = testName.startsWith('Summative');
+      const btn = document.createElement('button');
+      btn.className = `test-btn ${isSummative ? 'test-btn-summative' : 'test-btn-lesson'}`;
+      btn.textContent = `${testName} (${testData[testName].length} Q)`;
+      btn.onclick = () => startQuiz(testName);
+      buttonsContainer.appendChild(btn);
+    });
+  }
+
+  function startQuiz(testName){
+    selectedTestName = testName;
+    updateBreadcrumb();
+
+    const key = `${selectedSubtopic}_${selectedSkill}`;
+    const testData = skillQuestions[key];
+    quizQuestions = [...(testData[testName] || [])];
+
+    if(quizQuestions.length === 0){
+      alert('No questions available for this test.');
+      return;
+    }
+
+    // Switch views: hide selection, show chat
+    hide(document.getElementById('test-selection-area'));
+    show(document.getElementById('chat-section'));
+    hide(document.getElementById('quiz-complete'));
+
+    // Initialize quiz state
+    quizCurrentIndex = 0;
+    quizScore = 0;
+    quizAttempted = 0;
+    quizAnswered = false;
+    quizHistory = [];
+
+    // Clear chat area
+    document.getElementById('chat-area').innerHTML = '';
+
+    // Enable input
+    enableChatInput();
+
+    // Welcome message with typing effect
+    addTypingIndicator();
+    setTimeout(() => {
+      removeTypingIndicator();
+      addChatMessage('bot', `Welcome to ${testName}! 🎯\n\nThis test has ${quizQuestions.length} questions. Type your answers in the chat box below.\n\nFor multiple choice, type the letter (A, B, C, or D).\nFor true/false, type "true" or "false".\nFor matching, type pairs like "Solid-Tightly packed, Liquid-Close but can slide".\nLet's begin!`);
+      setTimeout(() => {
+        addTypingIndicator();
+        setTimeout(() => {
+          removeTypingIndicator();
+          askCurrentQuestion();
+        }, 600);
+      }, 400);
+    }, 800);
+
+    updateQuizProgress();
+  }
+
+  function backToTestSelection(){
+    selectedTestName = null;
+    resetQuiz();
+    initSkillMode();
+    updateBreadcrumb();
+  }
+
+  // ==================== QUIZ FUNCTIONS ====================
+  function askCurrentQuestion(){
+    if(quizCurrentIndex >= quizQuestions.length){
+      showQuizComplete();
+      return;
+    }
+    const q = quizQuestions[quizCurrentIndex];
+    const qNum = quizCurrentIndex + 1;
+    
+    // Add question type badge
+    let badgeClass = '';
+    let hintText = '';
+    switch(q.type){
+      case 'identification': 
+        badgeClass = 'qtype-identification'; 
+        hintText = 'Type your answer below.';
+        break;
+      case 'multiplechoice': 
+        badgeClass = 'qtype-multiplechoice'; 
+        hintText = 'Type the letter of your answer (A, B, C, or D).';
+        break;
+      case 'truefalse': 
+        badgeClass = 'qtype-truefalse'; 
+        hintText = 'Type "true" or "false".';
+        break;
+      case 'fillblank': 
+        badgeClass = 'qtype-fillblank'; 
+        hintText = 'Fill in the blank with the correct word.';
+        break;
+      case 'matching': 
+        badgeClass = 'qtype-matching'; 
+        hintText = 'Type your matches like: Left-Right, Left-Right';
+        break;
+    }
+    
+    let questionHtml = `<div class="qtype-badge ${badgeClass}">${q.type}</div><div><b>Q${qNum}:</b> ${q.q}</div>`;
+    
+    // Show options as text for MC questions (since user types answer)
+    if(q.type === 'multiplechoice' && q.options){
+      questionHtml += `<div class="mt-2 text-sm text-gray-300">`;
+      q.options.forEach((opt, idx) => {
+        questionHtml += `<div>${String.fromCharCode(65+idx)}. ${opt}</div>`;
+      });
+      questionHtml += `</div>`;
+    }
+    
+    // Show pairs for matching
+    if(q.type === 'matching' && q.pairs){
+      questionHtml += `<div class="mt-2 text-sm text-gray-300"><b>Column A:</b><br>`;
+      q.pairs.forEach(p => {
+        questionHtml += `• ${p.left}<br>`;
+      });
+      questionHtml += `</div><div class="mt-1 text-sm text-gray-300"><b>Column B:</b><br>`;
+      const rightItems = [...q.pairs].map(p => p.right).sort(() => Math.random() - 0.5);
+      rightItems.forEach(r => {
+        questionHtml += `• ${r}<br>`;
+      });
+      questionHtml += `</div>`;
+    }
+    
+    questionHtml += `<div class="hint-text">💡 ${hintText}</div>`;
+    
+    addChatMessage('bot', questionHtml, true);
+    quizAnswered = false;
+    updateQuizProgress();
+    enableChatInput();
+  }
+
+  // ==================== CHAT INPUT HANDLING ====================
+  function handleChatKeydown(event){
+    if(event.key === 'Enter' && !event.shiftKey){
+      event.preventDefault();
+      submitChatAnswer();
+    }
+  }
+
+  function submitChatAnswer(){
+    if(quizAnswered) return;
+
+    const ta = document.getElementById('chat-textarea');
+    const userAnswer = ta.value.trim();
+    if(!userAnswer) return;
+
+    quizAnswered = true;
+    disableChatInput();
+
+    // Clear textarea
+    ta.value = '';
+    ta.rows = 1;
+
+    // Add user message to chat
+    addChatMessage('user', userAnswer);
+
+    // Check answer based on question type
+    const q = quizQuestions[quizCurrentIndex];
+    let isCorrect = false;
+
+    switch(q.type){
+      case 'multiplechoice':
+        // Accept letter or full answer
+        const letterMap = {};
+        if(q.options){
+          q.options.forEach((opt, idx) => {
+            letterMap[String.fromCharCode(65+idx).toLowerCase()] = opt.toLowerCase().trim();
+            letterMap[opt.toLowerCase().trim()] = opt.toLowerCase().trim();
+          });
+        }
+        const userLower = userAnswer.toLowerCase().trim();
+        const correctLower = q.a.toLowerCase().trim();
+        
+        // Check if user typed letter matching correct answer
+        let userMapped = userLower;
+        if(letterMap[userLower]) userMapped = letterMap[userLower];
+        if(letterMap[correctLower]) correctMapped = letterMap[correctLower];
+        
+        isCorrect = userMapped === correctLower || userLower === correctLower;
+        break;
+        
+      case 'truefalse':
+        isCorrect = userAnswer.toLowerCase().trim() === q.a.toLowerCase().trim();
+        break;
+        
+      case 'matching':
+        isCorrect = checkMatchingAnswer(userAnswer, q);
+        break;
+        
+      case 'fillblank':
+      case 'identification':
+      default:
+        isCorrect = checkAnswerMatch(userAnswer.toLowerCase().trim(), q.a.toLowerCase().trim());
+        break;
+    }
+
+    quizAttempted++;
+    if(isCorrect) quizScore++;
+
+    // Save to history
+    quizHistory.push({
+      question: q.q,
+      userAnswer: userAnswer,
+      correctAnswer: q.a,
+      isCorrect: isCorrect,
+      type: q.type
+    });
+
+    // Bot feedback with typing delay
+    addTypingIndicator();
+    setTimeout(() => {
+      removeTypingIndicator();
+      if(isCorrect){
+        addChatMessage('bot', `✅ Correct! The answer is: ${q.a}`);
+      } else {
+        addChatMessage('bot', `❌ Not quite right. The correct answer is: ${q.a}`);
+      }
+      updateQuizProgress();
+
+      // Next question after delay
+      if(quizCurrentIndex < quizQuestions.length - 1){
+        setTimeout(() => {
+          quizCurrentIndex++;
+          addTypingIndicator();
+          setTimeout(() => {
+            removeTypingIndicator();
+            askCurrentQuestion();
+          }, 600);
+        }, 1200);
+      } else {
+        setTimeout(() => {
+          quizCurrentIndex++;
+          showQuizComplete();
+        }, 1200);
+      }
+    }, 800);
+  }
+
+  function checkMatchingAnswer(userAnswer, q){
+    if(!q.pairs) return false;
+    
+    // Parse user answer: "Solid-Tightly packed, Liquid-Close but can slide"
+    const userPairs = userAnswer.toLowerCase().split(',').map(s => s.trim());
+    const correctPairs = q.pairs;
+    
+    let correctCount = 0;
+    
+    userPairs.forEach(up => {
+      const parts = up.split('-').map(s => s.trim());
+      if(parts.length === 2){
+        const left = parts[0];
+        const right = parts[1];
+        // Find if this left exists and matches right (allow partial matching)
+        const correctPair = correctPairs.find(cp => 
+          cp.left.toLowerCase().includes(left) || left.includes(cp.left.toLowerCase())
+        );
+        if(correctPair){
+          // Check if right side matches (allow partial)
+          if(correctPair.right.toLowerCase().includes(right) || right.includes(correctPair.right.toLowerCase())){
+            correctCount++;
+          }
+        }
+      }
+    });
+    
+    // Consider correct if at least 60% of pairs matched
+    return correctCount / correctPairs.length >= 0.6;
+  }
+
+  function checkAnswerMatch(user, correct){
+    if(user === correct) return true;
+    if(correct.length > 10 && (user.includes(correct) || correct.includes(user))) return true;
+    if(user.length > 10 && (correct.includes(user) || user.includes(correct))) return true;
+    const userWords = user.split(/\s+/).filter(w => w.length > 2);
+    const correctWords = correct.split(/\s+/).filter(w => w.length > 2);
+    if(userWords.length > 0 && correctWords.length > 0){
+      const matches = userWords.filter(w => correctWords.includes(w)).length;
+      if(matches / correctWords.length >= 0.6) return true;
+    }
+    const userNum = user.match(/[\d.]+/);
+    const correctNum = correct.match(/[\d.]+/);
+    if(userNum && correctNum && userNum[0] === correctNum[0]) return true;
+    return false;
+  }
+
+  // ==================== CHAT MESSAGE FUNCTIONS ====================
+  function addChatMessage(sender, text, isHtml = false){
+    const chat = document.getElementById('chat-area');
+    const div = document.createElement('div');
+    div.className = 'message-wrapper fade-in ' + (sender==='user'?'user-wrapper':'');
+
+    let bubbleClass = sender==='user'?'user-message':'bot-message';
+    let avatarClass = sender==='user'?'user-avatar':'bot-avatar';
+    let avatarText = sender==='user'?'You':'Bot';
+
+    const content = isHtml ? text : escapeHtml(text);
+
+    div.innerHTML = sender==='user'
+      ? `<div class="message-bubble ${bubbleClass}">${content}</div><div class="message-avatar ${avatarClass}">${avatarText}</div>`
+      : `<div class="message-avatar ${avatarClass}">${avatarText}</div><div class="message-bubble ${bubbleClass}">${content}</div>`;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function escapeHtml(text){
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function addTypingIndicator(){
+    const chat = document.getElementById('chat-area');
+    const div = document.createElement('div');
+    div.id = 'typing-indicator';
+    div.className = 'message-wrapper fade-in';
+    div.innerHTML = `<div class="message-avatar bot-avatar">Bot</div><div class="message-bubble bot-message"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function removeTypingIndicator(){
+    const el = document.getElementById('typing-indicator');
+    if(el) el.remove();
+  }
+
+  function enableChatInput(){
+    const ta = document.getElementById('chat-textarea');
+    const btn = document.getElementById('chat-send-btn');
+    ta.disabled = false;
+    btn.disabled = false;
+    ta.placeholder = "Type your answer here...";
+    ta.focus();
+  }
+
+  function disableChatInput(){
+    const ta = document.getElementById('chat-textarea');
+    const btn = document.getElementById('chat-send-btn');
+    ta.disabled = true;
+    btn.disabled = true;
+    ta.placeholder = "Select a test to begin...";
+  }
+
+  function updateQuizProgress(){
+    const total = quizQuestions.length;
+    document.getElementById('total-q-num').textContent = total;
+    document.getElementById('current-q-num').textContent = Math.min(quizCurrentIndex + 1, total);
+    document.getElementById('score-display').textContent = quizScore;
+    document.getElementById('total-attempted').textContent = quizAttempted;
+
+    const progressDiv = document.getElementById('quiz-progress');
+    progressDiv.innerHTML = '';
+    for(let i=0; i<total; i++){
+      const dot = document.createElement('div');
+      dot.className = 'quiz-dot';
+      if(i < quizCurrentIndex) dot.classList.add(quizHistory[i] && quizHistory[i].isCorrect ? 'answered' : 'wrong');
+      if(i === quizCurrentIndex) dot.classList.add('active');
+      progressDiv.appendChild(dot);
+    }
+  }
+
+  function showQuizComplete(){
+    hide(document.getElementById('chat-section'));
+    show(document.getElementById('quiz-complete'));
+    document.getElementById('final-score').textContent = quizScore;
+    document.getElementById('final-total').textContent = quizQuestions.length;
+
+    // Build review list
+    const reviewList = document.getElementById('review-list');
+    let html = '';
+    quizHistory.forEach((h, idx) => {
+      const status = h.isCorrect ? '✅ Correct' : '❌ Wrong';
+      const cardClass = h.isCorrect ? 'review-correct' : 'review-wrong';
+      const typeLabel = h.type ? `[${h.type.toUpperCase()}] ` : '';
+      html += `<div class="review-card ${cardClass}">
+        <div class="text-xs text-gray-400 mb-1">Question ${idx+1} ${typeLabel}</div>
+        <div class="text-sm text-blue-100 mb-1">${h.question}</div>
+        <div class="text-sm ${h.isCorrect ? 'text-green-400' : 'text-red-400'}"><b>Your answer:</b> ${h.userAnswer}</div>
+        ${!h.isCorrect ? `<div class="text-sm text-green-400"><b>Correct answer:</b> ${h.correctAnswer}</div>` : ''}
+        <div class="text-xs ${h.isCorrect ? 'text-green-400' : 'text-red-400'} mt-1 font-bold">${status}</div>
+      </div>`;
+    });
+    reviewList.innerHTML = html;
+
+    // Disable input
+    disableChatInput();
+  }
+
+  function restartQuiz(){
+    quizCurrentIndex = 0;
+    quizScore = 0;
+    quizAttempted = 0;
+    quizHistory = [];
+    
+    hide(document.getElementById('quiz-complete'));
+    show(document.getElementById('chat-section'));
+    document.getElementById('chat-area').innerHTML = '';
+
+    enableChatInput();
+
+    addTypingIndicator();
+    setTimeout(() => {
+      removeTypingIndicator();
+      addChatMessage('bot', `Welcome back! Let's try again. 🎯`);
+      setTimeout(() => {
+        addTypingIndicator();
+        setTimeout(() => {
+          removeTypingIndicator();
+          askCurrentQuestion();
+        }, 600);
+      }, 400);
+    }, 800);
+  }
+
+  function resetQuiz(){
+    quizQuestions = [];
+    quizCurrentIndex = 0;
+    quizScore = 0;
+    quizAttempted = 0;
+    quizAnswered = false;
+    quizHistory = [];
+  }
+
+  // ==================== FOOTER FUNCTIONS ====================
+  function goHome(){ resetSelections(); }
+  function showAbout(){ alert('APP 2026 - Science Learning Platform\n\nA structured learning tool for Physics, Chemistry, and Biology.\n\nFeatures:\n• Descriptor Mode: Read lessons with text and images (3 levels)\n• Skill Mode: Chat-based quizzes with typed answers (3 levels)\n• Question types: Identification, Multiple Choice, True/False, Fill in the Blanks, Matching\n• Review all answers at the end'); }
+  function showLab(){ alert('🧪 Lab Mode\n\nInteractive experiments and simulations coming soon!'); }
+  function showSettings(){ alert('⚙️ Settings\n\n• Sound: On/Off\n• Theme: Dark/Light\n• Font Size: Small/Medium/Large\n\n(Placeholder - settings panel coming soon)'); }
+
+  // ==================== TIMER ====================
+  function updateTimer(){
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2,'0');
+    const minutes = String(now.getMinutes()).padStart(2,'0');
+    const el = document.getElementById('timer-display');
+    if(el) el.textContent = `${hours}:${minutes}`;
+  }
+  setInterval(updateTimer, 1000);
+  updateTimer();
+
+  // ==================== KEYBOARD SHORTCUTS ====================
+  document.addEventListener('keydown', function(event){
+    if(event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
+    if(event.key.toLowerCase() === 'f'){
+      if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+    } else if(event.key.toLowerCase() === 'e'){
+      if(document.fullscreenElement) document.exitFullscreen();
+    }
+  });
+
+  </script>
+</body>
+</html>
     
             
     
