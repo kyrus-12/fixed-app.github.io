@@ -848,9 +848,8 @@
     updateUI();
   }
 
-  // ==================== DESCRIPTOR MODE ====================
-  // ==================== DESCRIPTOR MODE ====================
-  function initDescriptorMode(){
+// ==================== DESCRIPTOR MODE ====================
+function initDescriptorMode(){
     const panel = document.getElementById('descriptor-panel');
     const contentDiv = document.getElementById('lesson-content');
     const buttonsDiv = document.getElementById('module-buttons');
@@ -862,9 +861,9 @@
     buttonsDiv.innerHTML = '';
 
     const key = `${selectedSubtopic}_${selectedProficiency}`;
-    const modulesArray = descriptorContent[key]; // This is now your array
+    const modulesObj = descriptorContent[key]; // This is an OBJECT with lesson keys
 
-    if(!modulesArray || modulesArray.length === 0){
+    if(!modulesObj || Object.keys(modulesObj).length === 0){
       contentDiv.innerHTML = '<p class="text-gray-400 text-center py-8">No content available for this selection yet.</p>';
       titleEl.textContent = 'No Content';
       subtitleEl.textContent = 'Please select another level or topic';
@@ -872,22 +871,25 @@
     }
 
     titleEl.textContent = `${selectedSubtopic.charAt(0).toUpperCase() + selectedSubtopic.slice(1)} - ${proficiencyLevels.find(p=>p.level===selectedProficiency)?.descriptor}`;
-    subtitleEl.textContent = `${modulesArray.length} modules available`;
+    subtitleEl.textContent = `${Object.keys(modulesObj).length} modules available`;
 
-    // FIX: Iterate through the array instead of Object.keys
-    modulesArray.forEach((mod, idx) => {
+    // FIX: Use Object.keys() to iterate over the object keys
+    Object.keys(modulesObj).forEach((lessonKey, idx) => {
+      const mod = modulesObj[lessonKey];
       const btn = document.createElement('button');
       btn.className = 'btn btn-primary text-xs';
       btn.textContent = mod.title;
-      btn.onclick = () => loadModuleByIndex(key, idx);
+      btn.onclick = () => loadModuleByIndex(key, lessonKey);
       buttonsDiv.appendChild(btn);
     });
 
-    loadModuleByIndex(key, 0);
+    // Load first module by default
+    const firstKey = Object.keys(modulesObj)[0];
+    loadModuleByIndex(key, firstKey);
   }
 
-  function loadModuleByIndex(key, index){
-    const moduleData = descriptorContent[key][index];
+  function loadModuleByIndex(key, lessonKey){
+    const moduleData = descriptorContent[key][lessonKey];
     const contentDiv = document.getElementById('lesson-content');
 
     let html = `<div class="fade-in">`;
@@ -911,7 +913,7 @@
     html += `</div>`;
     contentDiv.innerHTML = html;
   }
-
+      
   // ==================== SKILL MODE - UNIFIED CHAT INTERFACE ====================
   function initSkillMode(){
     const panel = document.getElementById('skill-panel');
