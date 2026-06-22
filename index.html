@@ -576,224 +576,219 @@
     <script>
 
       
-     // ==================== DATA ====================
-
-  const topics = [
-    { id:'science', title:'Science', subtopics:[
-      {id:'physics', title:'Physics', description:'Matter, motion, energy, and forces'},
-      {id:'chemistry', title:'Chemistry', description:'Use of models, particle model, solutions, changes of state, scientific investigations'},
-      {id:'biology', title:'Biology', description:'Living systems and organisms'}
-    ]}
-  ];
-
-  const proficiencyLevels = [
-    {level:1, descriptor:'Beginner'},
-    {level:2, descriptor:'Intermediate'},
-    {level:3, descriptor:'Advanced'}
-  ];
-
-  const skillLevels = [
-    {level:1, label:'Recall & Understand'},
-    {level:2, label:'Apply & Analyze'},
-    {level:3, label:'Evaluate & Create'}
-  ];
-
-  const stepTitles = ['Select Topic','Select Branch','Select Mode','Select Level','Learning'];
-
-  // ==================== SKILL QUESTIONS DATA ====================
-  const skillQuestions = {
-    chemistry_1: {
-      'Lesson 1 - Use of Models': [
-        {type:'identification', q:'What tool do scientists use for complex ideas?', a:'models'},
-        {type:'truefalse', q:'A globe is a scientific model. (true/false)', a:'true'},
-        {type:'fillblank', q:'All matter is made of tiny _____.', a:'particles'},
-        {type:'multiplechoice', q:'Which of these is a scientific model? (A) A real car (B) A toy car (C) A photograph (D) A mirror', a:'B'},
-        {type:'identification', q:'What does a water cycle drawing represent?', a:'water'},
-        {type:'truefalse', q:'Scientific models are always 100% accurate. (true/false)', a:'false'},
-        {type:'fillblank', q:'A globe is a model of the _____.', a:'earth'},
-        {type:'multiplechoice', q:'Why do scientists use models? (A) To make things harder (B) To simplify complex ideas (C) To confuse people (D) To waste time', a:'B'},
-        {type:'identification', q:'Which state of matter has particles closest together?', a:'solid'},
-        {type:'truefalse', q:'A toy car can be a scientific model. (true/false)', a:'true'}
-      ],
-      'Lesson 2 - The Particle Model': [
-        {type:'identification', q:'All matter is made of tiny _____.', a:'particles'},
-        {type:'truefalse', q:'Particles in a solid are tightly packed. (true/false)', a:'true'},
-        {type:'fillblank', q:'In a solid, particles vibrate in fixed _____.', a:'positions'},
-        {type:'multiplechoice', q:'Which state has particles far apart? (A) Solid (B) Liquid (C) Gas (D) All of them', a:'C'},
-        {type:'identification', q:'Each substance has its own unique type of _____.', a:'particles'},
-        {type:'truefalse', q:'Particles in a gas are closer than in a liquid. (true/false)', a:'false'},
-        {type:'fillblank', q:'Particles in a liquid can slide past each _____.', a:'other'},
-        {type:'multiplechoice', q:'What happens to particles when heated? (A) Slow down (B) Speed up (C) Stop moving (D) Disappear', a:'B'},
-        {type:'identification', q:'The particle model says all matter is made of tiny _____.', a:'particles'},
-        {type:'truefalse', q:'Particles are visible to the naked eye. (true/false)', a:'false'}
-      ],
-      'Summative Test - Level 1': [
-        {type:'multiplechoice', q:'What is a scientific model? (A) A real object (B) A simplified representation (C) A photograph (D) A painting', a:'B'},
-        {type:'truefalse', q:'A globe represents the Earth. (true/false)', a:'true'},
-        {type:'fillblank', q:'Matter is made of tiny _____.', a:'particles'},
-        {type:'matching', q:'Match each state with its description. Type your answer like: Solid-Tightly packed, Liquid-Close but can slide, Gas-Far apart', 
-         pairs:[
-          {left:'Solid', right:'Tightly packed, fixed positions'},
-          {left:'Liquid', right:'Close but can slide past each other'},
-          {left:'Gas', right:'Far apart, move freely'}
-        ], a:'solid-tightly packed, liquid-close but can slide, gas-far apart'},
-        {type:'identification', q:'What process is called when solid turns to liquid?', a:'melting'},
-        {type:'multiplechoice', q:'Why use a globe instead of showing real Earth? (A) Too small (B) Too large (C) Too colorful (D) Too flat', a:'B'},
-        {type:'truefalse', q:'Models can be updated when new information is found. (true/false)', a:'true'},
-        {type:'fillblank', q:'When heated, particles _____ up.', a:'speed'},
-        {type:'multiplechoice', q:'Which is NOT a scientific model? (A) Globe (B) Toy car (C) Real car (D) Water cycle diagram', a:'C'},
-        {type:'identification', q:'In a solution, what is the substance that dissolves called?', a:'solute'}
-      ]
-    },
-    chemistry_2: {
-      'Lesson 1 - Use of Models': [
-        {type:'identification', q:'Why would a scientist use a globe instead of showing the real Earth? (too large / too small)', a:'too large'},
-        {type:'truefalse', q:'A model can be wrong and still useful. (true/false)', a:'true'},
-        {type:'fillblank', q:'A toy car model is similar to a real car in basic _____.', a:'shape'},
-        {type:'multiplechoice', q:'Can scientific models be wrong? (A) No (B) Yes (C) Only sometimes (D) Never', a:'B'},
-        {type:'identification', q:'What happens to particles when heated? (speed up / slow down)', a:'speed up'},
-        {type:'truefalse', q:'All models show every detail perfectly. (true/false)', a:'false'},
-        {type:'fillblank', q:'The process when solid turns to liquid is called _____.', a:'melting'},
-        {type:'multiplechoice', q:'How is a toy car model similar to a real car? (A) Same size (B) Same basic shape (C) Same engine (D) Same price', a:'B'}
-      ]
-    },
-    chemistry_3: {
-      'Lesson 1 - The Particle Model': [
-        {type:'identification', q:'Compare a globe and flat map. Which shows Earth\'s shape more accurately?', a:'globe'},
-        {type:'truefalse', q:'A model of the solar system using marbles fails to match real size ratios. (true/false)', a:'true'},
-        {type:'fillblank', q:'Can the particle model explain why substances expand when heated? (yes/no)', a:'yes'},
-        {type:'multiplechoice', q:'Which shows Earth\'s shape more accurately? (A) Flat map (B) Globe (C) Both same (D) Neither', a:'B'}
-      ]
-    },
-    physics_1: {
-      'Lesson 1 - Motion': [
-        {type:'identification', q:'What unit measures force?', a:'newton'},
-        {type:'truefalse', q:'Motion is always measured against a reference point. (true/false)', a:'true'},
-        {type:'fillblank', q:'A car travels 100km in 2 hours. Its average speed is _____ km/h.', a:'50'},
-        {type:'multiplechoice', q:'Which is a scalar quantity? (A) Velocity (B) Force (C) Speed (D) Acceleration', a:'C'}
-      ]
-    }
-  };
-
-  // ==================== DESCRIPTOR CONTENT ====================
-  const descriptorContent = {
-    chemistry_1: {
-      'use of models': {
-        title: 'Lesson 1: Use of Models',
-        modules: [
-          {type:'text', heading:'Objectives', body:'By the end of this lesson learners will be able to:<br>1. Recognize that scientists rely on models.<br>2. Identify basic examples of models.'},
-          {type:'text', heading:'Introduction', body:'Have you ever tried to explain something that is too big, too small, or too hard to see? Scientists use models to help.'},
-          {type:'text', heading:'What are Scientific Models?', body:'A scientific model is a simplified representation of complex ideas, objects, or phenomena.'},
-          {type:'text', heading:'Key Idea', body:'Models make big, small, or invisible things easier to understand.'},
-          {type:'text', heading:'Examples', body:'Globes, toy cars, water cycle diagrams, and atomic models are all scientific models.'},
-          {type:'image', url:'https://i.imgur.com/FnpD99w.gif', caption:'Earth Globe'},
-          {type:'text', heading:'Summary', body:'Scientists use models to explain concepts that are hard to show directly.'}
-        ]
-      },
-      'the particle model': {
-        title: 'Lesson 2: The Particle Model',
-        modules: [
-          {type:'text', heading:'Objectives', body:'By the end of this lesson learners will be able to:<br>1. Recognize that all matter is composed of tiny particles.<br>2. Describe that different substances have different particles.'},
-          {type:'text', heading:'All Matter is Made of Tiny Particles', body:'Everything you can see and touch is made of matter. Matter is made of tiny particles too small to see.'},
-          {type:'text', heading:'Key Idea', body:'Each substance has its own unique type of particles.'}
-        ]
+   const topics = [
+     {id:'science', title:'Science', subtopics:[
+       {id:'physics', title:'Physics', description:'To be followed'},
+       {id:'chemistry', title:'Chemistry', description:'To be followed'},
+       {id:'biology', title:'Biology', description:'To be followed'}
+       ]}
+     ];
+      
+      const proficiencyLevels = [
+        {level:1, descriptor:'Beginner'},
+        {level:2, descriptor:'Intermediate'},
+        {level:3, descriptor:'Advanced'}
+      ];
+      
+      const skillLevels = [
+        {level:1, label:'To be followed'},
+        {level:2, label:'To be followed'},
+        {level:3, label:'To be followed'}
+      ];
+      
+      const stepTitles = ['Select Topic','Select Branch','Select Mode','Select Level','Learning'];
+      
+      const skillQuestions = {
+        chemistry_1: {
+          'Lesson 1 - Use of Models': [
+            {type:'identification', q:'What tool do scientists use for complex ideas?', a:'models'},
+            {type:'truefalse', q:'A globe is a scientific model. (true/false)', a:'true'},
+            {type:'fillblank', q:'All matter is made of tiny _____.', a:'particles'},
+            {type:'multiplechoice', q:'Which of these is a scientific model? (A) A real car (B) A toy car (C) A photograph (D) A mirror', a:'B'},
+            {type:'identification', q:'What does a water cycle drawing represent?', a:'water'},
+            {type:'truefalse', q:'Scientific models are always 100% accurate. (true/false)', a:'false'},
+            {type:'fillblank', q:'A globe is a model of the _____.', a:'earth'},
+            {type:'multiplechoice', q:'Why do scientists use models? (A) To make things harder (B) To simplify complex ideas (C) To confuse people (D) To waste time', a:'B'},
+            {type:'identification', q:'Which state of matter has particles closest together?', a:'solid'},
+            {type:'truefalse', q:'A toy car can be a scientific model. (true/false)', a:'true'}
+          ],
+          'Lesson 2 - The Particle Model': [
+            {type:'identification', q:'All matter is made of tiny _____.', a:'particles'},
+            {type:'truefalse', q:'Particles in a solid are tightly packed. (true/false)', a:'true'},
+            {type:'fillblank', q:'In a solid, particles vibrate in fixed _____.', a:'positions'},
+            {type:'multiplechoice', q:'Which state has particles far apart? (A) Solid (B) Liquid (C) Gas (D) All of them', a:'C'},
+            {type:'identification', q:'Each substance has its own unique type of _____.', a:'particles'},
+            {type:'truefalse', q:'Particles in a gas are closer than in a liquid. (true/false)', a:'false'},
+            {type:'fillblank', q:'Particles in a liquid can slide past each _____.', a:'other'},
+            {type:'multiplechoice', q:'What happens to particles when heated? (A) Slow down (B) Speed up (C) Stop moving (D) Disappear', a:'B'},
+            {type:'identification', q:'The particle model says all matter is made of tiny _____.', a:'particles'},
+            {type:'truefalse', q:'Particles are visible to the naked eye. (true/false)', a:'false'}
+          ],
+          'Summative Test - Level 1': [
+            {type:'multiplechoice', q:'What is a scientific model? (A) A real object (B) A simplified representation (C) A photograph (D) A painting', a:'B'},
+            {type:'truefalse', q:'A globe represents the Earth. (true/false)', a:'true'},
+            {type:'fillblank', q:'Matter is made of tiny _____.', a:'particles'},
+            {type:'matching', q:'Match each state with its description. Type your answer like: Solid-Tightly packed, Liquid-Close but can slide, Gas-Far apart', 
+             pairs:[
+               {left:'Solid', right:'Tightly packed, fixed positions'},
+               {left:'Liquid', right:'Close but can slide past each other'},
+               {left:'Gas', right:'Far apart, move freely'}
+             ], a:'solid-tightly packed, liquid-close but can slide, gas-far apart'},
+            {type:'identification', q:'What process is called when solid turns to liquid?', a:'melting'},
+            {type:'multiplechoice', q:'Why use a globe instead of showing real Earth? (A) Too small (B) Too large (C) Too colorful (D) Too flat', a:'B'},
+            {type:'truefalse', q:'Models can be updated when new information is found. (true/false)', a:'true'},
+            {type:'fillblank', q:'When heated, particles _____ up.', a:'speed'},
+            {type:'multiplechoice', q:'Which is NOT a scientific model? (A) Globe (B) Toy car (C) Real car (D) Water cycle diagram', a:'C'},
+            {type:'identification', q:'In a solution, what is the substance that dissolves called?', a:'solute'}
+          ]
+        },
+        chemistry_2: {
+          'Lesson 1 - Use of Models': [
+            {type:'identification', q:'Why would a scientist use a globe instead of showing the real Earth? (too large / too small)', a:'too large'},
+            {type:'truefalse', q:'A model can be wrong and still useful. (true/false)', a:'true'},
+            {type:'fillblank', q:'A toy car model is similar to a real car in basic _____.', a:'shape'},
+            {type:'multiplechoice', q:'Can scientific models be wrong? (A) No (B) Yes (C) Only sometimes (D) Never', a:'B'},
+            {type:'identification', q:'What happens to particles when heated? (speed up / slow down)', a:'speed up'},
+            {type:'truefalse', q:'All models show every detail perfectly. (true/false)', a:'false'},
+            {type:'fillblank', q:'The process when solid turns to liquid is called _____.', a:'melting'},
+            {type:'multiplechoice', q:'How is a toy car model similar to a real car? (A) Same size (B) Same basic shape (C) Same engine (D) Same price', a:'B'}
+          ]
+        },
+        
+        chemistry_3: {
+          'Lesson 1 - The Particle Model': [
+            {type:'identification', q:'Compare a globe and flat map. Which shows Earth\'s shape more accurately?', a:'globe'},
+            {type:'truefalse', q:'A model of the solar system using marbles fails to match real size ratios. (true/false)', a:'true'},
+            {type:'fillblank', q:'Can the particle model explain why substances expand when heated? (yes/no)', a:'yes'},
+            {type:'multiplechoice', q:'Which shows Earth\'s shape more accurately? (A) Flat map (B) Globe (C) Both same (D) Neither', a:'B'}
+          ]
+        },
+        physics_1: {
+          'Lesson 1 - Motion': [
+            {type:'identification', q:'What unit measures force?', a:'newton'},
+            {type:'truefalse', q:'Motion is always measured against a reference point. (true/false)', a:'true'},
+            {type:'fillblank', q:'A car travels 100km in 2 hours. Its average speed is _____ km/h.', a:'50'},
+            {type:'multiplechoice', q:'Which is a scalar quantity? (A) Velocity (B) Force (C) Speed (D) Acceleration', a:'C'}
+          ]
+        }
+      };
+      
+      const descriptorContent = {
+        chemistry_1: {
+          'use of models': {
+            title: 'Lesson 1: Use of Models',
+            modules: [
+              {type:'text', heading:'Objectives', body:'By the end of this lesson learners will be able to:<br>1. Recognize that scientists rely on models.<br>2. Identify basic examples of models.'},
+              {type:'text', heading:'Introduction', body:'Have you ever tried to explain something that is too big, too small, or too hard to see? Scientists use models to help.'},
+              {type:'text', heading:'What are Scientific Models?', body:'A scientific model is a simplified representation of complex ideas, objects, or phenomena.'},
+              {type:'text', heading:'Key Idea', body:'Models make big, small, or invisible things easier to understand.'},
+              {type:'text', heading:'Examples', body:'Globes, toy cars, water cycle diagrams, and atomic models are all scientific models.'},
+              {type:'image', url:'https://i.imgur.com/FnpD99w.gif', caption:'Earth Globe'},
+              {type:'text', heading:'Summary', body:'Scientists use models to explain concepts that are hard to show directly.'}
+            ]
+          },
+          'the particle model': {
+            title: 'Lesson 2: The Particle Model',
+            modules: [
+              {type:'text', heading:'Objectives', body:'By the end of this lesson learners will be able to:<br>1. Recognize that all matter is composed of tiny particles.<br>2. Describe that different substances have different particles.'},
+              {type:'text', heading:'All Matter is Made of Tiny Particles', body:'Everything you can see and touch is made of matter. Matter is made of tiny particles too small to see.'},
+              {type:'text', heading:'Key Idea', body:'Each substance has its own unique type of particles.'}
+            ]
+          }
+        }
+      };
+      
+      
+      
+      let currentStep = 0;
+      let selectedTopic = null;
+      let selectedSubtopic = null;
+      let selectedMode = null;
+      let selectedProficiency = null;
+      let selectedSkill = null;
+      let selectedTestName = null;
+      
+      let quizQuestions = [];
+      let quizCurrentIndex = 0;
+      let quizScore = 0;
+      let quizAttempted = 0;
+      let quizAnswered = false;
+      let quizHistory = [];
+      
+      function show(elem){ elem.classList.remove('hidden'); elem.classList.add('fade-in'); }
+      function hide(elem){ elem.classList.add('hidden'); elem.classList.remove('fade-in'); }
+      
+      function updateBreadcrumb(){
+        let parts = [];
+        if(selectedTopic) parts.push(topics.find(t=>t.id===selectedTopic)?.title || '');
+        if(selectedSubtopic) parts.push(topics.find(t=>t.id===selectedTopic)?.subtopics.find(s=>s.id===selectedSubtopic)?.title || '');
+        if(selectedMode) parts.push(selectedMode === 'descriptor' ? 'Descriptor' : 'Skill');
+        if(selectedProficiency) parts.push(proficiencyLevels.find(p=>p.level===selectedProficiency)?.descriptor);
+        if(selectedSkill) parts.push('Level ' + selectedSkill);
+        if(selectedTestName) parts.push(selectedTestName);
+        document.getElementById('step-breadcrumb').textContent = parts.join(' / ');
       }
-    }
-  };
-
-  // ==================== STATE ====================
-  let currentStep = 0;
-  let selectedTopic = null;
-  let selectedSubtopic = null;
-  let selectedMode = null;
-  let selectedProficiency = null;
-  let selectedSkill = null;
-  let selectedTestName = null;
-
-  // Quiz state
-  let quizQuestions = [];
-  let quizCurrentIndex = 0;
-  let quizScore = 0;
-  let quizAttempted = 0;
-  let quizAnswered = false;
-  let quizHistory = [];
-
-  // ==================== UI HELPERS ====================
-  function show(elem){ elem.classList.remove('hidden'); elem.classList.add('fade-in'); }
-  function hide(elem){ elem.classList.add('hidden'); elem.classList.remove('fade-in'); }
-
-  function updateBreadcrumb(){
-    let parts = [];
-    if(selectedTopic) parts.push(topics.find(t=>t.id===selectedTopic)?.title || '');
-    if(selectedSubtopic) parts.push(topics.find(t=>t.id===selectedTopic)?.subtopics.find(s=>s.id===selectedSubtopic)?.title || '');
-    if(selectedMode) parts.push(selectedMode === 'descriptor' ? 'Descriptor' : 'Skill');
-    if(selectedProficiency) parts.push(proficiencyLevels.find(p=>p.level===selectedProficiency)?.descriptor);
-    if(selectedSkill) parts.push('Level ' + selectedSkill);
-    if(selectedTestName) parts.push(selectedTestName);
-    document.getElementById('step-breadcrumb').textContent = parts.join(' / ');
-  }
-
-  function updateUI(){
-    ['step-0','step-1','step-2','step-3a','step-3b','step-4'].forEach(id=>{
-      const el=document.getElementById(id); if(el) el.classList.add('hidden');
-    });
-    hide(document.getElementById('descriptor-panel'));
-    hide(document.getElementById('skill-panel'));
-
-    document.getElementById('step-title').textContent = stepTitles[Math.min(currentStep, stepTitles.length-1)];
-    document.getElementById('step-indicator').textContent = `Step ${Math.min(currentStep+1,4)} of 4`;
-    updateBreadcrumb();
-
-    const back = document.getElementById('back-button'), reset = document.getElementById('reset-button');
-    if(currentStep>0){ back.classList.remove('hidden'); reset.classList.remove('hidden'); }
-    else { back.classList.add('hidden'); reset.classList.add('hidden'); }
-
-    if(currentStep===0){ show(document.getElementById('step-0')); }
-    if(currentStep===1){ populateSubtopics(); show(document.getElementById('step-1')); }
-    if(currentStep===2){ show(document.getElementById('step-2')); }
-    if(currentStep===3){
-      if(selectedMode==='descriptor'){ populateProficiencyLevels(); show(document.getElementById('step-3a')); }
-      else { populateSkillLevels(); show(document.getElementById('step-3b')); }
-    }
-    if(currentStep===4){
-      show(document.getElementById('step-4'));
-      if(selectedMode==='descriptor') initDescriptorMode();
-      else initSkillMode();
-    }
-  }
-
-  // ==================== POPULATE FUNCTIONS ====================
-  function populateSubtopics(){
-    const container = document.getElementById('step-1');
-    container.innerHTML='';
-    const topic = topics.find(t=>t.id===selectedTopic);
-    if(!topic) return;
-    topic.subtopics.forEach((s)=>{
-      const div = document.createElement('div');
-      div.className='card p-4 cursor-pointer';
-      div.tabIndex = 0;
-      div.innerHTML = `<h4 class="text-lg font-semibold text-blue-100">${s.title}</h4><p class="text-sm text-gray-400 mt-1">${s.description}</p>`;
-      div.onclick = ()=>{ handleSubtopicClick(s.id); };
-      div.onkeypress = (e)=>{ if(e.key==='Enter') handleSubtopicClick(s.id); };
-      container.appendChild(div);
-    });
-    container.classList.add('stagger'); container.classList.add('show');
-  }
-
-  function populateProficiencyLevels(){
-    const container = document.getElementById('step-3a');
-    container.innerHTML='';
-    proficiencyLevels.forEach(p=>{
-      const div = document.createElement('div');
-      div.className = 'card p-3 text-center cursor-pointer';
-      div.tabIndex = 0;
-      div.innerHTML = `<div class="text-xl font-bold text-blue-100">${p.level}</div><div class="text-sm text-gray-300">${p.descriptor}</div>`;
-      div.onclick = ()=> handleProficiencyClick(p.level);
-      div.onkeypress = (e)=>{ if(e.key==='Enter') handleProficiencyClick(p.level); };
-      container.appendChild(div);
-    });
-    container.classList.add('stagger'); container.classList.add('show');
-  }
+      
+      function updateUI(){
+        ['step-0','step-1','step-2','step-3a','step-3b','step-4'].forEach(id=>{
+          const el=document.getElementById(id); if(el) el.classList.add('hidden');
+        });
+        hide(document.getElementById('descriptor-panel'));
+        hide(document.getElementById('skill-panel'));
+        
+        document.getElementById('step-title').textContent = stepTitles[Math.min(currentStep, stepTitles.length-1)];
+        document.getElementById('step-indicator').textContent = `Step ${Math.min(currentStep+1,4)} of 4`;
+        updateBreadcrumb();
+        
+        const back = document.getElementById('back-button'), reset = document.getElementById('reset-button');
+        if(currentStep>0){ back.classList.remove('hidden'); reset.classList.remove('hidden'); }
+        else { back.classList.add('hidden'); reset.classList.add('hidden'); }
+        
+        if(currentStep===0){ show(document.getElementById('step-0')); }
+        if(currentStep===1){ populateSubtopics(); show(document.getElementById('step-1')); }
+        if(currentStep===2){ show(document.getElementById('step-2')); }
+        if(currentStep===3){
+          if(selectedMode==='descriptor'){ populateProficiencyLevels(); show(document.getElementById('step-3a')); }
+          else { populateSkillLevels(); show(document.getElementById('step-3b')); }
+        }
+        if(currentStep===4){
+          show(document.getElementById('step-4'));
+          if(selectedMode==='descriptor') initDescriptorMode();
+          else initSkillMode();
+        }
+      }
+      
+      function populateSubtopics(){
+        const container = document.getElementById('step-1');
+        container.innerHTML='';
+        const topic = topics.find(t=>t.id===selectedTopic);
+        if(!topic) return;
+        topic.subtopics.forEach((s)=>{
+          const div = document.createElement('div');
+          div.className='card p-4 cursor-pointer';
+          div.tabIndex = 0;
+          div.innerHTML = `<h4 class="text-lg font-semibold text-blue-100">${s.title}</h4><p class="text-sm text-gray-400 mt-1">${s.description}</p>`;
+          div.onclick = ()=>{ handleSubtopicClick(s.id); };
+          div.onkeypress = (e)=>{ if(e.key==='Enter') handleSubtopicClick(s.id); };
+          container.appendChild(div);
+        });
+        container.classList.add('stagger'); container.classList.add('show');
+      }
+      
+      function populateProficiencyLevels(){
+        const container = document.getElementById('step-3a');
+        container.innerHTML='';
+        proficiencyLevels.forEach(p=>{
+          const div = document.createElement('div');
+          div.className = 'card p-3 text-center cursor-pointer';
+          div.tabIndex = 0;
+          div.innerHTML = `<div class="text-xl font-bold text-blue-100">${p.level}</div><div class="text-sm text-gray-300">${p.descriptor}</div>`;
+          div.onclick = ()=> handleProficiencyClick(p.level);
+          div.onkeypress = (e)=>{ if(e.key==='Enter') handleProficiencyClick(p.level); };
+          container.appendChild(div);
+        });
+        container.classList.add('stagger'); container.classList.add('show');
+      }
 
   function populateSkillLevels(){
     const container = document.getElementById('step-3b');
