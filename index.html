@@ -1386,18 +1386,18 @@
       let navMenuOpen = false;
 
       function toggleNavMenu() {
-        const menu= documennt.getElementById('nav-menu');
+        const menu= document.getElementById('nav-menu');
         const icon = document.getElementById('menu-icon');
         
         navMenuOpen = !navMenuOpen;
         
         if(navMenuOpen) {
-          menu.classlist.remove('hidden');
-          menu.classlist.add('fade-in');
+          menu.classList.remove('hidden');
+          menu.classList.add('fade-in');
           icon.textContent = '✖';
         } else {
-          menu.classlist.add('hidden');
-          menu.classlist.remove('fade-in');
+          menu.classList.add('hidden');
+          menu.classList.remove('fade-in');
           icon.textContent = '☰';
         }
       }
