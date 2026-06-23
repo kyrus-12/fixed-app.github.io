@@ -435,7 +435,20 @@
         margin-top:0.5rem;
         font-style:italic;
       }
-      
+      #nav-menu{
+        transition:opacity 0.3s ease, transform 0.3s ease;
+        transform-origin:bottom-left;
+      }
+      #nav-menu.hidden{
+        opacity:0;
+        transform:scale(0.95);
+        pointer-events:none;
+      }
+      #nav-menu:not(.hidden){
+        opacity:1;
+        transform:scale(1);
+        pointer-events:auto;
+      }
         
     </style>
   </head>
@@ -565,7 +578,13 @@
     </main>
 
     <footer class="global-nav">
-      <div class="max-w-4xl px-6 flex justify-around">
+      <div class="fixed bottom-4 left-4 z-50">
+        <button id="menu-toggle" class="btn" onclick="toggleNavMenu()" title="Toggle Menu">
+          <span id="menu-icon">☰</span>
+        </button>
+      </div>
+
+      <div id="nav-menu" class="hidden fixed bottom-16 left-4 z-50 flex flex-col gap-2 bg-[#0f1724] p-3 rounded-xl border border-[rgba(96,165,250,0.12)] shadow-lg">
         <div class="nav-item" onclick="goHome()"><div>🏠︎</div><div>Home</div></div>
         <div class="nav-item" onclick="showAbout()"><div>🛈</div><div>About</div></div>
         <div class="nav-item cursor-pointer" onclick="ShowLab()"><div>🧪</div><div>Lab</div></div>
@@ -1363,6 +1382,26 @@
           if(document.fullscreenElement) document.exitFullscreen();
         }
       });
+
+      let navMenuOpen = false;
+
+      function toggleNavMenu() {
+        const menu= documennt.getElementById('nav-menu);
+        const icon = document.getElementById('menu-icon');
+        
+        navMenuOpen = !navMenuOpen;
+        
+        if(navMenuOpen) {
+          menu.classlist.remove('hidden');
+          menu.classlist.add('fade-in');
+          icon.textContent = '✖';
+        } else {
+          menu.classlist.add('hidden');
+          menu.classlist.remove('fade-in');
+          icon.textContent = '☰';
+        }
+      }
+      
     
     </script>
   </body>
