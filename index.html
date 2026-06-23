@@ -789,444 +789,422 @@
         });
         container.classList.add('stagger'); container.classList.add('show');
       }
-
-  function populateSkillLevels(){
-    const container = document.getElementById('step-3b');
-    container.innerHTML='';
-    skillLevels.forEach(s=>{
-      const div = document.createElement('div');
-      div.className='card p-3 text-center cursor-pointer';
-      div.tabIndex=0;
-      div.innerHTML = `<div class="text-lg font-bold text-blue-100">Level ${s.level}</div><div class="text-sm text-gray-300">${s.label}</div>`;
-      div.onclick = ()=> handleSkillClick(s.level);
-      div.onkeypress = (e)=>{ if(e.key==='Enter') handleSkillClick(s.level); };
-      container.appendChild(div);
-    });
-    container.classList.add('stagger'); container.classList.add('show');
-  }
-
-  // ==================== CLICK HANDLERS ====================
-  document.getElementById('topic-science').addEventListener('click', ()=> handleTopicClick('science'));
-  document.getElementById('topic-science').addEventListener('keypress', (e)=>{ if(e.key==='Enter') handleTopicClick('science'); });
-  document.getElementById('mode-descriptor').addEventListener('click', ()=> handleModeClick('descriptor'));
-  document.getElementById('mode-descriptor').addEventListener('keypress', (e)=>{ if(e.key==='Enter') handleModeClick('descriptor'); });
-  document.getElementById('mode-skill').addEventListener('click', ()=> handleModeClick('skill'));
-  document.getElementById('mode-skill').addEventListener('keypress', (e)=>{ if(e.key==='Enter') handleModeClick('skill'); });
-
-  function handleTopicClick(id){
-    selectedTopic = id; selectedSubtopic=null; selectedMode=null; selectedProficiency=null; selectedSkill=null; selectedTestName=null;
-    currentStep = 1; updateUI();
-  }
-  function handleSubtopicClick(id){
-    selectedSubtopic = id; selectedMode=null; selectedProficiency=null; selectedSkill=null; selectedTestName=null;
-    currentStep = 2; updateUI();
-  }
-  function handleModeClick(mode){
-    selectedMode = mode; selectedTestName=null;
-    currentStep = 3; updateUI();
-  }
-  function handleProficiencyClick(level){
-    selectedProficiency = level; selectedTestName=null; currentStep = 4; updateUI();
-  }
-  function handleSkillClick(level){
-    selectedSkill = level; selectedTestName=null; currentStep = 4; updateUI();
-  }
-
-  function handleBack(){
-    if(currentStep === 4){ currentStep = 3; selectedTestName=null; resetQuiz(); }
-    else if(currentStep === 3){ currentStep = 2; selectedMode = null; selectedTestName=null; }
-    else if(currentStep === 2){ currentStep = 1; selectedSubtopic = null; selectedTestName=null; }
-    else if(currentStep === 1){ currentStep = 0; selectedTopic = null; selectedTestName=null; }
-    updateUI();
-  }
-
-  function resetSelections(){
-    currentStep = 0;
-    selectedTopic=null; selectedSubtopic=null; selectedMode=null;
-    selectedProficiency=null; selectedSkill=null; selectedTestName=null;
-    resetQuiz();
-    updateUI();
-  }
-
-// ==================== DESCRIPTOR MODE ====================
-function initDescriptorMode(){
-    const panel = document.getElementById('descriptor-panel');
-    const contentDiv = document.getElementById('lesson-content');
-    const buttonsDiv = document.getElementById('module-buttons');
-    const titleEl = document.getElementById('lesson-title');
-    const subtitleEl = document.getElementById('lesson-subtitle');
-
-    show(panel);
-    contentDiv.innerHTML = '';
-    buttonsDiv.innerHTML = '';
-
-    const key = `${selectedSubtopic}_${selectedProficiency}`;
-    const modulesObj = descriptorContent[key]; // This is an OBJECT with lesson keys
-
-    if(!modulesObj || Object.keys(modulesObj).length === 0){
-      contentDiv.innerHTML = '<p class="text-gray-400 text-center py-8">No content available for this selection yet.</p>';
-      titleEl.textContent = 'No Content';
-      subtitleEl.textContent = 'Please select another level or topic';
-      return;
-    }
-
-    titleEl.textContent = `${selectedSubtopic.charAt(0).toUpperCase() + selectedSubtopic.slice(1)} - ${proficiencyLevels.find(p=>p.level===selectedProficiency)?.descriptor}`;
-    subtitleEl.textContent = `${Object.keys(modulesObj).length} modules available`;
-
-    // FIX: Use Object.keys() to iterate over the object keys
-    Object.keys(modulesObj).forEach((lessonKey, idx) => {
-      const mod = modulesObj[lessonKey];
-      const btn = document.createElement('button');
-      btn.className = 'btn btn-primary text-xs';
-      btn.textContent = mod.title;
-      btn.onclick = () => loadModuleByIndex(key, lessonKey);
-      buttonsDiv.appendChild(btn);
-    });
-
-    // Load first module by default
-    const firstKey = Object.keys(modulesObj)[0];
-    loadModuleByIndex(key, firstKey);
-  }
-
-  function loadModuleByIndex(key, lessonKey){
-    const moduleData = descriptorContent[key][lessonKey];
-    const contentDiv = document.getElementById('lesson-content');
-
-    let html = `<div class="fade-in">`;
-    html += `<h2 class="text-xl font-bold text-blue-300 mb-4">${moduleData.title}</h2>`;
-
-    moduleData.modules.forEach(mod => {
-      if(mod.type === 'text'){
-        html += `<div class="lesson-section">
-          <div class="lesson-heading">${mod.heading}</div>
-          <div class="lesson-body">${mod.body}</div>
-        </div>`;
-      }
-      else if(mod.type === 'image'){
-        html += `<div class="my-4 text-center">
-          <img src="${mod.url}" alt="${mod.caption}" class="lesson-image" onerror="this.style.display='none'">
-          <div class="lesson-caption">${mod.caption}</div>
-        </div>`;
-      }
-    });
-
-    html += `</div>`;
-    contentDiv.innerHTML = html;
-  }
       
-  // ==================== SKILL MODE - UNIFIED CHAT INTERFACE ====================
-  function initSkillMode(){
-    const panel = document.getElementById('skill-panel');
-    show(panel);
-
-    // Reset views
-    show(document.getElementById('test-selection-area'));
-    hide(document.getElementById('chat-section'));
-    hide(document.getElementById('quiz-complete'));
-    
-    // Always show input wrapper but disable until test starts
-    const inputWrapper = document.getElementById('chat-input-wrapper');
-    inputWrapper.classList.remove('hidden');
-    disableChatInput();
-
-    const key = `${selectedSubtopic}_${selectedSkill}`;
-    const testData = skillQuestions[key];
-
-    const buttonsContainer = document.getElementById('test-buttons-container');
-    buttonsContainer.innerHTML = '';
-
-    if(!testData){
-      buttonsContainer.innerHTML = `<p class="text-gray-400">No tests available for this selection yet.</p>`;
-      return;
-    }
-
-    // Create test buttons
-    Object.keys(testData).forEach(testName => {
-      const isSummative = testName.startsWith('Summative');
-      const btn = document.createElement('button');
-      btn.className = `test-btn ${isSummative ? 'test-btn-summative' : 'test-btn-lesson'}`;
-      btn.textContent = `${testName} (${testData[testName].length} Q)`;
-      btn.onclick = () => startQuiz(testName);
-      buttonsContainer.appendChild(btn);
-    });
-  }
-
-  function startQuiz(testName){
-    selectedTestName = testName;
-    updateBreadcrumb();
-
-    const key = `${selectedSubtopic}_${selectedSkill}`;
-    const testData = skillQuestions[key];
-    quizQuestions = [...(testData[testName] || [])];
-
-    if(quizQuestions.length === 0){
-      alert('No questions available for this test.');
-      return;
-    }
-
-    // Switch views: hide selection, show chat
-    hide(document.getElementById('test-selection-area'));
-    show(document.getElementById('chat-section'));
-    hide(document.getElementById('quiz-complete'));
-
-    // Initialize quiz state
-    quizCurrentIndex = 0;
-    quizScore = 0;
-    quizAttempted = 0;
-    quizAnswered = false;
-    quizHistory = [];
-
-    // Clear chat area
-    document.getElementById('chat-area').innerHTML = '';
-
-    // Enable input
-    enableChatInput();
-
-    // Welcome message with typing effect
-    addTypingIndicator();
-    setTimeout(() => {
-      removeTypingIndicator();
-      addChatMessage('bot', `Welcome to ${testName}! 🎯\n\nThis test has ${quizQuestions.length} questions. Type your answers in the chat box below.\n\nFor multiple choice, type the letter (A, B, C, or D).\nFor true/false, type "true" or "false".\nFor matching, type pairs like "Solid-Tightly packed, Liquid-Close but can slide".\nLet's begin!`);
-      setTimeout(() => {
+      function populateSkillLevels(){
+        const container = document.getElementById('step-3b');
+        container.innerHTML='';
+        skillLevels.forEach(s=>{
+          const div = document.createElement('div');
+          div.className='card p-3 text-center cursor-pointer';
+          div.tabIndex=0;
+          div.innerHTML = `<div class="text-lg font-bold text-blue-100">Level ${s.level}</div><div class="text-sm text-gray-300">${s.label}</div>`;
+          div.onclick = ()=> handleSkillClick(s.level);
+          div.onkeypress = (e)=>{ if(e.key==='Enter') handleSkillClick(s.level); };
+          container.appendChild(div);
+        });
+        container.classList.add('stagger'); container.classList.add('show');
+      }
+      
+      document.getElementById('topic-science').addEventListener('click', ()=> handleTopicClick('science'));
+      document.getElementById('topic-science').addEventListener('keypress', (e)=>{ if(e.key==='Enter') handleTopicClick('science'); });
+      document.getElementById('mode-descriptor').addEventListener('click', ()=> handleModeClick('descriptor'));
+      document.getElementById('mode-descriptor').addEventListener('keypress', (e)=>{ if(e.key==='Enter') handleModeClick('descriptor'); });
+      document.getElementById('mode-skill').addEventListener('click', ()=> handleModeClick('skill'));
+      document.getElementById('mode-skill').addEventListener('keypress', (e)=>{ if(e.key==='Enter') handleModeClick('skill'); });
+      
+      function handleTopicClick(id){
+        selectedTopic = id; selectedSubtopic=null; selectedMode=null; selectedProficiency=null; selectedSkill=null; selectedTestName=null;
+        currentStep = 1; updateUI();
+      }
+      
+      function handleSubtopicClick(id){
+        selectedSubtopic = id; selectedMode=null; selectedProficiency=null; selectedSkill=null; selectedTestName=null;
+        currentStep = 2; updateUI();
+      }
+      
+      function handleModeClick(mode){
+        selectedMode = mode; selectedTestName=null;
+        currentStep = 3; updateUI();
+      }
+      
+      function handleProficiencyClick(level){
+        selectedProficiency = level; selectedTestName=null; currentStep = 4; updateUI();
+      }
+      
+      function handleSkillClick(level){
+        selectedSkill = level; selectedTestName=null; currentStep = 4; updateUI();
+      }
+      
+      function handleBack(){
+        if(currentStep === 4){ currentStep = 3; selectedTestName=null; resetQuiz(); }
+        else if(currentStep === 3){ currentStep = 2; selectedMode = null; selectedTestName=null; }
+        else if(currentStep === 2){ currentStep = 1; selectedSubtopic = null; selectedTestName=null; }
+        else if(currentStep === 1){ currentStep = 0; selectedTopic = null; selectedTestName=null; }
+        updateUI();
+      }
+      
+      function resetSelections(){
+        currentStep = 0;
+        selectedTopic=null; selectedSubtopic=null; selectedMode=null;
+        selectedProficiency=null; selectedSkill=null; selectedTestName=null;
+        resetQuiz();
+        updateUI();
+      }
+      
+      function initDescriptorMode(){
+        const panel = document.getElementById('descriptor-panel');
+        const contentDiv = document.getElementById('lesson-content');
+        const buttonsDiv = document.getElementById('module-buttons');
+        const titleEl = document.getElementById('lesson-title');
+        const subtitleEl = document.getElementById('lesson-subtitle');
+        
+        show(panel);
+        contentDiv.innerHTML = '';
+        buttonsDiv.innerHTML = '';
+        
+        const key = `${selectedSubtopic}_${selectedProficiency}`;
+        const modulesObj = descriptorContent[key]; 
+        
+        if(!modulesObj || Object.keys(modulesObj).length === 0){
+          contentDiv.innerHTML = '<p class="text-gray-400 text-center py-8">No content available for this selection yet.</p>';
+          titleEl.textContent = 'No Content';
+          subtitleEl.textContent = 'Please select another level or topic';
+          return;
+        }
+        
+        titleEl.textContent = `${selectedSubtopic.charAt(0).toUpperCase() + selectedSubtopic.slice(1)} - ${proficiencyLevels.find(p=>p.level===selectedProficiency)?.descriptor}`;
+        subtitleEl.textContent = `${Object.keys(modulesObj).length} modules available`;
+        
+        Object.keys(modulesObj).forEach((lessonKey, idx) => {
+          const mod = modulesObj[lessonKey];
+          const btn = document.createElement('button');
+          btn.className = 'btn btn-primary text-xs';
+          btn.textContent = mod.title;
+          btn.onclick = () => loadModuleByIndex(key, lessonKey);
+          buttonsDiv.appendChild(btn);
+        });
+        
+        const firstKey = Object.keys(modulesObj)[0];
+        loadModuleByIndex(key, firstKey);
+      }
+      
+      function loadModuleByIndex(key, lessonKey){
+        const moduleData = descriptorContent[key][lessonKey];
+        const contentDiv = document.getElementById('lesson-content');
+        
+        let html = `<div class="fade-in">`;
+        html += `<h2 class="text-xl font-bold text-blue-300 mb-4">${moduleData.title}</h2>`;
+        
+        moduleData.modules.forEach(mod => {
+          if(mod.type === 'text'){
+            html += `<div class="lesson-section">
+            <div class="lesson-heading">${mod.heading}</div>
+            <div class="lesson-body">${mod.body}</div>
+            </div>`;
+          }
+          else if(mod.type === 'image'){
+            html += `<div class="my-4 text-center">
+            <img src="${mod.url}" alt="${mod.caption}" class="lesson-image" onerror="this.style.display='none'">
+            <div class="lesson-caption">${mod.caption}</div>
+            </div>`;
+          }
+        });
+        
+        html += `</div>`;
+        contentDiv.innerHTML = html;
+      }
+      
+      function initSkillMode(){
+        const panel = document.getElementById('skill-panel');
+        show(panel);
+        
+        show(document.getElementById('test-selection-area'));
+        hide(document.getElementById('chat-section'));
+        hide(document.getElementById('quiz-complete'));
+        
+        const inputWrapper = document.getElementById('chat-input-wrapper');
+        inputWrapper.classList.remove('hidden');
+        disableChatInput();
+        
+        const key = `${selectedSubtopic}_${selectedSkill}`;
+        const testData = skillQuestions[key];
+        
+        const buttonsContainer = document.getElementById('test-buttons-container');
+        buttonsContainer.innerHTML = '';
+        
+        if(!testData){
+          buttonsContainer.innerHTML = `<p class="text-gray-400">No tests available for this selection yet.</p>`;
+          return;
+        }
+        
+        Object.keys(testData).forEach(testName => {
+          const isSummative = testName.startsWith('Summative');
+          const btn = document.createElement('button');
+          btn.className = `test-btn ${isSummative ? 'test-btn-summative' : 'test-btn-lesson'}`;
+          btn.textContent = `${testName} (${testData[testName].length} Q)`;
+          btn.onclick = () => startQuiz(testName);
+          buttonsContainer.appendChild(btn);
+        });
+      }
+      
+      function startQuiz(testName){
+        selectedTestName = testName;
+        updateBreadcrumb();
+        
+        const key = `${selectedSubtopic}_${selectedSkill}`;
+        const testData = skillQuestions[key];
+        quizQuestions = [...(testData[testName] || [])];
+        
+        if(quizQuestions.length === 0){
+          alert('No questions available for this test.');
+          return;
+        }
+        
+        hide(document.getElementById('test-selection-area'));
+        show(document.getElementById('chat-section'));
+        hide(document.getElementById('quiz-complete'));
+        
+        quizCurrentIndex = 0;
+        quizScore = 0;
+        quizAttempted = 0;
+        quizAnswered = false;
+        quizHistory = [];
+        
+        document.getElementById('chat-area').innerHTML = '';
+        
+        enableChatInput();
+        
         addTypingIndicator();
         setTimeout(() => {
           removeTypingIndicator();
-          askCurrentQuestion();
-        }, 600);
-      }, 400);
-    }, 800);
-
-    updateQuizProgress();
-  }
-
-  function backToTestSelection(){
-    selectedTestName = null;
-    resetQuiz();
-    initSkillMode();
-    updateBreadcrumb();
-  }
-
-  // ==================== QUIZ FUNCTIONS ====================
-  function askCurrentQuestion(){
-    if(quizCurrentIndex >= quizQuestions.length){
-      showQuizComplete();
-      return;
-    }
-    const q = quizQuestions[quizCurrentIndex];
-    const qNum = quizCurrentIndex + 1;
-    
-    // Add question type badge
-    let badgeClass = '';
-    let hintText = '';
-    switch(q.type){
-      case 'identification': 
-        badgeClass = 'qtype-identification'; 
-        hintText = 'Type your answer below.';
-        break;
-      case 'multiplechoice': 
-        badgeClass = 'qtype-multiplechoice'; 
-        hintText = 'Type the letter of your answer (A, B, C, or D).';
-        break;
-      case 'truefalse': 
-        badgeClass = 'qtype-truefalse'; 
-        hintText = 'Type "true" or "false".';
-        break;
-      case 'fillblank': 
-        badgeClass = 'qtype-fillblank'; 
-        hintText = 'Fill in the blank with the correct word.';
-        break;
-      case 'matching': 
-        badgeClass = 'qtype-matching'; 
-        hintText = 'Type your matches like: Left-Right, Left-Right';
-        break;
-    }
-    
-    let questionHtml = `<div class="qtype-badge ${badgeClass}">${q.type}</div><div><b>Q${qNum}:</b> ${q.q}</div>`;
-    
-    // Show options as text for MC questions (since user types answer)
-    if(q.type === 'multiplechoice' && q.options){
-      questionHtml += `<div class="mt-2 text-sm text-gray-300">`;
-      q.options.forEach((opt, idx) => {
-        questionHtml += `<div>${String.fromCharCode(65+idx)}. ${opt}</div>`;
-      });
-      questionHtml += `</div>`;
-    }
-    
-    // Show pairs for matching
-    if(q.type === 'matching' && q.pairs){
-      questionHtml += `<div class="mt-2 text-sm text-gray-300"><b>Column A:</b><br>`;
-      q.pairs.forEach(p => {
-        questionHtml += `• ${p.left}<br>`;
-      });
-      questionHtml += `</div><div class="mt-1 text-sm text-gray-300"><b>Column B:</b><br>`;
-      const rightItems = [...q.pairs].map(p => p.right).sort(() => Math.random() - 0.5);
-      rightItems.forEach(r => {
-        questionHtml += `• ${r}<br>`;
-      });
-      questionHtml += `</div>`;
-    }
-    
-    questionHtml += `<div class="hint-text">💡 ${hintText}</div>`;
-    
-    addChatMessage('bot', questionHtml, true);
-    quizAnswered = false;
-    updateQuizProgress();
-    enableChatInput();
-  }
-
-  // ==================== CHAT INPUT HANDLING ====================
-  function handleChatKeydown(event){
-    if(event.key === 'Enter' && !event.shiftKey){
-      event.preventDefault();
-      submitChatAnswer();
-    }
-  }
-
-  function submitChatAnswer(){
-    if(quizAnswered) return;
-
-    const ta = document.getElementById('chat-textarea');
-    const userAnswer = ta.value.trim();
-    if(!userAnswer) return;
-
-    quizAnswered = true;
-    disableChatInput();
-
-    // Clear textarea
-    ta.value = '';
-    ta.rows = 1;
-
-    // Add user message to chat
-    addChatMessage('user', userAnswer);
-
-    // Check answer based on question type
-    const q = quizQuestions[quizCurrentIndex];
-    let isCorrect = false;
-
-    switch(q.type){
-      case 'multiplechoice':
-        // Accept letter or full answer
-        const letterMap = {};
-        if(q.options){
-          q.options.forEach((opt, idx) => {
-            letterMap[String.fromCharCode(65+idx).toLowerCase()] = opt.toLowerCase().trim();
-            letterMap[opt.toLowerCase().trim()] = opt.toLowerCase().trim();
-          });
-        }
-        const userLower = userAnswer.toLowerCase().trim();
-        const correctLower = q.a.toLowerCase().trim();
-        
-        // Check if user typed letter matching correct answer
-        let userMapped = userLower;
-        if(letterMap[userLower]) userMapped = letterMap[userLower];
-        if(letterMap[correctLower]) correctMapped = letterMap[correctLower];
-        
-        isCorrect = userMapped === correctLower || userLower === correctLower;
-        break;
-        
-      case 'truefalse':
-        isCorrect = userAnswer.toLowerCase().trim() === q.a.toLowerCase().trim();
-        break;
-        
-      case 'matching':
-        isCorrect = checkMatchingAnswer(userAnswer, q);
-        break;
-        
-      case 'fillblank':
-      case 'identification':
-      default:
-        isCorrect = checkAnswerMatch(userAnswer.toLowerCase().trim(), q.a.toLowerCase().trim());
-        break;
-    }
-
-    quizAttempted++;
-    if(isCorrect) quizScore++;
-
-    // Save to history
-    quizHistory.push({
-      question: q.q,
-      userAnswer: userAnswer,
-      correctAnswer: q.a,
-      isCorrect: isCorrect,
-      type: q.type
-    });
-
-    // Bot feedback with typing delay
-    addTypingIndicator();
-    setTimeout(() => {
-      removeTypingIndicator();
-      if(isCorrect){
-        addChatMessage('bot', `✅ Correct! The answer is: ${q.a}`);
-      } else {
-        addChatMessage('bot', `❌ Not quite right. The correct answer is: ${q.a}`);
-      }
-      updateQuizProgress();
-
-      // Next question after delay
-      if(quizCurrentIndex < quizQuestions.length - 1){
-        setTimeout(() => {
-          quizCurrentIndex++;
-          addTypingIndicator();
+          addChatMessage('bot', `Welcome to ${testName}! 🎯\n\nThis test has ${quizQuestions.length} questions. Type your answers in the chat box below.\n\nFor multiple choice, type the letter (A, B, C, or D).\nFor true/false, type "true" or "false".\nFor matching, type pairs like "Solid-Tightly packed, Liquid-Close but can slide".\nLet's begin!`);
           setTimeout(() => {
-            removeTypingIndicator();
-            askCurrentQuestion();
-          }, 600);
-        }, 1200);
-      } else {
-        setTimeout(() => {
-          quizCurrentIndex++;
-          showQuizComplete();
-        }, 1200);
+            addTypingIndicator();
+            setTimeout(() => {
+              removeTypingIndicator();
+              askCurrentQuestion();
+            }, 600);
+          }, 400);
+        }, 800);
+        
+        updateQuizProgress();
       }
-    }, 800);
-  }
-
-  function checkMatchingAnswer(userAnswer, q){
-    if(!q.pairs) return false;
-    
-    // Parse user answer: "Solid-Tightly packed, Liquid-Close but can slide"
-    const userPairs = userAnswer.toLowerCase().split(',').map(s => s.trim());
-    const correctPairs = q.pairs;
-    
-    let correctCount = 0;
-    
-    userPairs.forEach(up => {
-      const parts = up.split('-').map(s => s.trim());
-      if(parts.length === 2){
-        const left = parts[0];
-        const right = parts[1];
-        // Find if this left exists and matches right (allow partial matching)
-        const correctPair = correctPairs.find(cp => 
-          cp.left.toLowerCase().includes(left) || left.includes(cp.left.toLowerCase())
-        );
-        if(correctPair){
-          // Check if right side matches (allow partial)
-          if(correctPair.right.toLowerCase().includes(right) || right.includes(correctPair.right.toLowerCase())){
-            correctCount++;
-          }
+      
+      function backToTestSelection(){
+        selectedTestName = null;
+        resetQuiz();
+        initSkillMode();
+        updateBreadcrumb();
+      }
+      
+      function askCurrentQuestion(){
+        if(quizCurrentIndex >= quizQuestions.length){
+          showQuizComplete();
+          return;
+        }
+        const q = quizQuestions[quizCurrentIndex];
+        const qNum = quizCurrentIndex + 1;
+        
+        let badgeClass = '';
+        let hintText = '';
+        switch(q.type){
+          case 'identification': 
+            badgeClass = 'qtype-identification'; 
+            hintText = 'Type your answer below.';
+            break;
+          case 'multiplechoice': 
+            badgeClass = 'qtype-multiplechoice'; 
+            hintText = 'Type the letter of your answer (A, B, C, or D).';
+            break;
+          case 'truefalse': 
+            badgeClass = 'qtype-truefalse'; 
+            hintText = 'Type "true" or "false".';
+            break;
+          case 'fillblank': 
+            badgeClass = 'qtype-fillblank'; 
+            hintText = 'Fill in the blank with the correct word.';
+            break;
+          case 'matching': 
+            badgeClass = 'qtype-matching'; 
+            hintText = 'Type your matches like: Left-Right, Left-Right';
+            break;
+        }
+        
+        let questionHtml = `<div class="qtype-badge ${badgeClass}">${q.type}</div><div><b>Q${qNum}:</b> ${q.q}</div>`;
+        
+        if(q.type === 'multiplechoice' && q.options){
+          questionHtml += `<div class="mt-2 text-sm text-gray-300">`;
+          q.options.forEach((opt, idx) => {
+            questionHtml += `<div>${String.fromCharCode(65+idx)}. ${opt}</div>`;
+          });
+          questionHtml += `</div>`;
+        }
+        
+        if(q.type === 'matching' && q.pairs){
+          questionHtml += `<div class="mt-2 text-sm text-gray-300"><b>Column A:</b><br>`;
+          q.pairs.forEach(p => {
+            questionHtml += `• ${p.left}<br>`;
+          });
+          questionHtml += `</div><div class="mt-1 text-sm text-gray-300"><b>Column B:</b><br>`;
+          const rightItems = [...q.pairs].map(p => p.right).sort(() => Math.random() - 0.5);
+          rightItems.forEach(r => {
+            questionHtml += `• ${r}<br>`;
+          });
+          questionHtml += `</div>`;
+        }
+        
+        questionHtml += `<div class="hint-text">💡 ${hintText}</div>`;
+        
+        addChatMessage('bot', questionHtml, true);
+        quizAnswered = false;
+        updateQuizProgress();
+        enableChatInput();
+      }
+      
+      function handleChatKeydown(event){
+        if(event.key === 'Enter' && !event.shiftKey){
+          event.preventDefault();
+          submitChatAnswer();
         }
       }
-    });
-    
-    // Consider correct if at least 60% of pairs matched
-    return correctCount / correctPairs.length >= 0.6;
-  }
-
-  function checkAnswerMatch(user, correct){
-    if(user === correct) return true;
-    if(correct.length > 10 && (user.includes(correct) || correct.includes(user))) return true;
-    if(user.length > 10 && (correct.includes(user) || user.includes(correct))) return true;
-    const userWords = user.split(/\s+/).filter(w => w.length > 2);
-    const correctWords = correct.split(/\s+/).filter(w => w.length > 2);
-    if(userWords.length > 0 && correctWords.length > 0){
-      const matches = userWords.filter(w => correctWords.includes(w)).length;
-      if(matches / correctWords.length >= 0.6) return true;
-    }
-    const userNum = user.match(/[\d.]+/);
-    const correctNum = correct.match(/[\d.]+/);
-    if(userNum && correctNum && userNum[0] === correctNum[0]) return true;
-    return false;
-  }
+      
+      function submitChatAnswer(){
+        if(quizAnswered) return;
+        
+        const ta = document.getElementById('chat-textarea');
+        const userAnswer = ta.value.trim();
+        if(!userAnswer) return;
+        
+        quizAnswered = true;
+        disableChatInput();
+        
+        ta.value = '';
+        ta.rows = 1;
+        
+        addChatMessage('user', userAnswer);
+        
+        const q = quizQuestions[quizCurrentIndex];
+        let isCorrect = false;
+        
+        switch(q.type){
+          case 'multiplechoice':
+            
+            const letterMap = {};
+            if(q.options){
+              q.options.forEach((opt, idx) => {
+                letterMap[String.fromCharCode(65+idx).toLowerCase()] = opt.toLowerCase().trim();
+                letterMap[opt.toLowerCase().trim()] = opt.toLowerCase().trim();
+              });
+            }
+            const userLower = userAnswer.toLowerCase().trim();
+            const correctLower = q.a.toLowerCase().trim();
+            
+            let userMapped = userLower;
+            if(letterMap[userLower]) userMapped = letterMap[userLower];
+            if(letterMap[correctLower]) correctMapped = letterMap[correctLower];
+            
+            isCorrect = userMapped === correctLower || userLower === correctLower;
+            break;
+          
+          case 'truefalse':
+            isCorrect = userAnswer.toLowerCase().trim() === q.a.toLowerCase().trim();
+            break;
+          
+          case 'matching':
+            isCorrect = checkMatchingAnswer(userAnswer, q);
+            break;
+          
+          case 'fillblank':
+          case 'identification':
+          default:
+            isCorrect = checkAnswerMatch(userAnswer.toLowerCase().trim(), q.a.toLowerCase().trim());
+            break;
+        }
+        
+        quizAttempted++;
+        if(isCorrect) quizScore++;
+        
+        quizHistory.push({
+          question: q.q,
+          userAnswer: userAnswer,
+          correctAnswer: q.a,
+          isCorrect: isCorrect,
+          type: q.type
+        });
+        
+        addTypingIndicator();
+        setTimeout(() => {
+          removeTypingIndicator();
+          if(isCorrect){
+            addChatMessage('bot', `✅ Correct! The answer is: ${q.a}`);
+          } else {
+            addChatMessage('bot', `❌ Not quite right. The correct answer is: ${q.a}`);
+          }
+          updateQuizProgress();
+          
+          if(quizCurrentIndex < quizQuestions.length - 1){
+            setTimeout(() => {
+              quizCurrentIndex++;
+              addTypingIndicator();
+              setTimeout(() => {
+                removeTypingIndicator();
+                askCurrentQuestion();
+              }, 600);
+            }, 1200);
+          } else {
+            setTimeout(() => {
+              quizCurrentIndex++;
+              showQuizComplete();
+            }, 1200);
+          }
+        }, 800);
+      }
+      
+      function checkMatchingAnswer(userAnswer, q){
+        if(!q.pairs) return false;
+        
+        const userPairs = userAnswer.toLowerCase().split(',').map(s => s.trim());
+        const correctPairs = q.pairs;
+        
+        let correctCount = 0;
+        
+        userPairs.forEach(up => {
+          const parts = up.split('-').map(s => s.trim());
+          if(parts.length === 2){
+            const left = parts[0];
+            const right = parts[1];
+            
+            const correctPair = correctPairs.find(cp => 
+              cp.left.toLowerCase().includes(left) || left.includes(cp.left.toLowerCase())
+                                                 );
+            
+            if(correctPair){
+              
+              if(correctPair.right.toLowerCase().includes(right) || right.includes(correctPair.right.toLowerCase())){
+                correctCount++;
+              }
+            }
+          }
+        });
+        
+        return correctCount / correctPairs.length >= 0.6;
+      }
+      
+      function checkAnswerMatch(user, correct){
+        if(user === correct) return true;
+        if(correct.length > 10 && (user.includes(correct) || correct.includes(user))) return true;
+        if(user.length > 10 && (correct.includes(user) || user.includes(correct))) return true;
+        const userWords = user.split(/\s+/).filter(w => w.length > 2);
+        const correctWords = correct.split(/\s+/).filter(w => w.length > 2);
+        if(userWords.length > 0 && correctWords.length > 0){
+          const matches = userWords.filter(w => correctWords.includes(w)).length;
+          if(matches / correctWords.length >= 0.6) return true;
+        }
+        const userNum = user.match(/[\d.]+/);
+        const correctNum = correct.match(/[\d.]+/);
+        if(userNum && correctNum && userNum[0] === correctNum[0]) return true;
+        return false;
+      }
 
   // ==================== CHAT MESSAGE FUNCTIONS ====================
   function addChatMessage(sender, text, isHtml = false){
