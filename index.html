@@ -928,12 +928,12 @@
             </div>`;
           }
           else if(mod.type === 'mcq'){
-            const mcqId = `mcq-${key}-${lessonKey}-${index}`;
+            const mcqId = `mcq-${key}-${lessonKey}-${modIdx}`;
             html += `<div class="lesson-section" id="${mcqId}">
             <div class="lesson-heading">Quick Check</div>
             <div class="lesson-body">
             <div class="qtype-badge qtype-multiplechoice mb-2">Multiple Choice</div>
-            <div class="text-blue-100 font-medium mb-3">${mod-question}</div>
+            <div class="text-blue-100 font-medium mb-3">${mod.question}</div>
             <div class="flex flex-col gap-2" id="${mcqId}-options">`;
 
             mod.options.forEach(opt, optIdx) => {
@@ -941,7 +941,7 @@
             data-mcq="${mcqId}"
             data-index="${optIdx}"
             data-correct="${mod.correctAnswer}"
-            data-explanation="${mod.explanation.replace(/"/g, '&qout;')}"
+            data-explanation="${mod.explanation.replace(/"/g, '&quot;')}"
             onclick="handleMcqClick(this)"
             <span class="font-bold mr-2">${String.fromCharCode(65 + optIdx)}.</span> ${opt}
             </button>`;
@@ -965,12 +965,12 @@
         const explanation = btn.dataset.explanation;
         const isCorrect = selectedIndex === correctIndex;
 
-        const optionsContainer = document.getElementbyId(`${mcqId-options}`);
+        const optionsContainer = document.getElementById(`${mcqId-options}`);
         const allButtons = optionsContainer.querySelectorAll('.mcq-option');
 
         allButtons.forEach(b => {
           b.disabled = true;
-          b.style.cursoe = 'default';
+          b.style.cursor = 'default';
         });
 
         allButtons.forEach(b, idx) => {
@@ -985,7 +985,7 @@
           }
         });
 
-        const feedbackDiv = documentt.getElementById(`${mcqId}-feedback`);
+        const feedbackDiv = document.getElementById(`${mcqId}-feedback`);
         feedbackDiv.classList.remove('hidden');
 
         if (isCorrect) {
