@@ -914,7 +914,7 @@
         let html = `<div class="fade-in">`;
         html += `<h2 class="text-xl font-bold text-blue-300 mb-4">${moduleData.title}</h2>`;
         
-        moduleData.modules.forEach(mod => {
+        moduleData.modules.forEach((mod, modIdx) => {
           if(mod.type === 'text'){
             html += `<div class="lesson-section">
             <div class="lesson-heading">${mod.heading}</div>
@@ -942,7 +942,7 @@
             data-index="${optIdx}"
             data-correct="${mod.correctAnswer}"
             data-explanation="${mod.explanation.replace(/"/g, '&quot;')}"
-            onclick="handleMcqClick(this)"
+            onclick="handleMcqClick(this)">
             <span class="font-bold mr-2">${String.fromCharCode(65 + optIdx)}.</span> ${opt}
             </button>`;
             });
