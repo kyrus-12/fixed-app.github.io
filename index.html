@@ -701,7 +701,9 @@
               {type:'text', heading:'Key Idea', body:'Models make big, small, or invisible things easier to understand.'},
               {type:'text', heading:'Examples', body:'Globes, toy cars, water cycle diagrams, and atomic models are all scientific models.'},
               {type:'image', url:'https://i.imgur.com/FnpD99w.gif', caption:'Earth Globe'},
-              {type:'text', heading:'Summary', body:'Scientists use models to explain concepts that are hard to show directly.'}
+              {type:'text', heading:'Summary', body:'Scientists use models to explain concepts that are hard to show directly.'},
+
+              {type:'mcq', question:'Which of these is not a scientific model?', options:["A globe of earth", "A water cycle diagram", "A real car", "A toy car"], correctAnswer: 2, explanation:"A real car is not a model - it is the actual object."}
             ]
           },
           'the particle model': {
@@ -925,10 +927,86 @@
             <div class="lesson-caption">${mod.caption}</div>
             </div>`;
           }
+          else if(mod.type === 'mcq'){
+            const mcqId = `mcq-${key}-${lessonKey}-${index}`;
+            html += `<div class="lesson-section" id="${mcqId}">
+            <div class="lesson-heading">Quick Check</div>
+            <div class="lesson-body">
+            <div class="qtype-badge qtype-multiplechoice mb-2">Multiple Choice</div>
+            <div class="text-blue-100 font-medium mb-3">${mod-question}</div>
+            <div class="flex flex-col gap-2" id="${mcqId}-options">`;
+
+            mod.options.forEach(opt, optIdx) => {
+            html += `<button class="btn text-left w-full mcq-option"
+            data-mcq="${mcqId}"
+            data-index="${optIdx}"
+            data-correct="${mod.correctAnswer}"
+            data-explanation="${mod.explanation.replace(/"/g, '&qout;')}"
+            onclick="handleMcqClick(this)"
+            <span class="font-bold mr-2">${String.fromCharCode(65 + optIdx)}.</span> ${opt}
+            </button>`;
+              )};
+            html += `</div>
+            <div id="${mcqId}-feedback" class="hidden mt-3"></div>
+            </div>
+            </div>`;
+          }
+            
         });
         
         html += `</div>`;
         contentDiv.innerHTML = html;
+      }
+
+      function handleMcqClick(btn) {
+        const mcqId = btn.dataset.mcq;
+        const selectedIndex = parseInt(btn.dataset.index);
+        const correctIndex = parseInt(btn.dataset.correct);
+        const explanation = btn.dataset.explanation;
+        const isCorrect = selectedIndex === correctIndex;
+
+        const optionsContainer = document.getElementbyId(`${mcqId-options}`);
+        const allButtons = optionsContainer.querySelectorAll('.mcq-option');
+
+        allButtons.forEach(b => {
+          b.disabled = true;
+          b.style.cursoe = 'default';
+        });
+
+        allButtons.forEach(b, idx) => {
+          if(idx === correctIndex) {
+            b.style.borderColor = '#059669';
+            b.style.background = 'rgba(5, 150, 105, 0.15)';
+          } else if (idx === selectedIndex && !isCorrect) {
+            b.style.borderColor = '#dc2626';
+            b.style.background = 'rgba(220, 38, 38, 0.15)';
+          } else {
+            b.style.opacity = '0.6';
+          }
+        });
+
+        const feedbackDiv = documentt.getElementById(`${mcqId}-feedback`);
+        feedbackDiv.classList.remove('hidden');
+
+        if (isCorrect) {
+          feedbackDiv.innerHTML = `
+          <div class="p-3 rounded-lg bg-green-900/20 border border-green-500/30 fade-in">
+          <div class="flex items-center gap-2 text-green-400 font-bold mb-1">
+          <span>✅</span>Correct!
+          </div>
+          <div class="text-gray-300 text-sm">${explanation}</div>
+          </div>`;
+        } else {
+          const correctText = allButtons[correctIndex].textContent.trim();
+          feedbackDiv.innerHTML = `
+          <div class="p-3 rounded-lg bg-red-900/20 border border-red-500/30 fade-in">
+          <div class="flex items-center gap-2 text-red-400 font-bold mt-1">
+          <span>❌</span>Not Quite
+          </div>
+          <div class="text-gray-300 text-sm mb-1">The correct answer is: <b>${correctText}</b></div>
+          <div class="text-gray-300 text-sm">${explanation}</div>
+          </div>`;
+        }
       }
       
       function initSkillMode(){
