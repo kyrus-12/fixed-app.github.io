@@ -936,7 +936,7 @@
             <div class="text-blue-100 font-medium mb-3">${mod.question}</div>
             <div class="flex flex-col gap-2" id="${mcqId}-options">`;
 
-            mod.options.forEach(opt, optIdx) => {
+            mod.options.forEach((opt, optIdx) => {
             html += `<button class="btn text-left w-full mcq-option"
             data-mcq="${mcqId}"
             data-index="${optIdx}"
@@ -965,7 +965,7 @@
         const explanation = btn.dataset.explanation;
         const isCorrect = selectedIndex === correctIndex;
 
-        const optionsContainer = document.getElementById(`${mcqId}-options}`);
+        const optionsContainer = document.getElementById(`${mcqId}-options`);
         const allButtons = optionsContainer.querySelectorAll('.mcq-option');
 
         allButtons.forEach(b => {
@@ -973,7 +973,7 @@
           b.style.cursor = 'default';
         });
 
-        allButtons.forEach(b, idx) => {
+        allButtons.forEach((b, idx) => {
           if(idx === correctIndex) {
             b.style.borderColor = '#059669';
             b.style.background = 'rgba(5, 150, 105, 0.15)';
