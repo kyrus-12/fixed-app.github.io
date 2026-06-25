@@ -1309,7 +1309,7 @@
 
         const avatar = document.createElement('div');
         avatar.className = `message-avatar ${sender === 'bot' ? 'bot-avatar' : 'user-avatar'}`;
-        avatar.textContent = sender === 'bot' ? 'AI' : 'U';
+        avatar.textContent = sender === 'bot' ? 'AI' : 'YOU';
 
         const bubble = document.createElement('div');
         bubble.className = `message-bubble ${sender === 'bot' ? 'bot-message' : 'user-message'}`;
