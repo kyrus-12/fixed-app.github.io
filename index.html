@@ -1309,7 +1309,7 @@
 
         const avatar = document.createElement('div');
         avatar.className = `message-avatar ${sender === 'bot' ? 'bot-avatar' : 'user-avatar'}`;
-        avatar.textContent = sender === 'bot' ? 'AI' : 'YOU';
+        avatar.textContent = sender === 'bot' ? 'AI' : 'U';
 
         const bubble = document.createElement('div');
         bubble.className = `message-bubble ${sender === 'bot' ? 'bot-message' : 'user-message'}`;
@@ -1323,7 +1323,7 @@
           wrapper.appendChild(bubble);
         }
 
-        area.appendChiild(wrapper);
+        area.appendChild(wrapper);
         area.scrollTop = area.scrollHeight;     
       }
       
