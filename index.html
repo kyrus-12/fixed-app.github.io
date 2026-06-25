@@ -458,12 +458,14 @@
     <header class="sticky top-0 z-40">
       <div class="max-w-4xl px-6 py-4 flex items-center justify-between">
         <div class="flex items-center gap-4">
-          <div class="brand flex items-center gap-3">
+          <div class="brand flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
             <span class="font-bold text-lg">APP 2026</span>
-            <span class="border-1 bprder-white/30 pl-3 font-mono text-xs opacity-70" id="timer-display">00:00</span>
+            <div class="flex items-center gap-2 border-l-0 sm:border-l sm:border-white/20 sm:pl-3 font-mono text-xs opacity-80 text-blue-300">
+              <span id="session-timeline-clock">--:-- - --:--:--</span>
           </div>
         </div>
-        <dic class="text-sm text-blue-200" id="step-indicator">Step 1 of 4</div>
+        <div class="text-sm text-blue-200" id="step-indicator">Step 1 of 4</div>
+        </div>
       </div>
     </header>
 
@@ -1439,16 +1441,31 @@
       function showAbout(){ alert('APP 2026 - Science Learning Platform\n\nA structured learning tool for Physics, Chemistry, and Biology.\n\nFeatures:\n• Descriptor Mode: Read lessons with text and images (3 levels)\n• Skill Mode: Chat-based quizzes with typed answers (3 levels)\n• Question types: Identification, Multiple Choice, True/False, Fill in the Blanks, Matching\n• Review all answers at the end'); }
       function showLab(){ alert('🧪 Lab Mode\n\nInteractive experiments and simulations coming soon!'); }
       function showSettings(){ alert('⚙️ Settings\n\n• Sound: On/Off\n• Theme: Dark/Light\n• Font Size: Small/Medium/Large\n\n(Placeholder - settings panel coming soon)'); }
+
+
+      const sessionTimeIn = new Date();
       
       function updateTimer(){
         const now = new Date();
-        const hours = String(now.getHours()).padStart(2,'0');
-        const minutes = String(now.getMinutes()).padStart(2,'0');
-        const el = document.getElementById('timer-display');
-        if(el) el.textContent = `${hours}:${minutes}`;
+
+        const inHours = sessionTimeIn.getHours();
+        const inMinutes = String(sessionTimeIn.getMinutes()).padStart(2, '0');
+        const formattedTimeIn = `${inHours}:${inMinutes}`;
+
+        const currentHours = String(now.getHours()).padStart(2, '0');
+        const currentMinutes = String(now.getMinutes()).padStart(2, '0');
+        const currentSeconds = String(now.getSeconds()).padStart(2, '0');
+        const formattedCurrentTime = `${currentHours}:${currentMinutes}:${currentSeconds}`;
+
+        const timelineEl = document.getElementById('session-timeline-clock');
+        if (timelineEl) {
+          timelineEl.textContent = `${formattedTimeIn} - ${formattedCurrentTime}`;
+        }
       }
+
       setInterval(updateTimer, 1000);
       updateTimer();
+      
       
       document.addEventListener('keydown', function(event){
         if(event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
@@ -1477,6 +1494,8 @@
           icon.textContent = '☰';
         }
       }
+
+      
       
     
     </script>
