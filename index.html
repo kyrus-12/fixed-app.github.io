@@ -448,6 +448,138 @@
         transform:scale(1);
         pointer-events:auto;
       }
+
+      .modal-title{
+        font-size:1.25rem;
+        font-weight:700;
+        color:var(--color-glow);
+        margin-bottom:1rem;
+      }
+      .modal-section{
+        margin-bottom:1.25rem;
+      }
+      .modal-section h4{
+        color:var(--text);
+        font-weight:600;
+        margin-bottom:0.5rem;
+      }
+      .modal-section p, .modal-section li{
+        color:#cbd5e1;
+        font-size:0.9rem;
+        line-height:1.6;
+      }
+      .lab-grid{
+        display:grid;
+        grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+        gap:0.75rem;
+        margin-top:0.75rem;
+      }
+      .lab-btn{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        gap:0.5rem;
+        padding:1rem;
+        background:rgba(96,165,250,0.08);
+        border:1px solid rgba(96,165,250,0.15);
+        border-radius:0.75rem;
+        color:var(--text);
+        cursor:pointer;
+        transition:all 0.2s ease;
+        text-decoration:none;
+      }
+      .lab-btn:hover{
+        background:rgba(96,165,250,0.15);
+        border-color:var(--color-primary);
+        transform:translateY(-2px);
+      }
+      .lab-btn .icon{
+        font-size:1.5rem;
+      }
+      .lab-btn .label{
+        font-size:0.8rem;
+        font-weight:600;
+      }
+      .setting-row{
+        display:flex;
+        justify-content:space-between;
+        alight-items:center;
+        padding:0.75rem 0;
+        border-bottom:1px solid rgba(96,165,250,0.06);
+      }
+      .setting-row:last-child{
+        border-bottom:none;
+      }
+      .setting-label{
+        color:var(--text);
+        font-size:0.9rem;
+      }
+      .toggle-switch{
+        position:relative;
+        width:44px;
+        height:24px;
+        background:rgba(96,165,250,0.2);
+        border-radius:12px;
+        cursor:pointer;
+        transition:background 0.3s;
+      }
+      .toggle-switch.active{
+        background:var(--color-primary);
+      }
+      .toggle-switch::after{
+        content:'';
+        position:absolute;
+        width:18px;
+        height:18px;
+        background:white;
+        border-radius:50%;
+        top:3px;
+        left:3px;
+        transition:transform 0.3s;
+      }
+      .toggle-switch.active::after{
+        transfrom:translateX(20px);
+      }
+      .theme-grid{
+        display:grid;
+        grid-template-comlumns:repeat(3, 1fr);
+        gap:0.5rem;
+        margin-top:0.5rem;
+      }
+      .theme-btn{
+        padding:0.5rem;
+        border-radius:0.5rem;
+        border:2px solid transparent;
+        cursor:pointer;
+        font-size:0.75rem;
+        text-align:center;
+        transition:all 0.2s ease;
+      }
+      .theme-btn.selected{
+        border-color:var(--color-primary);
+        box-shadow:0 0 10px rgba(96,165,250,0.2);
+      }
+      .font-size-options{
+        display:flex;
+        gap:0.5rem;
+        margin-top:0.5rem;
+      }
+      .font-btn{
+        padding:0.4rem 0.8rem;
+        border-radius:0.4rem;
+        border:1px solid rgba(96,165,250,0.2);
+        background:transparent;
+        color:var(--text);
+        cursor:pointer;
+        font-size:0.8rem;
+        transition:all 0.2s;
+      }
+      .font-btn.selected{
+        background: var(--color-primary);
+        border-color:var(--color-primary);
+      }
+      
+        
         
     </style>
   </head>
@@ -575,6 +707,13 @@
         </div>
       </div>
     </main>
+
+    <div id="modal-overlay" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4" style="background:rgba(2,6,23,0.85); backdrop-filter:blur(4px);">
+      <div id="modal-content" class="bg-[#0f1724] border border-[rgba(96,165,2500.12)] rounded-xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto p-6 relative fade-in">
+        <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">&times;</button>
+        <div id="modal-body"></div>
+      </div>
+    </div>
 
       <div class="fixed bottom-4 left-4 z-50">
         <button id="menu-toggle" class="btn" onclick="toggleNavMenu()" title="Toggle Menu">
@@ -1443,10 +1582,10 @@
         quizHistory = [];
       }
       
-      function goHome(){ resetSelections(); }
-      function showAbout(){ alert('APP 2026 - Science Learning Platform\n\nA structured learning tool for Physics, Chemistry, and Biology.\n\nFeatures:\n• Descriptor Mode: Read lessons with text and images (3 levels)\n• Skill Mode: Chat-based quizzes with typed answers (3 levels)\n• Question types: Identification, Multiple Choice, True/False, Fill in the Blanks, Matching\n• Review all answers at the end'); }
-      function showLab(){ alert('🧪 Lab Mode\n\nInteractive experiments and simulations coming soon!'); }
-      function showSettings(){ alert('⚙️ Settings\n\n• Sound: On/Off\n• Theme: Dark/Light\n• Font Size: Small/Medium/Large\n\n(Placeholder - settings panel coming soon)'); }
+      function goHome(){ showHomeModal(); }
+      function showAbout(){ showAboutModal(); }
+      function showLab(){ showLabModal(); }
+      function showSettings(){ showSettingsModal(); }
 
 
       const sessionTimeIn = new Date();
