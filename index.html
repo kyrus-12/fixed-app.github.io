@@ -1587,6 +1587,54 @@
       function showLab(){ showLabModal(); }
       function showSettings(){ showSettingsModal(); }
 
+      function openModal(htmlContent) {
+        const overlay = document.getElementById('modal-overlay');
+        const body = document.getElementById('modal-body');
+        body.innerHTML = htmlContent;
+        overlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal() {
+        const overlay = document.getElementById('modal-overlay');
+        overlay.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+
+      document.getElementById('modal-overlay').addEventListener('click', function(e) {
+        if(e.target === this) closeModal();
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if(e.key === 'Escape') closeModal();
+      });
+
+      function showHomeModal() {
+        const html = `
+        <div class="modal-title">Welcome to APP 2026</div>
+        <div class="modal-section">
+        <h4>About APP 2026</h4>
+        <p>APP 2026 is a structured science learning platfrom designed to help students.</p>
+        </div>
+        <div class="modal-section">
+        <h4>Our Misson</h4>
+        <p>To make science education accessible, engaging and effective.</p>
+        </div>
+        <div class="modal-section">
+        <h4>Key Features</h4>
+        <p>Descriptor Mode, Skill Mode, Questions, and Review Systems</p>
+        </div>
+        <div class="modal-section">
+        <h4>How to Use?</h4>
+        <p>Just open it.</p>
+        </div>
+        <div class = "flex gap-3 mt-4">
+        <button class="btn btn-primary" onclick="closeModal()"; resetSelections();">Go to Home</button>
+        <button class="btn" onclick="closeModal()">Close</button>
+        </div>
+        `;
+        openModal(html);
+      }
 
       const sessionTimeIn = new Date();
       
