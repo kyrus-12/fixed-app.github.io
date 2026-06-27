@@ -1745,13 +1745,13 @@
       function setCategory(cat) {
         currentCategory = cat;
         document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('selected'));
-        event.target.classList.add('selected');
+        clickedBtn.target.classList.add('selected');
       }
 
       function setFontSize(size) {
         currentFontSize = size;
         document.querySelectorAll('.font-btn').forEach(btn => btn.classList.remove('selected'));
-        event.target.classList.add('selected');
+        clickedBtn.target.classList.add('selected');
       }
 
       function applySettings() {
