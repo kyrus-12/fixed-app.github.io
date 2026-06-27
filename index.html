@@ -1731,7 +1731,6 @@
         </div>
         </div>
         <div class="flex gap-3 mt-4">
-        <button class="btn btn-primary" onclick="applySettings()">Apply Changes</button>
         </div>
         `;
         openModal(html);
@@ -1741,21 +1740,18 @@
         currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
         const toggle = document.getElementById('theme-toggle');
         if(toggle) toggle.classList.toggle('active');
-        applySettings();
       }
 
       function setCategory(cat) {
         currentCategory = cat;
         document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('selected'));
         event.target.classList.add('selected');
-         applySettings();
       }
 
       function setFontSize(size) {
         currentFontSize = size;
         document.querySelectorAll('.font-btn').forEach(btn => btn.classList.remove('selected'));
         event.target.classList.add('selected');
-         applySettings();
       }
 
       function applySettings() {
