@@ -1634,6 +1634,31 @@
         openModal(html);
       }
 
+      function showAboutModal(){
+        const html = `
+        <div class="modal-title">About the Creator</div>
+        <div class="modal-section">
+        <h4>Developer</h4>
+        <p>APP 2026 was created by Ky Rus.</p>
+        </div>
+        <div class="modal-section">
+        <h4>Contact Information</h4>
+        <p>Email: rusky@gmail.com</p>
+        </div>
+        <div class="modal-section">
+        <h4>Version</h4>
+        <p>APP 2026 v1.0.0<br>Last updated: June 2026</p>
+        </div>
+        <div class="modal-section">
+        <h4>Feedback</h4>
+        <p>We welcome your suggestions! Reach out via email.
+        </div>
+        <div class="flex gap-3 mt-4">
+        </div>
+        `;
+        openModal(html);
+      }
+
       const sessionTimeIn = new Date();
       
       function updateTimer(){
