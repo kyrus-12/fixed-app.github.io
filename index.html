@@ -587,8 +587,6 @@
 
         .text-blue-300 {color:#ffffff;}
 
-        .text-gray-300 {color:#111827;}
-
         .bot-message {
           background:#f3f4f6;
           color:#111827;
@@ -1149,7 +1147,7 @@
           const div = document.createElement('div');
           div.className = 'card p-3 text-center cursor-pointer';
           div.tabIndex = 0;
-          div.innerHTML = `<div class="text-xl font-bold text-blue-100">${p.level}</div><div class="text-sm text-gray-300">${p.descriptor}</div>`;
+          div.innerHTML = `<div class="text-xl font-bold text-blue-100">${p.level}</div><div class="text-sm text-gray-400">${p.descriptor}</div>`;
           div.onclick = ()=> handleProficiencyClick(p.level);
           div.onkeypress = (e)=>{ if(e.key==='Enter') handleProficiencyClick(p.level); };
           container.appendChild(div);
@@ -1164,7 +1162,7 @@
           const div = document.createElement('div');
           div.className='card p-3 text-center cursor-pointer';
           div.tabIndex=0;
-          div.innerHTML = `<div class="text-lg font-bold text-blue-100">Level ${s.level}</div><div class="text-sm text-gray-300">${s.label}</div>`;
+          div.innerHTML = `<div class="text-lg font-bold text-blue-100">Level ${s.level}</div><div class="text-sm text-gray-400">${s.label}</div>`;
           div.onclick = ()=> handleSkillClick(s.level);
           div.onkeypress = (e)=>{ if(e.key==='Enter') handleSkillClick(s.level); };
           container.appendChild(div);
