@@ -578,6 +578,53 @@
         background: var(--color-primary);
         border-color:var(--color-primary);
       }
+      [data-theme="light"] {
+        .text-gray-400,
+        [class*="text-gray-400"] {color:#64748b}
+
+        .text-blue-100,
+        .text-blue-200 {color:#0f172a}
+
+        .text-blue-300 {color:#1e40af}
+
+        .bot-message {
+          background:rgba(59,130,246,0.08);
+          color:#1e293b;
+        }
+
+        .user-message {
+          background:#1e3a8a;
+          color:white;
+        }
+
+        .card {
+          background:linear-gradient(180deg, #ffffff, #f1f5f9);
+          border-color:rgba(59,130,246,0.15);
+        }
+
+        .chat-textarea {
+          background:#ffffff;
+          color:#1e293b;
+          border-color:rgba(59,130,246,0.25);
+        }
+
+        #modal-content {
+          background:#ffffff;
+          border-color:rgba(59,130,246,0.15);
+        }
+
+        .modal-section p,
+        .modal-section li,
+        .lesson-body,
+        .setting-label {
+          color:#334155;
+        }
+
+        .modal-title,
+        .lesson-heading {
+          color:#1e40af;
+        }
+      }
       
         
         
@@ -1778,14 +1825,9 @@
         root.style.setProperty('--text', t.text);
 
         if(currentTheme === 'light') {
-          root.style.setProperty('--bg', '#f8fafc');
-          root.style.setProperty('--card', '#ffffff');
-          root.style.setProperty('--text', '#1e293b');
-          document.body.style.background = '#f8fafc';
-          document.body.style.color = '#1e293b';
+         document.documentElement.setAttribute('data-theme', 'light');
         } else {
-          document.body.style.background = 'var(--bg)';
-          document.body.style.color = 'var(--text)';
+          document.documentElement.setAttribute('data-theme', 'dark');
         }
 
         const sizes = {small: '1rem', medium: '1.5rem', large: '2rem' };
