@@ -1994,7 +1994,7 @@
         }
 
         const sizes = {small: '20px', medium: '24px', large: '28px' };
-        const sizes = sizes[currentFontSize] || '24px';
+        const size = sizes[currentFontSize] || '24px';
 
         document.documentElement.style.fontSize = size;
         document.body.style.fontSize = size;
@@ -2062,7 +2062,7 @@
       }
 
       function loadSettings() {
-        const save = localStorage.getItem('app2026_settings');
+        const saved = localStorage.getItem('app2026_settings');
         if (saved) {
           const settings = JSON.parse(saved);
           currentTheme = settings.theme || 'dark';
