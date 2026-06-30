@@ -2000,12 +2000,6 @@
         document.documentElement.style.fontSize = size;
         document.body.style.fontSize = size;
 
-        localStorage.setItem('app2026_settings', JSON.stringify ({
-          theme : currentTheme,
-          category : currentCategory,
-          fontSize : currentFontSize
-        }));
-
         closeModal();
       }
         
@@ -2062,19 +2056,7 @@
         }
       }
 
-      function loadSettings() {
-        const saved = localStorage.getItem('app2026_settings');
-        if (saved) {
-          const settings = JSON.parse(saved);
-          currentTheme = settings.theme || 'dark';
-          currentCategory = settings.category || 'default';
-          currentFontSize = settings.fontSize || 'medium';
-          applySettings()
-        }
-      }
-
-      document.addEventListener('DOMContentLoaded', loadSettings);
-
+      
       
       
     
