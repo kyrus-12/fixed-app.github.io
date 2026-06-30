@@ -1994,10 +1994,10 @@
         }
 
         const sizes = {small: '20px', medium: '24px', large: '28px' };
-        const sizes = sizes[currentFontSize] || '24px';
+        document.body.style.fontSize = sizes[currentFontSize] || '24px';
 
-        document.documentElement.style.fontSize = sizes;
-        document.body.style.fontSize = sizes;
+        document.documentElement.style.fontSize = size;
+        document.body.style.fontSize = size;
 
         localStorage.setItem('app2026_settings', JSON.stringify ({
           theme : currentTheme,
