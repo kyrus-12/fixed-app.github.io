@@ -142,7 +142,7 @@
         border-radius:14px;
         max-width:90%;
         line-height:1.6;
-        font-size:0.9rem;
+        font-size:0.9em;
       }
       .bot-message{
         background:rgba(96,165,250,0.08);
@@ -246,7 +246,7 @@
       .lesson-body{
         color:#cbd5e1;
         line-height:1.7;
-        font-size:0.9rem;
+        font-size:0.9em;
       }
       .lesson-image{
         max-width:100%;
@@ -285,7 +285,7 @@
         border-radius:0.65rem;
         padding:0.6rem 0.9rem;
         font-family:inherit;
-        font-size:0.9rem;
+        font-size:0.9em;
         resize:none;
         min-height:44px;
         max-height:120px;
@@ -465,7 +465,7 @@
       }
       .modal-section p, .modal-section li{
         color:#cbd5e1;
-        font-size:0.9rem;
+        font-size:0.9em;
         line-height:1.6;
       }
       .lab-grid{
@@ -1993,8 +1993,11 @@
           document.documentElement.setAttribute('data-theme', 'dark');
         }
 
-        const sizes = {small: '1rem', medium: '1.5rem', large: '2rem' };
-        document.body.style.fontSize = sizes[currentFontSize] || '16px';
+        const sizes = {small: '14px', medium: '16px', large: '20px' };
+        const size = sizes[currentFontSize] || '16px';
+
+        document.documentElement.style.fontSize = size;
+        document.body.style.fontSize = size;
 
         closeModal();
       }
