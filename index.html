@@ -593,6 +593,8 @@
 
         .text-blue-300 {color:#ffffff;}
 
+        .text-blue-400 {color:#111827;}
+
         .bot-message {
           background:#f3f4f6;
           color:#111827;
@@ -1264,7 +1266,7 @@
         const contentDiv = document.getElementById('lesson-content');
         
         let html = `<div class="fade-in">`;
-        html += `<h2 class="text-xl font-bold text-gray-400 mb-4">${moduleData.title}</h2>`;
+        html += `<h2 class="text-xl font-bold text-blue-400 mb-4">${moduleData.title}</h2>`;
         
         moduleData.modules.forEach((mod, modIdx) => {
           if(mod.type === 'text'){
