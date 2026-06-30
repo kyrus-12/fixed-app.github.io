@@ -1542,9 +1542,11 @@
             
             let userMapped = userLower;
             if(letterMap[userLower]) userMapped = letterMap[userLower];
+
+            let correctMapped = correctLower;
             if(letterMap[correctLower]) correctMapped = letterMap[correctLower];
             
-            isCorrect = userMapped === correctLower || userLower === correctLower;
+            isCorrect = userMapped === correctMapped || userLower === correctLower;
             break;
           
           case 'truefalse':
