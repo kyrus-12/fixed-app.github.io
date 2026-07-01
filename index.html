@@ -1945,6 +1945,7 @@
       let currentTheme = 'dark';
       let currentFontSize = 'medium';
       let currentCategory = 'default';
+      let currentImageCategory = 'none';
 
       function showSettingsModal() {
         const html = `
@@ -1964,6 +1965,16 @@
         <div class="theme-btn ${currentCategory === 'sunset' ? 'selected' : ''}" style="background:linear-gradient(135deg, #2a0a0a, #9a3412); color:#ffedd5;" onclick="setCategory('sunset')">Sunset</div>
         <div class="theme-btn ${currentCategory === 'galaxy' ? 'selected' : ''}" style="background:linear-gradient(135deg, #1a0a2e, #6b21a8); color:#f3e8ff;" onclick="setCategory('galaxy')">Galaxy</div>
         <div class="theme-btn ${currentCategory === 'minimal' ? 'selected' : ''}" style="background:linear-gradient(135deg, #18181b, #3f3f46); color:#fafafa;" onclick="setCategory('minimal')">Minimal</div>
+        </div>
+        </div>
+        <div class="modal-section">
+        <h4>Background Image</h4>
+        <div class="theme-grid">
+        <div class="theme-btn ${currentImageCategory === 'none' ? 'selected' : ''}" style="background:linear-gradient(135deg, #1a1a2e, #16213e); color:#e6f0ff;" onclick="setImageCategory('none')">None</div>
+        <div class="theme-btn ${currentImageCategory === 'abstract' ? 'selected' : ''}" style="background:url('https://i.imgur.com/mGB6Bkk.gif?w=200&h=100&fit=crop') center/cover; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.8);" onclick="setImageCategory('abstract')">Abstract</div>
+        <div class="theme-btn ${currentImageCategory === 'nature' ? 'selected' : ''}" style="background:url('https://i.imgur.com/pNm8Jbj.gif?w=200&h=100&fit-crop') center/cover; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.8);" onclick="setImageCategory('nature')">Nature</div>
+        <div class="theme-btn ${currentImageCategory === 'space' ? 'selected' : ''}" style:"background:url('https://i.imgur.com/QGSBUhi.gif?w=200&h=100&fit-crop') center/cover; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.8);" onclick="setImageCategory('space')">Space</div>
+        <div class="theme-btn ${currentImageCategory === 'geometric' ? 'selected' : ''}" style="background:url('https://i.imgur.com/lpAG8Gm.gif?w=200&h=100&fit-crop') center/cover; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.8);" onclick="setImageCategory('geometric')">Geometric</div>
         </div>
         </div>
         <div class="modal-section">
@@ -1989,7 +2000,32 @@
 
       function setCategory(cat) {
         currentCategory = cat;
-        document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('selected'));
+        currentImageCategory = 'none';
+        
+        document.querySelectorAll('.theme-grid:first-of-type .theme-btn').forEach(btn => {
+          btn.classList.remove('selected');
+        });
+
+        document.querySelectorAll('.theme-grid:nth-of-type(2) .theme-btn').forEach(btn => {
+          btn.classList.remove('selected');
+        });
+
+        event.target.classList.add('selected');
+        applySettings();
+      }
+
+
+      function setImageCategory() {
+        currentImageCategory = cat;
+        
+        document.querySelectorAll('.theme-grid:first-of-type .theme-btn').forEach(btn => {
+          btn.classList.remove('selected');
+        });
+
+        document.querySelectorAll('.theme-grid:nth-of-type(2) .theme-btn').forEach(btn => {
+          btn.classList.remove('selected');
+        });
+
         event.target.classList.add('selected');
         applySettings();
       }
@@ -2013,6 +2049,15 @@
           minimal: {primary: '#71717a', primaryDark: '#3f3f46', glow: '#a1a1aa', bg: '#18181b', card: '#27272a', text: '#fafafa' }
         };
 
+        const images = {
+          none: null,
+          abstract: 'url("https://i.imgur.com/mGB6Bkk.gif")',
+          nature: 'url("https://i.imgur.com/pNm8Jbj.gif")',
+          space: 'url("https://i.imgur.com/QGSBUhi.gif")',
+          geometric: 'url("https://i.imgur.com/lpAG8Gm.gif")'
+        };
+            
+
         const t = themes[currentCategory] || themes.default;
         root.style.setProperty('--color-primary', t.primary);
         root.style.setProperty('--color-primary-dark', t.primaryDark);
@@ -2020,6 +2065,21 @@
         root.style.setProperty('--bg', t.bg);
         root.style.setProperty('--card', t.card);
         root.style.setProperty('--text', t.text);
+
+        if (currentImageCategory === 'none') {
+          root.style.setProperty('--bg', t.bg);
+          root.style.setProperty('--card', t.card);
+          document.body.style.backgroundImage = 'none';
+          document.body.style.backgroundColor = t.bg;
+        } else {
+          const img = images[currentImageCategory];
+          document.body.style.backgroundImage = img;
+          document.body.style.backgroundSize = 'cover';
+          document.body.style.backgroundPosition = 'center';
+          document.body.style.backgroundAttachment = 'fixed';
+
+          root.style.setProperty('--card', 'rgba(15, 23, 36, 0.85)';
+          ro0t.style.setProperty('--bg', 'transparent');
 
         if(currentTheme === 'light') {
          document.documentElement.setAttribute('data-theme', 'light');
