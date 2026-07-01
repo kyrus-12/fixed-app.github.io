@@ -2084,8 +2084,8 @@
           document.body.style.backgroundAttachment = 'fixed';
 
           if (currentTheme === 'dark') {   
-            root.style.setProperty('--text', 'black');
-            root.style.setProperty('--bg', 'transparent');
+            
+            root.style.setProperty('--bg', '#111827');
 
             document.querySelectorAll('.section, .card, main').forEach(el => {
               el.style.backdropFilter = 'blur(50px) saturate(160%)';
