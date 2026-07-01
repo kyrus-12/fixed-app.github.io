@@ -595,6 +595,8 @@
 
         .text-blue-400 {color:#111827;}
 
+        .text-white-300 {color:#111827;}
+
         .bot-message {
           background:#f3f4f6;
           color:#111827;
@@ -1368,7 +1370,7 @@
           <div class="flex items-center gap-2 text-green-400 font-bold mb-1">
           <span>✅</span>Correct!
           </div>
-          <div class="text-gray-300 text-sm">${explanation}</div>
+          <div class="text-white-300 text-sm">${explanation}</div>
           </div>`;
         } else {
           const correctText = allButtons[correctIndex].textContent.trim();
@@ -1377,8 +1379,8 @@
           <div class="flex items-center gap-2 text-red-400 font-bold mt-1">
           <span>❌</span>Not Quite
           </div>
-          <div class="text-gray-300 text-sm mb-1">The correct answer is: <b>${correctText}</b></div>
-          <div class="text-gray-300 text-sm">${explanation}</div>
+          <div class="text-white-300 text-sm mb-1">The correct answer is: <b>${correctText}</b></div>
+          <div class="text-white-300 text-sm">${explanation}</div>
           </div>`;
         }
       }
