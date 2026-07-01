@@ -2071,6 +2071,11 @@
           root.style.setProperty('--card', t.card);
           document.body.style.backgroundImage = 'none';
           document.body.style.backgroundColor = t.bg;
+
+          document.querySelectorAll('.section, .card, main').forEach(el => {
+            el.style.backdropFilter = '';
+            el.style.webkitBackdropFilter = '';
+          });
         } else {
           const img = images[currentImageCategory];
           document.body.style.backgroundImage = img;
