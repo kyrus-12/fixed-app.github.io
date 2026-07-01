@@ -2084,6 +2084,7 @@
           document.body.style.backgroundAttachment = 'fixed';
 
           if (currentTheme === 'dark') {   
+            root.style.setProperty('--text', 'black');
             root.style.setProperty('--bg', 'transparent');
 
             document.querySelectorAll('.section, .card, main').forEach(el => {
