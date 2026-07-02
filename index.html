@@ -40,7 +40,7 @@
       body.has-image-bg:before {
         opacity:1;
       }
-      body.has-image-bg .lesson container,
+      body.has-image-bg .lesson-container,
       body.has-image-bg .chat-area {
         background:rgba(15,23,36,0.75);
         backdrop-filter:blur(8px) saturate(120%);
@@ -2064,6 +2064,7 @@
 
       function applySettings() {
         const root = document.documentElement;
+        const body = document.body;
 
         const themes = {
           default: {primary: '#3b82f6', primaryDark: '#1e3a8a', glow: '#60a5fa', bg: '#0b1220', card: '#0f1724', text:'#e6f0ff' },
