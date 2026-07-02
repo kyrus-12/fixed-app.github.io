@@ -27,27 +27,18 @@
         -webkit-font-smoothing:antialiased;
         -moz-osx-font-smoothing:grayscale;
       }
-      body:before {
-        content: '';
-        position:fixed;
-        inset: 0;
-        z-index: -1;
-        background:rgba(11,18,32,0.55);
-        pointer-events:none;
-        opacity:0;
-        transition: opacity 0.3s ease;
-      }
+      
       body.has-image-bg:before {
         opacity:1;
       }
-      body.has-image-bg .lesson-container,
-      body.has-image-bg .chat-area {
+      [data-theme='dark']body.has-image-bg .lesson-container,
+      [data-theme='dark']body.has-image-bg .chat-area {
         background:rgba(15,23,36,0.75);
         backdrop-filter:blur(8px) saturate(120%);
         -webkit-backdrop-filter:blur(8px) saturate(120%);
         border-color:rgba(96,165,250,0.12);
       }
-      body.has-image-bg .card {
+      [data-theme='dark']body.has-image-bg .card {
         background:rgba(15,23,36,0.7);
         backdrop-filter:blur(6px);
         -webkit-backdrop-filter:blur(6px);
@@ -2111,10 +2102,13 @@
           body.style.backgroundPosition = 'center';
           body.style.backgroundAttachment = 'fixed';
 
+          root.style.setProperty('--bg', t.bg);
+          root.style.setProperty('--card', t.card);
+
           if (currentTheme === 'dark') {   
             
             root.style.setProperty('--bg', 'transparent');
-
+          
             document.querySelectorAll('.section, .card, main').forEach(el => {
               el.style.backdropFilter = 'blur(12px) saturate(160%)';
               el.style.webkitBackdropFilter = 'blur(12px) saturate(160%)';
