@@ -27,7 +27,16 @@
         -webkit-font-smoothing:antialiased;
         -moz-osx-font-smoothing:grayscale;
       }
-      
+      body:before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background: rgba(7,11,20,0.82);
+        pointer-events:none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }     
       body.has-image-bg:before {
         opacity:1;
       }
