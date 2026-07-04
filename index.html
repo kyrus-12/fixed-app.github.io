@@ -1422,6 +1422,34 @@
             <div id="${mcqId}-feedback" class="hidden mt-3"></div>
             </div>
             </div>`;
+          } 
+          else if(mod.type === 'tally'){
+
+            const params = new URLSearchParams();
+            if(mod.options?.hideTitle) params.append('hideTitle', '1');
+            if(mod.options?.transparentBackground) params.append('transparentBackground', '1');
+            if(mod.options?.dynamicHeight) params.append('dynamicHeight', '1');
+            if(mod.options?.alignLeft) params.append('alignLeft', '1');
+
+            const queryString = params.toString();
+            const embedUrl = `https://tally.so/embed/${mod.formId}${queryString ? '?' + queryString : ''}`;
+
+            html += `<div class="lesson-section">
+            <div class="lesson-heading">${mod.heading || 'Form'}</div>
+            <div class="media-wrapper">
+            <iframe 
+            src="${embedUrl}"
+            width="100%"
+            height="${mod.options?.height || '500'}"
+            frameborder="0"
+            marginheight="0"
+            marginwidth="0"
+            title="${mod.heading || 'Tally Form'}
+            style="border-radius:0.5rem; background:transparent;"
+            loading="lazy">
+            </iframe>
+            </div>
+            <div>`;
           }
             
         });
