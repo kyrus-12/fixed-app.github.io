@@ -1062,7 +1062,7 @@
       const skillQuestions = {
         chemistry_1: {
           'Lesson 1 - Use of Models': [
-            {type:'identification', q:'What tool do scientists use for complex ideas?', a:'models'},
+            {type:'identification', q:'What tool do scientists use for complex ideas?', a:'models', media:{type:'image', url:'https://i.imgur.com/lpAG8Gm.jpg', caption:''}},
             {type:'truefalse', q:'A globe is a scientific model. (true/false)', a:'true'},
             {type:'fillblank', q:'All matter is made of tiny _____.', a:'particles'},
             {type:'multiplechoice', q:'Which of these is a scientific model? (A) A real car (B) A toy car (C) A photograph (D) A mirror', a:'B'},
@@ -1148,7 +1148,7 @@
               {type:'image', url:'https://i.imgur.com/FnpD99w.gif', caption:'Earth Globe'},
               {type:'text', heading:'Summary', body:'Scientists use models to explain concepts that are hard to show directly.'},
 
-              {type:'mcq', question:'Which of these is not a scientific model?', options:["A globe of earth", "A water cycle diagram", "A real car", "A toy car"], correctAnswer: 2, explanation:"A real car is not a model - it is the actual object.", media:{type:'image', url:'https://i.imgur.com/lpAG8Gm.jpg', caption:'Basta ha'}}
+              {type:'mcq', question:'Which of these is not a scientific model?', options:["A globe of earth", "A water cycle diagram", "A real car", "A toy car"], correctAnswer: 2, explanation:"A real car is not a model - it is the actual object.", media:{type:'image', url:'https://i.imgur.com/lpAG8Gm.jpg', caption:''}}
             ]
           },
           'the particle model': {
@@ -1404,8 +1404,8 @@
             <div class="lesson-heading">Quick Check</div>
             <div class="lesson-body">
             <div class="qtype-badge qtype-multiplechoice mb-2">Multiple Choice</div>
-            ${mediaHtml}
             <div class="text-blue-100 font-medium mb-3">${mod.question}</div>
+            ${mediaHtml}
             <div class="flex flex-col gap-2" id="${mcqId}-options">`;
 
             mod.options.forEach((opt, optIdx) => {
