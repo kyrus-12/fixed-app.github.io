@@ -1746,15 +1746,18 @@
           userAnswer: userAnswer,
           correctAnswer: q.a,
           isCorrect: isCorrect,
-          type: q.type
+          type: q.type,
+          explanation: q.explanation || ''
         });
         
         addTypingIndicator();
         setTimeout(() => {
           removeTypingIndicator();
           if(isCorrect){
+            const exp = q.explanation ?`\n\n 🧠 ${q.explanation}` : '';
             addChatMessage('bot', `✅ Correct! The answer is: ${q.a}`);
           } else {
+            const exp = q.explanation ?`\n\n 🧠 ${q.explanation}` : '';
             addChatMessage('bot', `❌ Not quite right. The correct answer is: ${q.a}`);
           }
           updateQuizProgress();
@@ -1918,11 +1921,16 @@
           const status = h.isCorrect ? '✅ Correct' : '❌ Wrong';
           const cardClass = h.isCorrect ? 'review-correct' : 'review-wrong';
           const typeLabel = h.type ? `[${h.type.toUpperCase()}] ` : '';
+
+          const explanationHtml = h.explanation ?
+            `<div class="text-xs text-gray-400 mt-2 p-2 bg-black/20 rounded"><b>🧠 Explanation: </b> ${h.explanation}</div>` : '';
+          
           html += `<div class="review-card ${cardClass}">
           <div class="text-xs text-gray-400 mb-1">Question ${idx+1} ${typeLabel}</div>
           <div class="text-sm text-blue-100 mb-1">${h.question}</div>
           <div class="text-sm ${h.isCorrect ? 'text-green-400' : 'text-red-400'}"><b>Your answer:</b> ${h.userAnswer}</div>
           ${!h.isCorrect ? `<div class="text-sm text-green-400"><b>Correct answer:</b> ${h.correctAnswer}</div>` : ''}
+          ${explanationHtml}
           <div class="text-xs ${h.isCorrect ? 'text-green-400' : 'text-red-400'} mt-1 font-bold">${status}</div>
           </div>`;
         });
